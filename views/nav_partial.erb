@@ -1,0 +1,113 @@
+<% if (MONITOR_EVENT_TYPES.size > 0 || AuditRecord.count(:event_type => MONITOR_EVENT_TYPES) > 0) && (admin? || canAuditMonitors?) %>
+      <li><a href="/auditMonitors"><i class="fa fa-eye" style="width:20px;"></i> Monitor Alerts 
+        <% if !@unaudited_mts.nil? && @unaudited_mts > 0 %><span class="badge" id="auditsBadge" style="margin-left:5px;"><%=@unaudited_mts.to_s%></span><% end %>
+      </a></li>
+      <% end %><!-- Sidebar -->
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <!-- Brand and toggle get grouped for better mobile display -->
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="/"><i class="fa fa-user-secret fa-lg" style="margin-right:4px;"></i> Vulnreport</a>
+  </div>
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse">
+    <ul class="nav navbar-nav side-nav">
+      <li><a href="/"><i class="fa fa-dashboard" style="width:20px;"></i> Dashboard</a></li>
+
+      <% if !reports_only? %>
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-edit" style="width:20px;"></i> Reviews <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="/reviews/active"><i class="fa fa-retweet" style="width:20px;"></i> All Active Reviews</a></li>
+          <li><a href="/reviews/my"><i class="fa fa-edit" style="width:20px;"></i> My Reviews</a></li>
+          <li><a href="/reviews/all"><i class="fa fa-globe" style="width:20px;"></i> All Reviews</a></li>
+          <li><a href="/reviews/new"><i class="fa fa-plus" style="width:20px;"></i> New Review</a></li>
+        </ul>
+      </li>
+      <% end %>
+
+      <% if canUseReports? %>
+      <li><a href="/reports"><i class="fa fa-bar-chart-o" style="width:20px;"></i> Reports</a></li>
+      <% end %>
+
+      <% if (MONITOR_EVENT_TYPES.size > 0 || AuditRecord.count(:event_type => MONITOR_EVENT_TYPES) > 0) && (admin? || canAuditMonitors?) %>
+      <li><a href="/auditMonitors"><i class="fa fa-eye" style="width:20px;"></i> Monitor Alerts 
+        <% if !@unaudited_mts.nil? && @unaudited_mts > 0 %><span class="badge" id="auditsBadge" style="margin-left:5px;"><%=@unaudited_mts.to_s%></span><% end %>
+      </a></li>
+      <% end %>
+
+      <% if admin? %>
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-gears" style="width:20px;"></i> Settings <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="/admin/settings"><i class="fa fa-cog" style="width:20px;"></i> VR Settings</a></li>
+          <li><a href="/admin/users"><i class="fa fa-user" style="width:20px;"></i> Users</a></li>
+          <li><a href="/admin/orgs"><i class="fa fa-group" style="width:20px;"></i> Orgs</a></li>
+          <li><a href="/admin/vulntypes"><i class="fa fa-cubes" style="width:20px;"></i> Types</a></li>
+        </ul>
+      </li>
+      <% end %>
+
+    </ul>
+    <ul class="nav navbar-nav navbar-right navbar-user">
+      <li class="dropdown user-dropdown" style="padding-top:2px;">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> <%=h(@session[:name].split(" ").first)%> <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="/usersettings"><i class="fa fa-gear"></i> Settings</a></li>
+          <li><a href="/userdash"><i class="fa fa-bar-chart"></i> User Dash</a></li>
+          <li><a href="/help"><i class="fa fa-question"></i> Documentation</a></li>
+          <li class="divider"></li>
+          <li><a href="/logout"><i class="fa fa-power-off"></i> Log Out</a></li>
+        </ul>
+      </li>
+
+      <li class="dropdown" style="margin-right:0px; padding-top:2px; width:54px;">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="notifIcon">
+          <i class="fa fa-comment fa-lg"></i>
+          <% if !@user_notifs.nil? && @user_notifs.length > 0%>
+            <span class="badge" style="background-color:#dc0d17; position:absolute; top:7px; left:25px; font-size:8pt; padding:3px 5px; border-radius:7px; float:left;" id="notifBadge">
+              <%=@user_notifs.length%>
+            </span>
+          <% end %>
+        </a>
+
+        <ul class="dropdown-menu" role="menu" aria-labelledby="notifIcon">
+          <% if !@user_notifs.nil? && @user_notifs.length > 0%>
+            <% @user_notifs.each_with_index do |n, i| %>
+              <li>
+                <a href="<%=n.link%>" style="padding-left:6px;">
+                  <%=h(n.body)%>
+                  <% if n.renewed_count > 0 %><span class="badge" style="position:relative; top:-1px; margin-left:2px;"><%=n.renewed_count+1%></span><%end%>
+                </a>
+              </li>
+              <li class="divider" style="margin-top:0px; margin-bottom:0px;"></li>
+            <% end %>
+          <% else %>
+            <li><a>No new notifications</a></li>
+            <li class="divider" style="margin-top:0px; margin-bottom:0px;"></li>
+          <% end %>
+          <li style="text-align:center;">
+            <a href="/viewAllNotifs"><small><i>View all notifications</i></small></a>
+        </ul>
+      </li>
+
+      <li style="height:55px; padding-top:9px; margin-right:12px;">
+        <form role="form" action="/search" method="GET">
+          <div class="form-group input-group" style="width:275px;">
+            <input type="text" class="form-control typeahead typeaheadInput" size="30" placeholder="Search or EID" id="searchInput" name="searchInput" style="margin-right:6px;">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="submit">
+                <i class="fa fa-search"></i>
+              </button>
+            </span>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </div><!-- /.navbar-collapse -->
+</nav>

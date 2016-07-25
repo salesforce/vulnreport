@@ -1,0 +1,65 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>VulnTypes <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li class="active"><i class="fa fa-wrench"></i> VulnTypes</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :admin_types_nav_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <span style="font-size:12pt;"><i class="fa fa-wrench"></i> VulnTypes</span>
+        <span style="position:absolute;right:25px;">
+          <a href="/admin/vulntypes/new" style="color:#FFF;"><i class="fa fa-plus"></i> New VulnType</a>
+        </span>
+      </div>
+      <div class="panel-body">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th style="width:5%"><b>Enabled</b></th>
+              <th style="width:5%"><b>HTML</b></th>
+              <th style="width:10%"><b>Priority</b></th>
+              <th style="width:10%"><b>CWE ID</b></th>
+              <th style="width:35%"><b>Name</b></th>
+              <th style="width:35%"><b>Label</b></th>
+            </tr>
+          </thead>
+
+          <% @vulnTypes.sort{ |x,y| x.name <=> y.name}.each do |vt| %>
+          <tr id="vt_<%=vt.id%>">
+            <td style="width:5%; text-align:center;">
+              <% if vt.enabled %>
+                <i class="fa fa-check" style="color:#009933;"></i>
+              <% else %>
+                <i class="fa fa-times" style="color:#B40404;"></i>
+              <% end %>
+            </td>
+            <td style="width:5%; text-align:center;">
+              <% if !vt.html.nil? && !vt.html.strip.empty? %>
+                <i class="fa fa-check" style="color:#009933;"></i>
+              <% else %>
+                <i class="fa fa-times" style="color:#B40404;"></i>
+              <% end %>
+            </td>
+            <td style="width:10%"><%=vulnPriorityToString(vt.priority, nil)%></td>
+            <td style="width:10%;"><% if !vt.cwe_mapping.nil? && vt.cwe_mapping > 0 %><a href="<%=vt.cwe_link%>" target="_blank"><%=vt.cwe_mapping%></a><% end %></td>
+            <td style="width:35%"><a href="/admin/vulntypes/<%=vt.id%>"><%=h(vt.name)%></a></td>
+            <td style="width:35%"><%=h(vt.getLabel)%></td>
+          </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

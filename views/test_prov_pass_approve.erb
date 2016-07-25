@@ -1,0 +1,67 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@test.name)%> <small>Security Test for <%=h(@app.name)%></small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li class="active"><i class="fa fa-edit"></i> <%=h(@test.name)%></li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+
+<div class="row" style="margin-top:0px;">
+  <div class="col-lg-12">
+    <h4>Approve Provisional Pass</h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+  </div>
+</div>
+
+<div class="row" style="margin-top:0px;">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-5">
+    <form method="POST" action="/tests/<%=@test.id%>/provPassApprove">
+    <%= csrf_tag %>
+    <input type="hidden" name="newstatus" value="<%=@newstatus%>" />
+    <p>You are <b>approving</b> a <span style="color:EEA236;">provisional pass</span> for <b><%=@app.name%> - <%=@test.name%></b>. Any vulnerabilities currently attached to the test will be sent to the partner and they will be required to remediate those issues within the specified timeframe.</p>
+    
+    <b>Requested by: </b><%=h(@ppReqUser.name)%>
+    <br />
+    <b>Suggested Remediate-By date: </b><%=@test.provPassExpiry.strftime('%-m/%-d/%Y')%>
+    <br />
+    <b>Justification:</b>
+    <p style="margin-left:20px;"><%=h(@ppReqJustif).gsub(/\n/, "<br />")%></p>
+
+    <p>If you approve of this provisional pass, please make any notes and confirm the required remediation timeline below. This action will be recorded for audit.</p>
+    
+    <textarea name="ppApprovalNotes" rows="4" style="width:450px;" placeholder="Provisional Pass Approval Notes"></textarea>
+    
+    <br /><br />
+    Required remedaition timeline: 
+    <select name="ppRemediation">
+      <option value="1" <% if (@test.provPassExpiry - Date.today).to_i <= 31 || (@test.provPassExpiry - Date.today).to_i > 93 %>selected<%end%>>1 Month</option>
+      <option value="2" <% if (@test.provPassExpiry - Date.today).to_i <= 62 && (@test.provPassExpiry - Date.today).to_i > 31 %>selected<%end%>>2 Months</option>
+      <option value="3" <% if (@test.provPassExpiry - Date.today).to_i <= 93 && (@test.provPassExpiry - Date.today).to_i > 62 %>selected<%end%>>3 Months</option>
+    </select>
+
+    <br /><br />
+    <center>
+      <% if @test.application.recordType.isLinked && @test.application.isLinked? %>
+        <br /><br />
+        Linked Object (<%=@test.application.getVRLO.vrlo_name%>) Actions? <input type="checkbox" name="vrloActions" rel="switch" data-size="small" data-on-text="Yes" data-off-text="No" checked>
+        <i class="fa fa-question-circle" rel="tooltip" title="Recommended. This will fire all registered linked object actions"></i>
+        <br /><br />
+        <small><i>Provisional Pass email will automatically be sent to the partner</i></small>
+      <% end %>
+    
+      <br />
+      <button type="submit" class="btn btn-success" name="confirm" value="confirm">Confirm</button>
+      <button type="submit" class="btn btn-danger" name="confirm" value="cancel">Cancel</button>
+    </center>
+  </div>
+  <div class="col-lg-6"></div>
+</div>
+
+<%= erb :footer_partial %>

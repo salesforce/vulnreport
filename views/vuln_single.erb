@@ -1,0 +1,518 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+      <% if @fromNotif %>
+      $('#commentModal').modal('show');
+      <% end %>
+
+      $('#commentModal').on('shown.bs.modal', function(){
+        $.post("/markCommentsRead/v/"+<%=@vuln.id%>, 
+          { _csrf: "<%=csrf_token%>", ajax: true},
+          function(){
+            $("#commentBadge").remove();
+          }
+        ).fail(function(){
+          console.log("Error marking comments read");
+        });
+      });
+
+      $('#cweDDForm').click(function(e){
+        e.stopPropagation();
+      });
+    });
+
+    $(function () {
+        $( "#vdData" ).sortable({
+          handle: ".sortHandle",
+          start: function(e,u){
+            u.item.data("start_idx", u.item.index());
+          },
+          stop: function(e,u){
+            var startIdx = u.item.data('start_idx');
+            var newIdx = u.item.index();
+            var sid = u.item[0].id.split("_")[1]
+            
+            if(startIdx != newIdx){
+              var newOrder = [];
+              $("#vdData").children(".vulnSection").each(function(idx){ newOrder.push($(this)[0].id.split("_")[1]); });
+              $.post("/tests/<%=@test.id%>/<%=@vuln.id%>/reorder", 
+                { _csrf: "<%=csrf_token%>", 'order[]': newOrder}
+              ).fail(function(){
+                alert("Error saving new order");
+              });
+            }
+          }
+        });
+    });
+
+    function toggleSect(s){
+      var data = $('#'+s+'Data');
+      var icon = $('#'+s+'Icon');
+      if(data.css('display') == 'none'){
+        data.show();
+        icon.removeClass('fa-plus-square');
+        icon.addClass('fa-minus-square');
+      }else{
+        data.hide();
+        icon.removeClass('fa-minus-square');
+        icon.addClass('fa-plus-square');
+      }
+    }
+
+    var origContent = {};
+
+    function makeSectionEdit(sid, vid, tid, size){
+      if($("#section_body_"+sid).children().length > 0 && $("#section_body_"+sid).children()[0].nodeName == "PRE"){
+        var content = $("#section_body_"+sid).children().first().html().trim();
+        window.origContent[sid] = "<PRE>" + content + "</PRE>";
+      }else{
+        var content = $("#section_body_"+sid).html().trim();
+        window.origContent[sid] = content;
+        content = content.replace(/<br>/g, "");
+      }
+      window.origContent[sid+"_size"] = size;
+      var lines = content.split("\n").length;
+      lines = (lines > 4) ? lines+4 : 6;
+
+      if(size == "small"){
+        $("#section_body_"+sid).html("<form enctype='multipart/form-data' action='/tests/"+tid+"/"+vid+"/"+sid+"/edit' method='POST'><input type='hidden' name='_csrf' value='<%=csrf_token%>' /><input type='text' size='100' name='newBody' value='"+content+"'><input type='Submit' value='Save'><button type='button' onclick='cancelSectionEdit("+sid+")'>Cancel</button></form>");
+      }else{
+        $("#section_body_"+sid).html("<form enctype='multipart/form-data' action='/tests/"+tid+"/"+vid+"/"+sid+"/edit' method='POST'><input type='hidden' name='_csrf' value='<%=csrf_token%>' /><textarea cols='120' rows='"+lines+"' name='newBody'>"+content+"</textarea><br /><input type='Submit' value='Save'><button type='button' onclick='cancelSectionEdit("+sid+")'>Cancel</button></form>");
+      }
+
+      $("#secEditIcon_"+sid).css("color", "#428bca");
+      $("#secEditIcon_"+sid).attr("onclick", "cancelSectionEdit("+sid+")");
+    }
+
+    function cancelSectionEdit(sid){
+      $("#section_body_"+sid).html(window.origContent[sid]);
+      $("#secEditIcon_"+sid).css("color", "#333333");
+      $("#secEditIcon_"+sid).attr("onclick", "makeSectionEdit("+sid+", <%=@vuln.id%>, <%=@test.id%>, '" + window.origContent[sid+"_size"] + "')");
+      delete window.origContent[sid];
+      delete window.origContent[sid+"_size"];
+    }
+
+    function copyVuln(e, vid){
+      $.get("/tests/doClipboard/vuln/"+vid,
+                function(data, textStatus, xhr){
+                  if(xhr.status == 204){
+                    $(".clipboardButton").removeClass("onClipboard");
+                    $(".pasteButton").addClass("inactive");
+                  }else{
+                    $(".clipboardButton").removeClass("onClipboard");
+                    $(e).addClass("onClipboard");
+                    $(".pasteButton").removeClass("inactive");
+                  }                  
+                }
+              ).fail(function(){
+                alert("Error copying vuln");
+              });
+    }
+
+    function deleteSection(sid, vid, tid){
+      if(confirm("Permanently delete this vuln data?")){
+        $.post("/tests/"+tid+"/"+vid+"/"+sid+"/delete", 
+                { confirm: "confirm", _csrf: "<%=csrf_token%>", ajax: true},
+                function(){
+                  $("#section_"+sid).remove();
+                }
+              ).fail(function(){
+                alert("Error deleting vuln data");
+              });
+      }
+    }
+
+    function checkSecSubmit(form){
+      var dataElem = $(form).find('input[type=text],input[type=file],textarea').first();
+      var data = $.trim(dataElem.val());
+
+      if(data == ""){
+        dataElem.parent().addClass("has-error");
+        setTimeout(function(){
+          dataElem.parent().removeClass("has-error");
+        }, 5000);
+        return false;
+      }else{
+        return true;
+      }
+    }
+
+    function checkInput(inp){
+      var newVal = $.trim($(inp).val());
+      if(newVal != ""){
+        $(inp).parent().addClass("has-success");
+      }else{
+        $(inp).parent().removeClass("has-success");
+      }
+    }
+
+    function multiSectionAdd(){
+      var multiForm = $("#multiForm");
+
+      $('[name="data"]').each(function(idx){
+        //console.log($(this));
+        if($.trim($(this).val()) != ""){
+          var clone = $(this).clone();
+          $(this).attr('name', $(this).attr('id')).css('display', 'none');
+          $(this).after(clone).appendTo(multiForm);
+        }
+      });
+
+      //console.debug();
+      multiForm.submit();
+    }
+
+    function starVuln(vid){
+      var star = $('#vulnStar');
+      if(star.hasClass("fa-star-o")){
+        $.post("/tests/<%=@test.id%>/"+vid+"/star", 
+                { _csrf: "<%=csrf_token%>", ajax: true},
+                function(){
+                  star.removeClass("fa-star-o");
+                  star.addClass("fa-star");
+                }
+              ).fail(function(){
+                alert("Error starring vuln");
+              });
+      }else{
+        $.post("/tests/<%=@test.id%>/"+vid+"/unstar", 
+                { _csrf: "<%=csrf_token%>", ajax: true},
+                function(){
+                  star.removeClass("fa-star");
+                  star.addClass("fa-star-o");
+                }
+              ).fail(function(){
+                alert("Error unstarring vuln");
+              });
+      }
+    }
+</script>
+
+<style>
+  .onClipboard{
+    color: #009933;
+  }
+
+  .inactive{
+    color: #C0C0C0;
+  }
+</style>
+
+<% if !@error.nil? && !@error.empty? %>
+<div class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  <%=@error%>
+</div>
+<% end %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@vuln.type_str)%> <small>Vulnerability for <%=h(@test.name)%></small></h1>
+
+    <% @nolocation = true %>
+    <% @vuln.sections.each do |s| %>
+      <% if s.type == SECT_TYPE::URL || s.type == SECT_TYPE::FILE %>
+        <% @nolocation = false %>
+      <% end %>
+    <% end %>
+
+    <% if @nolocation %>
+      <div class="alert alert-danger" style="margin-bottom:4px;">
+        <i class="fa fa-puzzle-piece"></i>
+        This vulnerability doesn't have location data - please add a URL or File section
+      </div>
+    <% end %>
+
+    <% if @vuln.vulntype == 0 && @vuln.priorityOverride.nil? %>
+      <div class="alert alert-danger" style="margin-bottom:4px;">
+        <i class="fa fa-puzzle-piece"></i>
+        This custom vulnerability type does not have a Risk Level set. Please set a Risk Level now.
+      </div>
+    <% end %>
+
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li><a href="/tests/<%=@test.id%>"><i class="fa fa-edit"></i> <%=h(@test.name)%></a></li>
+      <li class="active">
+        <a href="/tests/<%=@test.id%>/<%=@vuln.id%>/raw" style="color:inherit;"><i class="fa fa-exclamation"></i> <%=h(@vuln.type_str)%></a>
+        <i id="vulnStar" class="fa <% if @vuln.starred %>fa-star<%else%>fa-star-o<%end%>" style="cursor:pointer; margin-left:1px;" onclick="starVuln(<%=@vuln.id%>)"></i>
+      </li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <div id="vulnToolbar" style="margin: -6px 0px 10px 8px;">
+      <div class="btn-group">
+        <a data-toggle="dropdown" href="#" id="verifDD"><%=@vuln.status_icon%> <%=@vuln.status_text%> <i class="fa fa-angle-down" style="color:#000;"></i></a>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="statusDD">
+          <% if @vuln.verified && !@vuln.falsepos %>
+            <li style="color:#B40404; margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/<%=@vuln.id%>/unverify" style="color:#B40404;"><i class="fa fa-question"></i> Unverified</a></li>
+            <li style="color:#8A6D3B; margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/<%=@vuln.id%>/fp" style="color:#8A6D3B;"><i class="fa fa-bug"></i> False Positive</a></li>
+          <% elsif !@vuln.verified %>
+            <li style="color:#009933; margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/<%=@vuln.id%>/verify" style="color:#009933;"><i class="fa fa-check"></i> Verified</a></li>
+            <li style="color:#8A6D3B; margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/<%=@vuln.id%>/fp" style="color:#8A6D3B;"><i class="fa fa-bug"></i> False Positive</a></li>
+          <% else %>
+            <li style="color:#009933; margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/<%=@vuln.id%>/verify" style="color:#009933;"><i class="fa fa-check"></i> Verified</a></li>
+            <li style="color:#B40404; margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/<%=@vuln.id%>/unverify" style="color:#B40404;"><i class="fa fa-question"></i> Unverified</a></li>
+          <% end %>
+        </ul>
+      </div>
+       &nbsp;|&nbsp; 
+      <div class="btn-group">
+        <a data-toggle="dropdown" href="#" id="priorityDD">Risk: <%=vulnPriorityToString(@vuln.vuln_priority, @test.record_type)%> <i class="fa fa-angle-down" style="color:#000;"></i></a>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="priorityDD">
+          <li style="margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/<%=@vuln.id%>/priority/<%=VULN_PRIORITY::CRITICAL%>" <%if @vuln.vuln_priority == VULN_PRIORITY::CRITICAL%>style="font-weight:bold;"<%end%>><%=vulnPriorityToString(VULN_PRIORITY::CRITICAL, @test.record_type)%></a></li>
+          <li style="margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/<%=@vuln.id%>/priority/<%=VULN_PRIORITY::HIGH%>" <%if @vuln.vuln_priority == VULN_PRIORITY::HIGH%>style="font-weight:bold;"<%end%>><%=vulnPriorityToString(VULN_PRIORITY::HIGH, @test.record_type)%></a></li>
+          <li style="margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/<%=@vuln.id%>/priority/<%=VULN_PRIORITY::MEDIUM%>" <%if @vuln.vuln_priority == VULN_PRIORITY::MEDIUM%>style="font-weight:bold;"<%end%>><%=vulnPriorityToString(VULN_PRIORITY::MEDIUM, @test.record_type)%></a></li>
+          <li style="margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/<%=@vuln.id%>/priority/<%=VULN_PRIORITY::LOW%>" <%if @vuln.vuln_priority == VULN_PRIORITY::LOW%>style="font-weight:bold;"<%end%>><%=vulnPriorityToString(VULN_PRIORITY::LOW, @test.record_type)%></a></li>
+          <li style="margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/<%=@vuln.id%>/priority/<%=VULN_PRIORITY::INFORMATIONAL%>" <%if @vuln.vuln_priority == VULN_PRIORITY::INFORMATIONAL%>style="font-weight:bold;"<%end%>><%=vulnPriorityToString(VULN_PRIORITY::INFORMATIONAL, @test.record_type)%></a></li>
+        </ul>
+      </div>
+       &nbsp;|&nbsp; 
+      <div class="btn-group">
+        <a data-toggle="dropdown" href="#" id="cweDD">CWE: <% if !@vuln.cwe_mapping.nil? %><%=@vuln.cwe_mapping%><% else %>None<% end %> <i class="fa fa-angle-down" style="color:#000;"></i></a>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="cweDD">
+          <form action="/tests/<%=@test.id%>/<%=@vuln.id%>/updateCwe" method="POST" id="cweDDForm" class="form-inline">
+            <%= csrf_tag %>
+            <li style="margin-left:10px; margin-right:10px;">
+              <input class="form-control" type="text" style="width:80px; height:30px;" name="cweOverride" value="<%=@vuln.cwe_mapping%>" />
+              <button class="btn btn-sm btn-default" type="submit" name="cweOverrideSubmit">Save</button>
+            </li>
+          </form>
+        </ul>
+        </form>
+      </div>
+       &nbsp;|&nbsp; 
+      <a href="/tests/<%=@test.id%>/<%=@vuln.id%>/edit"><i class="fa fa-pencil"></i> Edit</a>
+       &nbsp;|&nbsp; 
+      <a href="#" data-toggle="modal" data-target="#commentModal">
+        <%if @unreadComments > 0%><span class="badge" style="background-color:#337AB7;" id="commentBadge"><%=@unreadComments%></span> <%end%>Comments (<%=@comments.length%>)
+      </a>
+       &nbsp;|&nbsp; 
+      <% if !@session[:clipboard].nil? && @session[:clipboard][:type] == LINK_TYPE::VULN && @session[:clipboard][:id] == @vuln.id%>
+        <a onclick="copyVuln(this, <%=@vuln.id%>)" class="clipboardButton onClipboard"><i class="fa fa-copy clipboardButton"></i> Copy Vuln</a>
+      <% else %>
+        <a onclick="copyVuln(this, <%=@vuln.id%>)" class="clipboardButton"><i class="fa fa-copy clipboardButton"></i> Copy Vuln</a>
+      <% end %>
+       &nbsp;|&nbsp; 
+      <a href="/tests/<%=@test.id%>/<%=@vuln.id%>/delete" style="color:#B40404;"><i class="fa fa-times"></i> Delete</a>
+    </div>
+  </div>
+</div>
+
+<!-- Comments Modal -->
+<div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+  <div class="modal-dialog" style="margin-top:100px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="commentModalLabel">Comments for <%=h(@vuln.type_str)%></h4>
+      </div>
+      <div class="modal-body" style="padding-top:10px; padding-bottom:0px; max-height:300px; overflow-y: scroll;">
+        <% if @comments.length > 0 %>
+          <% @comments.each do |c| %>
+            <div class="well" style="padding:5px 10px 5px 10px; margin-top:0px; margin-bottom:10px;" id="commentbody_<%=c.id%>">
+              <% if c.author == @session[:uid] || admin? %>
+                <div style="color:#AAA; float:right; cursor:pointer;" onclick="deleteComment(<%=c.id%>)"><i class="fa fa-times"></i></div>
+              <% end %>
+              <div>
+                <b><%=h(User.get(c.author).name)%></b> 
+                <small>on <%=c.created_at.strftime("%-m/%-d/%y at %k:%M:%S")%> 
+                  &nbsp;&nbsp;<i><%=c.visibility_str%></i>
+                </small>
+              </div>
+              <div style="margin-left:12px;"><%=h(c.body).gsub(/\n/, "<br />")%></div>
+            </div>
+          <% end %>
+        <% else %>
+          <div style="margin-bottom:10px;">
+            No comments on this vuln
+          </div>
+        <% end %>
+      </div>
+      <div class="modal-footer" style="margin-top:0px;">
+        <form method="POST" action="/postcomment/v/<%=@vuln.id%>">
+          <%= csrf_tag %>
+          <textarea class="form-control" rows="3" name="body" placeholder="Write a comment..." style="margin-bottom:8px;"></textarea>
+          <div style="text-align:left;">
+            <b>Visibility: </b>
+            <input type="checkbox" name="vis_myOrg" style="margin-left:6px;" checked> My Org
+            <input type="checkbox" name="vis_tester" style="margin-left:6px;" checked> Tester
+            <input type="checkbox" name="vis_testOrg" style="margin-left:6px;" checked> Tester's Org
+          </div>
+          <button type="submit" class="btn btn-info">Post Comment</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h4 onclick="toggleSect('vd')" style="cursor:pointer;"><i class="fa fa-minus-square" id="vdIcon"></i> Current Vuln Data</h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+    <div style="margin-left:0px;" id="vdData">
+      <% if @vuln.sections.count == 0 %>
+        <span style="margin-left:20px;">No data for this vuln</span>
+      <% else %>
+          <% @vuln.sections.sort{|x,y| x.listOrder <=> y.listOrder }.each do |s| %>
+            <div style="margin-bottom:18px; margin-left:22px;" id="section_<%=s.id%>" class="vulnSection">
+              <h4><i class="fa fa-bars sortHandle" style="cursor:move; color:#999;"></i> <%=s.type_str%> 
+                <% if s.type != SECT_TYPE::SSHOT && s.type != SECT_TYPE::PAYLOAD %>
+                  &nbsp;<i class="fa fa-pencil" style="cursor:pointer;" id="secEditIcon_<%=s.id%>" onclick="makeSectionEdit(<%=s.id%>, <%=@vuln.id%>, <%=@test.id%>, '<%=s.edit_size%>')"></i>
+                <% end %>
+                &nbsp;<i class="fa fa-trash-o" style="cursor:pointer;" onclick="deleteSection(<%=s.id%>, <%=@vuln.id%>, <%=@test.id%>)"></i></a>
+              </h4>
+              <div style="margin-left:20px;" id="section_body_<%=s.id%>" class="section_body_data">
+                <% if s.type == SECT_TYPE::SSHOT %>
+                  <img src="data:image/png;base64,<%=s.body%>" alt="Screenshot" style="max-width:800px;" />
+                <% elsif s.type == SECT_TYPE::CODE || s.type == SECT_TYPE::OUTPUT %>
+                  <pre><%=h(s.body)%></pre>
+                <% elsif s.type == SECT_TYPE::PAYLOAD %>
+                  <%=h(s.fname)%> - Uploaded on <%=s.created_at.strftime('%m/%d/%Y at %H:%M')%> (<a href="/tests/<%=@test.id%>/<%=@vuln.id%>/<%=s.id%>/download">Download</a>)
+                <% else %>
+                  <%=h(s.body).gsub(/\n/, '<br />')%>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="row" style="margin-top:20px;">
+  <div class="col-lg-12">
+    <h4>Add Vuln Data</h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+  </div>
+</div>
+    
+<% if @enabledSections.nil? || @enabledSections.include?(SECT_TYPE::BURP) %>
+<div class="row">    
+  <form class="form-inline" role="form" action="/tests/<%=@test.id%>/<%=@vuln.id%>/create" enctype="multipart/form-data" method="POST" style="margin-bottom:12px;" onsubmit="return checkSecSubmit(this)">
+    <%= csrf_tag %>
+    <div class="form-group col-lg-7" style="margin-left:15px;">
+      <label class="sr-only" for="burp">Burp Data</label>
+      <input type="text" class="form-control" id="burp" placeholder="Burp Data" name="data" onkeyup="checkInput(this)" onchange="this.onkeyup()" oninput="this.onkeyup()">
+    </div>
+    <button type="submit" class="btn btn-default" value="<%=SECT_TYPE::BURP%>" name="type">Parse Burp Data</button> 
+    <i class="fa fa-question-circle" style="padding-left:5px;" rel="tooltip" title="Req/Resp information exported by the Vulnreport Burp Plugin"></i>
+  </form>
+</div>
+<% end %>
+
+<% if @enabledSections.nil? || @enabledSections.include?(SECT_TYPE::URL) %>
+<div class="row">    
+  <form class="form-inline" role="form" action="/tests/<%=@test.id%>/<%=@vuln.id%>/create" enctype="multipart/form-data" method="POST" style="margin-bottom:12px;" onsubmit="return checkSecSubmit(this)">
+    <%= csrf_tag %>
+    <div class="form-group col-lg-7" style="margin-left:15px;">
+      <label class="sr-only" for="url">URL</label>
+      <input type="text" class="form-control" id="url" placeholder="URL" name="data" onkeyup="checkInput(this)" onchange="this.onkeyup()" oninput="this.onkeyup()">
+    </div>
+    <button type="submit" class="btn btn-default" value="<%=SECT_TYPE::URL%>" name="type">Add URL</button>
+  </form>
+</div>
+<% end %>
+
+<% if @enabledSections.nil? || @enabledSections.include?(SECT_TYPE::FILE) %>
+<div class="row">    
+  <form class="form-inline" role="form" action="/tests/<%=@test.id%>/<%=@vuln.id%>/create" enctype="multipart/form-data" method="POST" style="margin-bottom:12px;" onsubmit="return checkSecSubmit(this)">
+    <%= csrf_tag %>
+    <div class="form-group col-lg-7" style="margin-left:15px;">
+      <label class="sr-only" for="file">File</label>
+      <input type="text" class="form-control" id="file" placeholder="Filename" name="data" onkeyup="checkInput(this)" onchange="this.onkeyup()" oninput="this.onkeyup()">
+    </div>
+    <button type="submit" class="btn btn-default" value="<%=SECT_TYPE::FILE%>" name="type">Add Filename</button>
+  </form>
+</div>
+<% end %>
+
+<% if @enabledSections.nil? || @enabledSections.include?(SECT_TYPE::SSHOT) %>
+<div class="row">    
+  <form class="form-inline" role="form" action="/tests/<%=@test.id%>/<%=@vuln.id%>/create" enctype="multipart/form-data" method="POST" style="margin-bottom:12px;" onsubmit="return checkSecSubmit(this)">
+    <%= csrf_tag %>
+    <div class="form-group col-lg-7" style="margin-left:15px;">
+      <label class="sr-only" for="sshot">Screenshot</label>
+      <input type="file" class="form-control" id="sshot" placeholder="Screenshot" name="data" onkeyup="checkInput(this)" onchange="this.onkeyup()" oninput="this.onkeyup()">
+    </div>
+    <button type="submit" class="btn btn-default" value="<%=SECT_TYPE::SSHOT%>" name="type">Add Screenshot</button>
+  </form>
+</div>
+<% end %>
+
+<% if @enabledSections.nil? || @enabledSections.include?(SECT_TYPE::CODE) %>
+<div class="row">    
+  <form class="form-inline" role="form" action="/tests/<%=@test.id%>/<%=@vuln.id%>/create" enctype="multipart/form-data" method="POST" onsubmit="return checkSecSubmit(this)">
+    <%= csrf_tag %>
+    <div class="form-group col-lg-7"  style="margin-left:15px; margin-bottom:12px;">
+      <label for="code" class="control-label">Code / Request</label>
+      <textarea class="form-control" rows="3" id="code" name="data" onkeyup="checkInput(this)" onchange="this.onkeyup()" oninput="this.onkeyup()"></textarea>
+    </div>
+    <div class="col-lg-2" style="height:100px; margin: 0px; padding:65px 0px 0px 0px; text-align:left;">
+      <button type="submit" class="btn btn-default" value="<%=SECT_TYPE::CODE%>" name="type">Add Code</button>
+    </div>
+  </form>
+</div>
+<% end %>
+
+<% if @enabledSections.nil? || @enabledSections.include?(SECT_TYPE::OUTPUT) %>
+<div class="row">
+  <form class="form-inline" role="form" action="/tests/<%=@test.id%>/<%=@vuln.id%>/create" enctype="multipart/form-data" method="POST" onsubmit="return checkSecSubmit(this)">
+    <%= csrf_tag %>
+    <div class="form-group col-lg-7"  style="margin-left:15px; margin-bottom:12px;">
+      <label for="output" class="control-label">Output / Response</label>
+      <textarea class="form-control" rows="3" id="output" name="data" onkeyup="checkInput(this)" onchange="this.onkeyup()" oninput="this.onkeyup()"></textarea>
+    </div>
+    <div class="col-lg-2" style="height:100px; margin: 0px; padding:65px 0px 0px 0px; text-align:left;">
+      <button type="submit" class="btn btn-default" value="<%=SECT_TYPE::OUTPUT%>" name="type">Add Output</button>
+    </div>
+  </form>
+</div>
+<% end %>
+
+<% if @enabledSections.nil? || @enabledSections.include?(SECT_TYPE::NOTES) %>
+<div class="row">    
+  <form class="form-inline" role="form" action="/tests/<%=@test.id%>/<%=@vuln.id%>/create" enctype="multipart/form-data" method="POST" onsubmit="return checkSecSubmit(this)">
+    <%= csrf_tag %>
+    <div class="form-group col-lg-7"  style="margin-left:15px; margin-bottom:12px;">
+      <label for="notes" class="control-label">Notes</label>
+      <textarea class="form-control" rows="3" id="notes" name="data" onkeyup="checkInput(this)" onchange="this.onkeyup()" oninput="this.onkeyup()"></textarea>
+    </div>
+    <div class="col-lg-2" style="height:100px; margin: 0px; padding:65px 0px 0px 0px; text-align:left;">
+      <button type="submit" class="btn btn-default" value="<%=SECT_TYPE::NOTES%>" name="type">Add Notes</button>
+    </div>
+  </form>
+</div>
+<% end %>
+
+<% if @enabledSections.nil? || @enabledSections.include?(SECT_TYPE::PAYLOAD) %>
+<div class="row">    
+  <form class="form-inline" role="form" action="/tests/<%=@test.id%>/<%=@vuln.id%>/create" enctype="multipart/form-data" method="POST" style="margin-bottom:12px;" onsubmit="return checkSecSubmit(this)">
+    <%= csrf_tag %>
+    <div class="form-group col-lg-7" style="margin-left:15px;">
+      <label class="sr-only" for="payload">Payload</label>
+      <input type="file" class="form-control" id="payload" placeholder="Payload (binary file)" name="data" onkeyup="checkInput(this)" onchange="this.onkeyup()" oninput="this.onkeyup()">
+    </div>
+    <button type="submit" class="btn btn-default" value="<%=SECT_TYPE::PAYLOAD%>" name="type">Add Payload</button>
+    <i class="fa fa-question-circle" style="padding-left:5px;" rel="tooltip" title="Payload file used in attack. Reference only - will not be parsed or attached to exported reports."></i>
+  </form>
+</div>
+<% end %>
+
+<div class="row">
+  <form class="form-inline" id="multiForm" role="form" action="/tests/<%=@test.id%>/<%=@vuln.id%>/create" enctype="multipart/form-data" method="POST" onsubmit="return checkSecSubmit(this)">
+    <%= csrf_tag %>
+    <input type="hidden" name="type" value="<%=SECT_TYPE::MULTI%>" />
+    <div class="form-group col-lg-7"  style="margin-left:15px; margin-bottom:12px;">
+      <button type="button" class="btn btn-info" id="multiAddButton" onclick="multiSectionAdd()">Multi-Add Sections</button>
+    </div>
+  </form>
+</div>
+
+<%= erb :footer_partial %>

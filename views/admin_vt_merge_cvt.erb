@@ -1,0 +1,50 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>VulnTypes <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/vulntypes"><i class="fa fa-asterisk"></i> Custom VulnTypes</a></li>
+      <li class="active"><i class="fa fa-group"></i> New VulnType from Custom</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="alert alert-warning alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  This will convert all vulnerabilities with the custom VulnType of <i><u><%=h(@vtName)%></u></i> to the selected standard VulnType.<br /><br />This action cannot be undone.
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/customVTs/doMergeFromCVT">
+      <%= csrf_tag %>
+
+      <input type="hidden" id="cvt_txt" name="cvt_txt" value="<%=h(@vtName)%>" />
+
+      <div class="form-group">
+        <label for="svt" class="col-sm-2 control-label">Merge with: </label>
+        <div class="col-sm-4">
+          <select class="form-control" name="svt">
+            <% @vts.each do |svt| %>
+              <option value="<%=svt.id%>"><%=h(svt.name)%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Merge</button>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

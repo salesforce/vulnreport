@@ -1,0 +1,205 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@app.name)%> <small><%=h(@app.recordTypeName)%></small></h1>
+
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li class="active"><i class="fa fa-history"></i> Audit</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <div id="appToolbar" style="margin: -6px 0px 10px 8px;">
+      <a href="/reviews/<%=@app.id%>/edit"><i class="fa fa-pencil"></i> Edit Application</a>
+       &nbsp;|&nbsp; 
+      <% if admin? %>
+        <a href="/reviews/<%=@app.id%>/permCheck"><i class="fa fa-eye"></i> Perm Check</a>
+        &nbsp;|&nbsp; 
+      <% end %>
+      <% if @app.tests.count > 0 %>
+        <a href="/tests/<%=@app.tests.last.id%>/report"><i class="fa fa-cloud-download"></i> Latest Report</a>
+       &nbsp;|&nbsp; 
+      <% end %>
+      <% if !@VRLOMenuItems.nil? %>
+        <% @VRLOMenuItems.each do |m| %>
+          <% ddIdx = 1 %>
+          <% if m[:isDropdown].nil? || !m[:isDropdown] %>
+            <a href="<%=m[:href]%>"><i class="fa fa-<%=m[:icon]%>"></i> <%=m[:text]%></a>
+          <% else %>
+            <div class="dropdown" style="display:inline;">
+              <a data-toggle="dropdown" href="#" id="custdd_<%=ddIdx%>"><i class="fa fa-<%=m[:icon]%>"></i> <%=m[:text]%> <i class="fa fa-angle-down" style="color:#000;"></i></a>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="custdd_<%=ddIdx%>">
+                <% m[:dropdownOpts].each do |ddo| %>
+                  <li style="margin-left:10px; margin-right:10px;"><a href="<%=ddo[:href]%>"><%=ddo[:text]%></a></li>
+                <% end %>
+              </ul>
+            </div>
+            <% ddIdx += 1 %>
+          <% end %>
+          &nbsp;|&nbsp;
+        <% end %>
+      <% end %>
+      <a href="#" data-toggle="modal" data-target="#commentModal">
+        <%if @unreadComments > 0%><span class="badge" style="background-color:#337AB7;" id="commentBadge"><%=@unreadComments%></span> <%end%>Comments (<%=@comments.length%>)
+      </a>
+      &nbsp;|&nbsp; 
+      <% if @app.recordType.isLinked %>
+        <% if @app.isLinked? %>
+          <a href="/reviews/<%=@app.id%>/relink" style="color:#ED9C28;" rel="tooltip" title="<%=@app.getVRLO.vrlo_name%>"><i class="fa fa-random"></i> Relink</a>
+          &nbsp;|&nbsp; 
+          <a href="/reviews/<%=@app.id%>/unlink" style="color:#ED9C28;" rel="tooltip" title="<%=@app.getVRLO.vrlo_name%>"><i class="fa fa-unlink"></i> Unlink</a>
+          &nbsp;|&nbsp; 
+        <% else %>
+          <a href="/reviews/<%=@app.id%>/relink" rel="tooltip" title="<%=@app.getVRLO.vrlo_name%>"><i class="fa fa-link"></i> Link</a>
+          &nbsp;|&nbsp; 
+        <% end %>
+      <% end %>
+      <a href="/reviews/<%=@app.id%>/delete" style="color:#B40404;"><i class="fa fa-times"></i> Delete Application</a>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <!-- Comments Modal -->
+    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+      <div class="modal-dialog" style="margin-top:100px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="commentModalLabel">Comments for <%=h(@app.name)%></h4>
+          </div>
+          <div class="modal-body" style="padding-top:10px; padding-bottom:0px; max-height:300px; overflow-y: scroll;">
+            <% if @comments.length > 0 %>
+              <% @comments.each do |c| %>
+                <div class="well" style="padding:5px 10px 5px 10px; margin-top:0px; margin-bottom:10px;" id="commentbody_<%=c.id%>">
+                  <% if c.author == @session[:uid] || admin? %>
+                    <div style="color:#AAA; float:right; cursor:pointer;" onclick="deleteComment(<%=c.id%>)"><i class="fa fa-times"></i></div>
+                  <% end %>
+                  <div>
+                    <b><%=h(User.get(c.author).name)%></b> 
+                    <small>on <%=c.created_at.strftime("%-m/%-d/%y at %k:%M:%S")%> 
+                      &nbsp;&nbsp;<i><%=c.visibility_str%></i>
+                    </small>
+                  </div>
+                  <div style="margin-left:12px;"><%=h(c.body).gsub(/\n/, "<br />")%></div>
+                </div>
+              <% end %>
+            <% else %>
+              <div style="margin-bottom:10px;">
+                No comments on this application
+              </div>
+            <% end %>
+          </div>
+          <div class="modal-footer" style="margin-top:0px;">
+            <form method="POST" action="/postcomment/a/<%=@app.id%>">
+              <%= csrf_tag %>
+              <textarea class="form-control" rows="3" name="body" placeholder="Write a comment..." style="margin-bottom:8px;"></textarea>
+              <div style="text-align:left;">
+                <b>Visibility: </b>
+                <input type="checkbox" name="vis_myOrg" style="margin-left:6px;" checked> My Org
+                <input type="checkbox" name="vis_tester" style="margin-left:6px;" checked> Tester
+                <input type="checkbox" name="vis_testOrg" style="margin-left:6px;" checked> Tester's Org
+              </div>
+              <button type="submit" class="btn btn-info">Post Comment</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 bodyPanels">
+
+    <% if (!@app.description.nil? && !@app.description.empty?) || @app.flags.size > 0 %>
+      <div class="panel panel-default">
+        <div class="panel-bg-title">Description &amp; Notes </div>
+        <div class="panel-body" style="padding-bottom:10px;">
+          <% if @app.flags.size > 0 %>
+            <div style="margin-top:-4px;">
+              <% @app.flags.each do |f| %>
+                <span class="badge" rel="tooltip" title="<%=h(f.description)%>">
+                  <% if !f.icon.nil? && !f.icon.strip.empty? %>
+                    <i class="fa <%=h(f.icon)%>"></i> 
+                  <% end %>
+                  <%=h(f.name)%>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+
+          <% if (!@app.description.nil? && !@app.description.empty?) %>
+            <div <% if @app.flags.size > 0 %>style="margin-top: 4px;"<% end %>>
+              <%=h(@app.description).gsub(/\n/, "<br />")%>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="panel panel-default">
+      <div class="panel-bg-title">App History</div>
+      <div class="panel-body">
+        <table class="table table-striped" style="margin-top:-12px; margin-bottom:0px;">
+          <thead>
+            <tr>
+              <th style="width:15%"><b>Date/Time</b></th>
+              <th style="width:15%"><b>User</b></th>
+              <th style="width:70%"><b>Event</b></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @audits[:app].each do |ar| %>
+              <tr>
+                <td style="width:15%"><%=ar.event_at.strftime('%m/%d/%Y at %H:%M')%></td>
+                <td style="width:15%"><%=ar.actorName%></td>
+                <td style="width:70%"><%=ar.auditString%></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <% if !@audits[:tests].nil? && @audits[:tests].size > 0 %>
+      <% @audits[:tests].each do |t|%>
+        <div class="panel panel-default" id="t<%=t[:tid]%>">
+          <div class="panel-bg-title">Test History - <%=h(t[:testName])%></div>
+          <div class="panel-body">
+            <table class="table table-striped" style="margin-top:-12px; margin-bottom:0px;">
+              <thead>
+                <tr>
+                  <th style="width:15%"><b>Date/Time</b></th>
+                  <th style="width:15%"><b>User</b></th>
+                  <th style="width:70%"><b>Event</b></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <% t[:audits].each do |ar| %>
+                  <tr>
+                    <td style="width:15%"><%=ar.event_at.strftime('%m/%d/%Y at %H:%M')%></td>
+                    <td style="width:15%"><%=ar.actorName%></td>
+                    <td style="width:70%"><%=ar.auditString%></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+  </div>
+</div>
+
+<%= erb :footer_partial %>

@@ -1,0 +1,253 @@
+<html>
+	<head>
+		<title>Security Test Report for <%=h(@app.name)%></title>
+
+		<style type="text/css">
+			body{
+				background-color: #e5e5e5;
+				color: #F0F1F2;
+				font-family: Arial, Helvetica, sans-serif; 
+			}
+
+			a:link, a:visited, a:active{
+				color: #4e6a91;
+				text-decoration: none;
+			}
+
+			a:hover{
+				color: #a5cfe7;
+			}
+
+			.strongP{
+				font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+				font-weight: 600;
+			}
+
+			.container{
+				background-color: #f0f8fc;
+				color: #4e6a91;
+				width: 900px;
+				margin: 0 auto;
+				padding: 12px;
+			}
+
+			.header{
+				width: 900px;
+				height: 60px;
+				background-color: #4e6a91;
+				color: #eff6fb;
+				margin: 0 auto;
+				padding: 12px;
+				margin-top: 25px;
+				text-align: center;
+				vertical-align: middle;
+				line-height: 66px;
+				font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+				font-weight: 600;
+				font-size: 22px;
+			}
+
+			.typeHeader{
+				width: 900px;
+				height: 30px;
+				background-color: #4e6a91;
+				color: #eff6fb;
+				margin: 0 auto;
+				padding: 12px;
+				margin-top: 25px;
+				text-align: left;
+				line-height: 36px;
+				font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+				font-weight: 600;
+				font-size: 22px;
+				position:relative;
+				left: -12px;
+			}
+
+			.vulnDescrip{
+				font-size: 10pt;
+			}
+
+			.findingHeader{
+				margin-bottom: 8px;
+			}
+
+			.finding{
+				margin-left: 20px;
+				margin-bottom: 20px;
+				font-size: 10pt;
+			}
+
+			.sectHeader{
+				margin-bottom: 5px;
+				font-size: 12pt;
+				font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+				font-weight: 600;
+			}
+
+			.sectBody{
+				width: 860px;
+				font-size: 10pt;
+				word-wrap: break-word;
+				font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+			}
+
+			.code{
+				font-family: Consolas, Arial, Sans-Serif;
+				font-size: 10pt;
+				border: 1px solid #333;
+				width: 850px;
+				margin-top: 6px;
+				margin-bottom: 6px;
+				padding: 6px;
+				max-height: 300px;
+				overflow-y: scroll;	
+				overflow-x: scroll;
+				word-wrap: normal; 
+			}
+
+			pre{
+				margin: 0;
+				font-family: Arial, Helvetica, sans-serif;
+				white-space: pre-wrap;       /* CSS 3 */
+				white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+				white-space: -pre-wrap;      /* Opera 4-6 */
+				white-space: -o-pre-wrap;    /* Opera 7 */
+				word-wrap: break-word;       /* Internet Explorer 5.5+ */
+			}
+
+			.footer{
+				width: 900px;
+				margin: 0 auto;
+				margin-top: 10px;
+				margin-bottom: 20px;
+				color: #666666;
+				font-size: 14px;
+				font-family: Arial, Helvetica, sans-serif;
+				font-weight: 400;
+				text-align: center;
+			}
+
+			hr{
+			    border: 0;
+			    height: 1px;
+			    background-image: -webkit-linear-gradient(left, rgba(102,102,102,0), rgba(102,102,102,0.75), rgba(102,102,102,0)); 
+			    background-image:    -moz-linear-gradient(left, rgba(102,102,102,0), rgba(102,102,102,0.75), rgba(102,102,102,0)); 
+			    background-image:     -ms-linear-gradient(left, rgba(102,102,102,0), rgba(102,102,102,0.75), rgba(102,102,102,0)); 
+			    background-image:      -o-linear-gradient(left, rgba(102,102,102,0), rgba(102,102,102,0.75), rgba(102,102,102,0)); 
+			}
+
+			ol.toc{
+				margin-left:30px;
+			}
+
+			ol.toc > li{
+				font-size: 14pt;
+				margin-bottom: 6px;
+				word-wrap: break-word;
+			}
+
+			ol.vulns > li{
+				font-weight: normal;
+				font-size: 10pt;
+				word-wrap: break-word;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="header">
+			<div>Security Report for <%=h(@app.name)%></div>
+		</div>
+
+		<div class="container">
+			<div style="margin-bottom:30px;">
+				<p>The below report outlines vulnerability and informational findings that were discovered via a mixture of automated scanning and manual security penetration testing. It is possible that there are other vulnerabilities that were not discovered during testing and are therefore not included on this report. Not all instances of each vulnerability type were enumerated.</p>
+
+				<p>The attack vector and evidence of vulnerability associated with each item is listed with a description of the vulnerability. Suggested remediation steps and additional educational resources for each class of vulnerability are also provided.</p>
+
+				<p class="strongP">Please note that this is not a comprehensive list of vulnerabilities in your application. Similiar and additional vulnerabilites outside of this report may exist. Please look through your entire codebase for additional security issues.</p>
+			</div>
+
+			<hr>
+
+			<h1>Contents</h1>
+			<div style="margin-bottom:30px;">
+				<% count = 1 %>
+				<ol class="toc">
+					<% @test.verified_vulns.uniq{ |v| v.type_str }.each do |v| %>
+						<li>
+							<a href='#vuln<%=count%>'><%=h(v.type_str)%> Vulnerability</a> 
+							<ol class="vulns">
+								<% findingCount = 1 %>
+								<% @test.verified_vulns.each do |vv| %>
+									<% next if vv.type_str != v.type_str %>
+									<% if !vv.descriptor.nil? && vv.descriptor != "" %>
+										<li><a href='#vbody_<%=vv.id%>'><%=vv.descriptor%></a></li>
+									<% else %>
+										<li><a href='#vbody_<%=vv.id%>'>Finding <%=findingCount%></a></li>
+									<% end %>
+									<% findingCount += 1 %>
+								<% end %>
+							</ol>
+						</li>
+						<% count += 1 %>
+					<% end %>
+				</ol>
+			</div>
+
+			<% count = 1 %>
+			<% @test.verified_vulns.uniq{ |v| v.type_str }.each do |v| %>
+				<div class="typeHeader">
+					<a id='vuln<%=count%>'><%=h(v.type_str)%></a>
+				</div>
+				<div style='page-break-before:always;'></div>
+
+				<% if !v.type_html.nil? %>
+					<h3>Issue Description</h3>
+					<div class="vulnDescrip">
+						<%=v.type_html%>
+						<% if !v.cwe_mapping.nil? %>
+							<b>CWE</b>: <a href="<%=v.cwe_link%>" target="_blank"><%=v.cwe_mapping%></a>
+						<% end %>
+					</div>
+				<% end %>
+				
+				<% typeCount = 0 %>
+				<% @test.verified_vulns.each do |vv| %>
+					<% next if vv.type_str != v.type_str %>
+					<% typeCount += 1 %>
+				<% end %>
+
+				<% findingCount = 1 %>
+				<% @test.verified_vulns.each do |vv| %>
+					<% next if vv.type_str != v.type_str %>
+					
+					<h3 class="findingHeader" id="vbody_<%=vv.id%>">Finding <%=findingCount%> of <%=typeCount%></h3>
+
+					<div class="finding">
+						<% vv.sections.sort{|x,y| x.listOrder <=> y.listOrder }.each do |sec| %>
+							<%=sec.html_formatted%>
+						<% end %>
+					</div>
+
+					<% findingCount += 1 %>
+					<% if findingCount <= typeCount %>
+						<hr>
+					<% end %>
+				<% end %>
+				<% count += 1 %>
+			<% end %>
+
+		</div>
+
+		<div class="footer">
+			Report does not represent in any way a guarantee of security
+			<br /><br />
+			Information contained in this report may be confidential
+			<br /><br />
+			Generated <%=Time.now.strftime('%m/%d/%Y at %I:%M %p')%>
+		</div>
+	</body>
+
+</html>

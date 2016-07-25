@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+		<title>Login | Vulnreport</title>
+
+		<link rel="stylesheet" href="/css/bootstrap.css">
+		<link rel="stylesheet" href="/css/sb-admin.css">
+		<link rel='stylesheet' href='/css/jquery-ui.min.css'>
+		<link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
+
+		<style>
+			body{
+				background-color: #F9F9F9;
+			}
+
+			#loginContainer{
+				margin: 100px auto 0px auto;
+				width: 500px;
+				border-radius: 5px;
+				border: 1px solid #AAA;
+				padding: 10px;
+				background-color: #FFF;
+			}
+
+			.ssoBtn{
+				width:100%;
+				height:50px;
+				font-size: 13pt;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="loginContainer">
+			<div>
+				<center>
+					<h3 style="margin:0px 0px 20px 0px;">Vulnreport Login</h3>
+				</center>
+			</div>
+
+			<% if @login_error %>
+			<div class="alert alert-danger" role="alert"  style="margin-bottom:20;">
+				Error - <%=@login_error_str%>
+			</div>
+			<% end %>
+
+			<% if @logout_success %>
+			<div class="alert alert-success" role="alert"  style="margin-bottom:20;">
+				Logout Successful
+			</div>
+			<% end %>
+
+			<% if @login_auth %>
+				<div>
+					<form action="/login" method="POST">
+						<%= csrf_tag %>
+						<div class="form-group">
+							<label for="username">Username</label>
+							<input type="text" class="form-control" name="username" id="username" placeholder="Username">
+						</div>
+
+						<div class="form-group">
+							<label for="password">Password</label>
+							<input type="password" class="form-control" name="password" id="password" placeholder="Password">
+						</div>
+
+						<center>
+							<button type="submit" class="btn btn-default">Log In</button>
+						</center>
+					</form>
+				</div>
+			<% end %>
+
+			<% if @sso_auth %>
+				<div style="margin-top:30px;">
+					<a href="/saml/login"><button type="button" id="ssoBtn" class="btn btn-info ssoBtn">
+						<i class="fa fa-lock" style="margin-right:6px;"></i> Authenticate via <%=h(@sso_name)%>
+					</button></a>
+				</div>
+			<% end %>
+
+		</div>
+
+		<%= erb :footer_partial %>
+	</body>
+
+</html>

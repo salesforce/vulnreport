@@ -1,0 +1,483 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+      <% if @fromNotif %>
+      $('#commentModal').modal('show');
+      <% end %>
+
+      $('#commentModal').on('shown.bs.modal', function(){
+        $.post("/markCommentsRead/t/"+<%=@test.id%>, 
+          { _csrf: "<%=csrf_token%>", ajax: true},
+          function(){
+            $("#commentBadge").remove();
+          }
+        ).fail(function(){
+          console.log("Error marking comments read");
+        });
+      });
+
+      $("#vulnAddForm").submit(function(e){
+        var val = $("button[type=submit][clicked=true]").val();
+        if(val != 0){
+          $('#customTypeInput').val('');
+        }
+      });
+
+      $("button[type=submit]").click(function() {
+        $("button[type=submit]", $(this).parents("form")).removeAttr("clicked");
+        $(this).attr("clicked", "true");
+      });
+    });
+
+    function typeSearch(e){
+      var q = $(e).val();
+      //var sel = new Array();
+      
+      $('.vulnTypeBtn').each(function(idx){
+        if(q == "" || q == null){
+          if($(this).hasClass('vulnTypeBtnHighlighted')){
+            $(this).removeClass('vulnTypeBtnHighlighted');
+          }
+        }else{
+          if($(this).data("vuln-label").toLowerCase().indexOf(q.toLowerCase()) == -1 && $(this).data("vuln-name").toLowerCase().indexOf(q.toLowerCase()) == -1){
+            if($(this).hasClass('vulnTypeBtnHighlighted')){
+              $(this).removeClass('vulnTypeBtnHighlighted');
+            }
+          }else{
+            //sel.push($(this));
+            if(!$(this).hasClass('vulnTypeBtnHighlighted')){
+              $(this).addClass('vulnTypeBtnHighlighted');
+            }
+          }
+        }
+      });
+    }
+
+    function deleteVuln(vid){
+      if(confirm("Permanently delete this vuln?")){
+        $.post("/tests/<%=@test.id%>/"+vid+"/delete", 
+                { confirm: "confirm", _csrf: "<%=csrf_token%>", ajax: true},
+                function(){
+                  $("#vuln_"+vid).remove();
+                }
+              ).fail(function(){
+                alert("Error deleting vuln");
+              });
+      }
+    }
+
+    function copyVuln(e, vid){
+      $.get("/tests/doClipboard/vuln/"+vid,
+                function(data, textStatus, xhr){
+                  if(xhr.status == 204){
+                    $(".clipboardButton").removeClass("onClipboard");
+                    $(".pasteButton").addClass("inactive");
+                  }else{
+                    $(".clipboardButton").removeClass("onClipboard");
+                    $(e).addClass("onClipboard");
+                    $(".pasteButton").removeClass("inactive");
+                  }                  
+                }
+              ).fail(function(){
+                alert("Error copying vuln");
+              });
+    }
+
+    function copyTest(e, tid){
+      $.get("/tests/doClipboard/test/"+tid,
+                function(data, textStatus, xhr){
+                  if(xhr.status == 204){
+                    $(".clipboardButton").removeClass("onClipboard");
+                    $(".pasteButton").addClass("inactive");
+                  }else{
+                    $(".clipboardButton").removeClass("onClipboard");
+                    $(e).addClass("onClipboard");
+                    $(".pasteButton").removeClass("inactive");
+                  }         
+                }
+              ).fail(function(){
+                alert("Error copying test");
+              });
+    }
+</script>
+
+<style>
+  .onClipboard{
+    color: #009933;
+  }
+
+  .inactive{
+    color: #C0C0C0;
+  }
+
+  .starBullet{
+    list-style: none;
+  }
+
+  .starBullet:before {
+    content: '\f005';
+    font-family: 'FontAwesome';
+    float: left;
+    margin-left: -1.3em;
+  }
+
+  .vulnTypeBtn{}
+  .vulnTypeBtnHighlighted{
+    border: 2px solid;
+    background-color: #eaf7fb;
+  }
+</style>
+
+<% if !@error.nil? && !@error.empty? %>
+<div class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  <%=@error%>
+</div>
+<% end %>
+
+<% if !@success.nil? && !@success.empty? %>
+<div class="alert alert-success alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  <%=@success%>
+</div>
+<% end %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@test.name)%> <small>Security Test for <%=h(@app.name)%></small></h1>
+    
+    <% if !@VRLOAlerts.nil? %>
+      <% @VRLOAlerts.each do |alert| %>
+        <div class="alert alert-<%=alert[:color]%>" style="margin-bottom:4px;">
+          <%=alert[:html]%>
+        </div>
+      <% end %>
+    <% end %>
+
+    <% if @test.is_pending && canFinalizeTest?(@test.id) %>
+      <div class="alert alert-warning" style="margin-bottom:4px">
+        This test is currently pending approval (<% if @test.pending_pass %>Pass<% else %>Fail<% end %>) and you are an approver. Please approve or dispute the result ASAP.
+      </div>
+    <% end %>
+
+    <% if @test.contractor_test %>
+      <div class="alert alert-warning" style="margin-bottom:4px;">
+        <i class="fa fa-send"></i>
+        Contractor Test 
+        <% if !@test.complete && !@test.is_pending %>
+         - In Progress
+        <% elsif @test.is_pending && !@test.complete %>
+         - Awaiting Review
+          <% if @test.pending_pass %>
+             - <b><u>Contractor Pass</u></b>
+          <% else %>
+             - <b><u>Contractor Fail</u></b>
+          <% end %>
+        <% elsif @test.complete %>
+          <% if @test.pending_pass %>
+             (Pass)
+          <% else %>
+             (Fail)
+          <% end %>
+          
+          <% if !@approver.nil? %>
+            - Review Completed by <%=h(@approver.name)%>
+          <% else %>
+            - Review Complete
+          <% end %>
+          
+          <% if @test.pass == @test.pending_pass %>
+            (confirmed)
+          <% else %>
+            (disagree - "<%=h(@test.disagree_reason)%>")
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @provPassRequested %>
+      <div class="alert alert-warning" style="margin-bottom:4px;">
+        <i class="fa fa-warning"></i>
+        <b>Provisional Pass Requested</b>
+        <br />
+        Request by <%=h(@ppReqUser.name)%> on <%=@ppReqTime.strftime('%-m/%-d/%Y at %H:%M')%>
+        <br /><br />
+        <b>Justification:</b><br />
+        <p style="margin-left:20px;">
+          <%=h(@ppReqJustif).gsub(/\n/, "<br />")%>
+        </p>
+        <br />
+        <b>Suggested Remediate-by Date:</b> <%=@test.provPassExpiry.strftime('%-m/%-d/%Y')%>
+      </div>
+    <% elsif @provPassApproved %>
+      <div class="alert alert-warning" style="margin-bottom:4px;">
+        <i class="fa fa-warning"></i>
+        <b>Provisionally Passed</b>
+        <br />
+        Request by <%=h(@ppReqUser.name)%> on <%=@ppReqTime.strftime('%-m/%-d/%Y at %H:%M')%> approved by <%=h(@ppApprvUser.name)%> on <%=@ppApprvTime.strftime('%-m/%-d/%Y at %H:%M')%>
+        <br /><br />
+        <b>Approval Notes:</b><br />
+        <p style="margin-left:20px;">   
+          <%=h(@ppApprvNotes).gsub(/\n/, "<br />")%>
+        </p>
+        <br />
+        <b>Required Remediate-by Date:</b> <%=@test.provPassExpiry.strftime('%-m/%-d/%Y')%>
+      </div>
+    <% end %>
+
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li class="active" <% if !@test.ext_eid.nil? %>rel="tooltip" title="Ext EID: <%=h(@test.ext_eid)%>"<% end %>>
+        <% if admin? %>
+          <a href="/tests/<%=@test.id%>/raw" style="color:inherit;"><i class="fa fa-edit"></i> <%=h(@test.name)%></a>
+        <% else %>
+          <i class="fa fa-edit"></i> <%=h(@test.name)%>
+        <% end %>
+      </li>
+      <span style="color:#999; position:absolute;right:25px;">
+        <span style="margin-left:30px;"><i><%=@test.created_at.strftime("%-m/%-d/%Y, %l:%M%p")%></i></span>
+        <% if @test.complete %>
+          <span> &nbsp;&mdash;&nbsp; <i><%=@test.closed_at.strftime("%-m/%-d/%Y, %l:%M%p")%></i></span>
+        <% end %>
+      </span>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    
+    <div id="testToolbar" style="margin: -6px 0px 10px 8px;">
+      <div class="dropdown" style="display:inline;">
+        <a data-toggle="dropdown" href="#" id="statusDD"><%=@test.status_icon%> <%=@test.status_text%> <i class="fa fa-angle-down" style="color:#000;"></i></a>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="statusDD">
+          <% if @test.complete || @test.is_pending %>
+            <li style="margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/inprog"><i class="fa fa-clock-o"></i> Test In Progress</a></li>
+          <% end %>
+          <% if canFinalizeTest?(@test.id) %>
+            <% if @test.pass || !@test.complete %>
+              <li style="color:#B40404; margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/fail" style="color:#B40404;"><i class="fa fa-frown-o"></i> Fail Test</a></li>
+            <% end %>
+            <% if !@test.pass || !@test.complete || @test.provPass %>
+              <li style="color:#009933; margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/pass" style="color:#009933;"><i class="fa fa-check"></i> Pass Test</a></li>
+            <% end %>
+            <% if !@test.complete && !@test.provPassReq && !@test.provPass && !contractor? && @test.application.recordType.canBeProvPassed %>
+              <li style="color:#EEA236; margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/provPassRequest" style="color:#EEA236;"><i class="fa fa-warning"></i> Req. Prov. Pass</a></li>
+            <% end %>
+          <% else %>
+            <li style="margin-left:10px; margin-right:10px; font-size:8pt;">You do not have permission to finalize this test</li>
+          <% end %>
+          <% if !@test.complete && @test.provPassReq && !@test.provPass && canApproveProvPass? %>
+            <li style="color:#EEA236; margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/provPassApprove" style="color:#EEA236;"><i class="fa fa-warning"></i> Apprv. Prov. Pass</a></li>
+          <% end %>
+          <% if !@test.complete && @test.provPassReq && !@test.provPass && (canApproveProvPass? || (!@ppReqUser.nil? && @ppReqUser.id == @session[:uid])) %>
+            <li style="margin-left:10px; margin-right:10px;"><a href="/tests/<%=@test.id%>/cancelProvPassRequest"><i class="fa fa-warning"></i> Cancel Prov. Pass</a></li>
+          <% end %>
+        </ul>
+      </div>
+       &nbsp;|&nbsp; 
+       <a href="/tests/<%=@test.id%>/edit"><i class="fa fa-pencil"></i> Edit</a>
+       &nbsp;|&nbsp; 
+       <a href="/reviews/<%=@app.id%>/audit#t<%=@test.id%>"><i class="fa fa-history"></i> Audit</a>
+       &nbsp;|&nbsp; 
+       <a href="#" data-toggle="modal" data-target="#commentModal">
+        <%if @unreadComments > 0%><span class="badge" style="background-color:#337AB7;" id="commentBadge"><%=@unreadComments%></span> <%end%>Comments (<%=@comments.length%>)
+       </a>
+       &nbsp;|&nbsp; 
+       <% if !@session[:clipboard].nil? && @session[:clipboard][:type] == LINK_TYPE::TEST && @session[:clipboard][:id] == @test.id%>
+        <a onclick="copyTest(this, <%=@test.id%>)" class="clipboardButton onClipboard" style="cursor:pointer;"><i class="fa fa-copy clipboardButton"></i> Copy All</a>
+       <% else %>
+        <a onclick="copyTest(this, <%=@test.id%>)" class="clipboardButton" style="cursor:pointer;"><i class="fa fa-copy clipboardButton"></i> Copy All</a>
+       <% end %>
+       &nbsp;|&nbsp; 
+       <% if @session[:clipboard].nil? %>
+        <span class="pasteButton inactive"><i class="fa fa-paste"></i> Paste</span>
+       <% else %>
+        <a href="/tests/doClipboard/pasteToTest/<%=@test.id%>" class="pasteButton"><i class="fa fa-paste"></i> Paste</a>
+       <% end %>
+       &nbsp;|&nbsp;
+        <a href="/tests/<%=@test.id%>/report"><i class="fa fa-cloud-download"></i> Download Report</a> (<a href="/tests/<%=@test.id%>/viewreport" target="_blank">View</a>)
+         <% if @pdf_on %>(<a href="/tests/<%=@test.id%>/reportpdf">PDF</a>)<% end %>
+       &nbsp;|&nbsp;
+       <% if !@VRLOMenuItems.nil? %>
+        <% @VRLOMenuItems.each do |m| %>
+          <% ddIdx = 1 %>
+          <% if m[:isDropdown].nil? || !m[:isDropdown] %>
+            <a href="<%=m[:href]%>"><i class="fa fa-<%=m[:icon]%>"></i> <%=m[:text]%></a>
+          <% else %>
+            <div class="dropdown" style="display:inline;">
+              <a data-toggle="dropdown" href="#" id="custdd_<%=ddIdx%>"><i class="fa fa-<%=m[:icon]%>"></i> <%=m[:text]%> <i class="fa fa-angle-down" style="color:#000;"></i></a>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="custdd_<%=ddIdx%>">
+                <% m[:dropdownOpts].each do |ddo| %>
+                  <li style="margin-left:10px; margin-right:10px;"><a href="<%=ddo[:href]%>"><%=ddo[:text]%></a></li>
+                <% end %>
+              </ul>
+            </div>
+            <% ddIdx += 1 %>
+          <% end %>
+          &nbsp;|&nbsp;
+        <% end %>
+      <% end %>
+      <a href="/tests/<%=@test.id%>/delete" style="color:#B40404;"><i class="fa fa-times"></i> Delete</a>
+    </div>
+  </div>
+</div>
+
+<!-- Comments Modal -->
+<div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+  <div class="modal-dialog" style="margin-top:100px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="commentModalLabel">Comments for <%=h(@test.name)%></h4>
+      </div>
+      <div class="modal-body" style="padding-top:10px; padding-bottom:0px; max-height:300px; overflow-y: scroll;">
+        <% if @comments.length > 0 %>
+          <% @comments.each do |c| %>
+            <div class="well" style="padding:5px 10px 5px 10px; margin-top:0px; margin-bottom:10px;" id="commentbody_<%=c.id%>">
+              <% if c.author == @session[:uid] || admin? %>
+                <div style="color:#AAA; float:right; cursor:pointer;" onclick="deleteComment(<%=c.id%>)"><i class="fa fa-times"></i></div>
+              <% end %>
+              <div>
+                <b><%=h(User.get(c.author).name)%></b> 
+                <small>on <%=c.created_at.strftime("%-m/%-d/%y at %k:%M:%S")%> 
+                  &nbsp;&nbsp;<i><%=c.visibility_str%></i>
+                </small>
+              </div>
+              <div style="margin-left:12px;"><%=h(c.body).gsub(/\n/, "<br />")%></div>
+            </div>
+          <% end %>
+        <% else %>
+          <div style="margin-bottom:10px;">
+            No comments on this test
+          </div>
+        <% end %>
+      </div>
+      <div class="modal-footer" style="margin-top:0px;">
+        <form method="POST" action="/postcomment/t/<%=@test.id%>">
+          <%= csrf_tag %>
+          <textarea class="form-control" rows="3" name="body" placeholder="Write a comment..." style="margin-bottom:8px;"></textarea>
+          <div style="text-align:left;">
+            <b>Visibility: </b>
+            <input type="checkbox" name="vis_myOrg" style="margin-left:6px;" checked> My Org
+            <input type="checkbox" name="vis_tester" style="margin-left:6px;" checked> Tester
+            <input type="checkbox" name="vis_testOrg" style="margin-left:6px;" checked> Tester's Org
+          </div>
+          <button type="submit" class="btn btn-info">Post Comment</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 bodyPanels">
+    <% if !@test.description.nil? && !@test.description.empty? %>
+      <div class="panel panel-default">
+          <div class="panel-bg-title">Description &amp; Notes</div>
+          <div class="panel-body">
+            <%=h(@test.description).gsub(/\n/, "<br />")%>
+          </div>
+        </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h4>Vulns on this Report</h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+    <div id="vulnsList" style="margin-left:0px;">
+      <% if @test.vulnerabilities.count == 0 %>
+        <span style="margin-left:20px;">No vulns attached to this test</span>
+      <% else %>
+        <ul>
+          <% @test.vulnerabilities.sort{ |x,y| x.vuln_priority <=> y.vuln_priority }.each do |v| %>
+            <% if v.starred %>
+              <li class="starBullet" id="vuln_<%=v.id%>">
+            <% else %>
+              <li id="vuln_<%=v.id%>">
+            <% end %>
+              <% if !v.verified %>
+                <i class="fa fa-question" style="color:#B40404;" rel="tooltip" title="Unverified"></i>
+              <% elsif v.falsepos %>
+                <i class="fa fa-bug" style="color:#8A6D3B;" rel="tooltip" title="False Positive"></i>
+              <% end %>
+
+              <% nolocation = true %>
+              <% v.sections.each do |s| %>
+                <% if s.type == SECT_TYPE::URL || s.type == SECT_TYPE::FILE %>
+                  <% nolocation = false %>
+                <% end %>
+              <% end %>
+
+              <% if nolocation || (v.vulntype == 0 && v.priorityOverride.nil?) %>
+                <i class="fa fa-puzzle-piece" style="color:#B40404;" rel="tooltip" title="Missing Data"></i>
+              <% end %>
+              <a href="/tests/<%=@test.id%>/<%=v.id%>"><%=h(v.type_str)%></a> <% if !v.descriptor.nil? && !v.descriptor.empty? %>(<%=v.descriptor%>)<% end %>
+              &nbsp;
+              <% if !@session[:clipboard].nil? && @session[:clipboard][:type] == LINK_TYPE::VULN && @session[:clipboard][:id] == v.id%>
+                <i class="fa fa-copy clipboardButton onClipboard" style="cursor:pointer;" rel="tooltip" title="Copy vuln" onclick="copyVuln(this, <%=v.id%>)"></i>
+              <% else %>
+                <i class="fa fa-copy clipboardButton" style="cursor:pointer;" rel="tooltip" title="Copy vuln" onclick="copyVuln(this, <%=v.id%>)"></i>
+              <% end %>
+              &nbsp;<i class="fa fa-trash-o" style="cursor:pointer;" onclick="deleteVuln(<%=v.id%>)"></i>
+              <% numComments = Comment.commentsForVuln(v.id, @session[:uid], @session[:org]).length %>
+              <% if numComments > 0 %>
+              &nbsp;<i class="fa fa-comment-o" rel="tooltip" title="<%=numComments%> comments on this vuln"></i>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="row" style="margin-top:20px;">
+  <div class="col-lg-12">
+    <h4>Add Vuln <small>(<a href="/tests/<%=@test.id%>/viewTypes" style="color:inherit;" target="_blank">View Vuln Types</a>)</small></h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+    <div id="addVulnSect" style="margin-left:0px;">
+      <form action="/tests/<%=@test.id%>/newvuln" method="POST" id="vulnAddForm">
+        <%= csrf_tag %>
+        <button type="submit" class="btn btn-default" name="type" value="0" style="width:0%;display:none;"></button>
+        <div style="display:table; width:100%;">
+          <% @vulnTypes.each_with_index do |v, i| %>
+            <% if (i%4 == 0) %>
+              <div style='display:table-row;width:100%;'>
+            <% end %>
+              <div style="display:table-cell;width:25%;text-align:center;padding-bottom:3px;">
+                <button type="submit" class="btn btn-default vulnTypeBtn" name="type" value="<%=v.id%>" style="width:90%;" data-vuln-label="<%=h(v.getLabel)%>" data-vuln-name="<%=h(v.name)%>">
+                  <%=h(v.getLabel)%>
+                </button>
+              </div>
+            <% if (((i+1)%4 == 0) || (i == @vulnTypes.size-1)) %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+        <div style="display:table; width:100%;margin-top:8px; margin-left:1.25%;">
+          <div style="display:table-row; width:100%;">
+            <div style="display:table-cell; width:50%; text-align:left;">
+              <div style="width:100%; padding-right:5%">
+                <input type="text" id="customTypeInput" name="customType" style="width:79%; height:31px;" placeholder="Custom Vuln Type" onkeyup="typeSearch(this)">
+                <button type="submit" class="btn btn-default" name="type" value="0" style="width:20%;">Custom Vuln</button>
+              </div>
+            </div>
+            <div style="display:table-cell; width:25%;">
+              <button type="submit" class="btn btn-default" name="type" value="xml" style="width:90%;"><i class="fa fa-cloud-upload"></i> &nbsp;Import XML Data</button>
+            </div>
+            <div style="display:table-cell; width:25%;">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

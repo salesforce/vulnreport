@@ -1,0 +1,220 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+      <% if @fromNotif %>
+      $('#commentModal').modal('show');
+      <% end %>
+
+      $('#commentModal').on('shown.bs.modal', function(){
+        $.post("/markCommentsRead/a/"+<%=@app.id%>, 
+          { _csrf: "<%=csrf_token%>", ajax: true},
+          function(){
+            $("#commentBadge").remove();
+          }
+        ).fail(function(){
+          console.log("Error marking comments read");
+        });
+      });
+    });
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@app.name)%> <small><%=h(@app.recordTypeName)%></small></h1>
+
+    <% if !@VRLOAlerts.nil? %>
+      <% @VRLOAlerts.each do |alert| %>
+        <div class="alert alert-<%=alert[:color]%>" style="margin-bottom:4px;">
+          <%=alert[:html]%>
+        </div>
+      <% end %>
+    <% end %>
+
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li class="active"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <div id="appToolbar" style="margin: -6px 0px 10px 8px;">
+      <a href="/reviews/<%=@app.id%>/edit"><i class="fa fa-pencil"></i> Edit</a>
+       &nbsp;|&nbsp; 
+      <% if admin? %>
+        <a href="/reviews/<%=@app.id%>/permCheck"><i class="fa fa-eye"></i> Perms</a>
+        &nbsp;|&nbsp; 
+      <% end %>
+      <% if @app.tests.count > 0 %>
+        <a href="/tests/<%=@app.tests.last.id%>/report"><i class="fa fa-cloud-download"></i> Latest Report</a>
+       &nbsp;|&nbsp; 
+      <% end %>
+      <a href="/reviews/<%=@app.id%>/audit"><i class="fa fa-history"></i> Audit</a>
+      &nbsp;|&nbsp; 
+      <% if !@VRLOMenuItems.nil? %>
+        <% @VRLOMenuItems.each do |m| %>
+          <% ddIdx = 1 %>
+          <% if m[:isDropdown].nil? || !m[:isDropdown] %>
+            <a href="<%=m[:href]%>"><i class="fa fa-<%=m[:icon]%>"></i> <%=m[:text]%></a>
+          <% else %>
+            <div class="dropdown" style="display:inline;">
+              <a data-toggle="dropdown" href="#" id="custdd_<%=ddIdx%>"><i class="fa fa-<%=m[:icon]%>"></i> <%=m[:text]%> <i class="fa fa-angle-down" style="color:#000;"></i></a>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="custdd_<%=ddIdx%>">
+                <% m[:dropdownOpts].each do |ddo| %>
+                  <li style="margin-left:10px; margin-right:10px;"><a href="<%=ddo[:href]%>"><%=ddo[:text]%></a></li>
+                <% end %>
+              </ul>
+            </div>
+            <% ddIdx += 1 %>
+          <% end %>
+          &nbsp;|&nbsp;
+        <% end %>
+      <% end %>
+      <a href="#" data-toggle="modal" data-target="#commentModal">
+        <%if @unreadComments > 0%><span class="badge" style="background-color:#337AB7;" id="commentBadge"><%=@unreadComments%></span> <%end%>Comments (<%=@comments.length%>)
+      </a>
+      &nbsp;|&nbsp; 
+      <% if @app.recordType.isLinked %>
+        <% if @app.isLinked? %>
+          <a href="/reviews/<%=@app.id%>/relink" style="color:#ED9C28;" rel="tooltip" title="<%=@app.getVRLO.vrlo_name%>"><i class="fa fa-random"></i> Relink</a>
+          &nbsp;|&nbsp; 
+          <a href="/reviews/<%=@app.id%>/unlink" style="color:#ED9C28;" rel="tooltip" title="<%=@app.getVRLO.vrlo_name%>"><i class="fa fa-unlink"></i> Unlink</a>
+          &nbsp;|&nbsp; 
+        <% else %>
+          <a href="/reviews/<%=@app.id%>/relink" rel="tooltip" title="<%=@app.getVRLO.vrlo_name%>"><i class="fa fa-link"></i> Link</a>
+          &nbsp;|&nbsp; 
+        <% end %>
+      <% end %>
+      <a href="/reviews/<%=@app.id%>/delete" style="color:#B40404;"><i class="fa fa-times"></i> Delete</a>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <!-- Comments Modal -->
+    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+      <div class="modal-dialog" style="margin-top:100px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="commentModalLabel">Comments for <%=h(@app.name)%></h4>
+          </div>
+          <div class="modal-body" style="padding-top:10px; padding-bottom:0px; max-height:300px; overflow-y: scroll;">
+            <% if @comments.length > 0 %>
+              <% @comments.each do |c| %>
+                <div class="well" style="padding:5px 10px 5px 10px; margin-top:0px; margin-bottom:10px;" id="commentbody_<%=c.id%>">
+                  <% if c.author == @session[:uid] || admin? %>
+                    <div style="color:#AAA; float:right; cursor:pointer;" onclick="deleteComment(<%=c.id%>)"><i class="fa fa-times"></i></div>
+                  <% end %>
+                  <div>
+                    <b><%=h(User.get(c.author).name)%></b> 
+                    <small>on <%=c.created_at.strftime("%-m/%-d/%y at %k:%M:%S")%> 
+                      &nbsp;&nbsp;<i><%=c.visibility_str%></i>
+                    </small>
+                  </div>
+                  <div style="margin-left:12px;"><%=h(c.body).gsub(/\n/, "<br />")%></div>
+                </div>
+              <% end %>
+            <% else %>
+              <div style="margin-bottom:10px;">
+                No comments on this application
+              </div>
+            <% end %>
+          </div>
+          <div class="modal-footer" style="margin-top:0px;">
+            <form method="POST" action="/postcomment/a/<%=@app.id%>">
+              <%= csrf_tag %>
+              <textarea class="form-control" rows="3" name="body" placeholder="Write a comment..." style="margin-bottom:8px;"></textarea>
+              <div style="text-align:left;">
+                <b>Visibility: </b>
+                <input type="checkbox" name="vis_myOrg" style="margin-left:6px;" checked> My Org
+                <input type="checkbox" name="vis_tester" style="margin-left:6px;" checked> Tester
+                <input type="checkbox" name="vis_testOrg" style="margin-left:6px;" checked> Tester's Org
+              </div>
+              <button type="submit" class="btn btn-info">Post Comment</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12 bodyPanels">
+
+    <% if (!@app.description.nil? && !@app.description.empty?) || @app.flags.size > 0 %>
+      <div class="panel panel-default">
+        <div class="panel-bg-title">Description &amp; Notes </div>
+        <div class="panel-body" style="padding-bottom:10px;">
+          <% if @app.flags.size > 0 %>
+            <div style="margin-top:-4px;">
+              <% @app.flags.each do |f| %>
+                <span class="badge" rel="tooltip" title="<%=h(f.description)%>">
+                  <% if !f.icon.nil? && !f.icon.strip.empty? %>
+                    <i class="fa <%=h(f.icon)%>"></i> 
+                  <% end %>
+                  <%=h(f.name)%>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+
+          <% if (!@app.description.nil? && !@app.description.empty?) %>
+            <div <% if @app.flags.size > 0 %>style="margin-top: 4px;"<% end %>>
+              <%=h(@app.description).gsub(/\n/, "<br />")%>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if !@VRLOInfoPanelHTML.nil? || @unlinkedApp || @vrloError %>
+      <div class="panel panel-default">
+        <div class="panel-bg-title">Linked Object (<%=@app.getVRLO.vrlo_name%>)</div>
+        <div class="panel-body">
+          <% if !@VRLOInfoPanelHTML.nil? %>
+            <%=@VRLOInfoPanelHTML.force_encoding("UTF-8")%>
+          <% else %>
+            <% if @unlinkedApp %>
+              <%=h(@app.name)%> is not attached to a linked object (<%=@app.getVRLO.vrlo_name%>)
+            <% elsif @vrloError %>
+              Error while getting Linked Object information.<br /><b>Error:</b> <%=@vrloErrorStr%>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="panel panel-default">
+      <div class="panel-bg-title">Security Tests</div>
+      <div class="panel-body">
+        <div id="testSect">
+          <h4><%=h(@app.name)%> has <%= (@app.tests.count == 0) ? "no" : @app.tests.count%> associated Security Tests in Vulnreport &nbsp; <small><a href="/tests/newfromapp/<%=@app.id%>"><i class="fa fa-plus"></i> Start New Test</a></small></h4>
+          <div id="testList" style="margin-left:12px;">
+            <% @tests.each_with_index do |test, i| %>
+              <%=test.status_icon %> <% if test.contractor_test%><i class="fa fa-send" rel="tooltip" title="Contractor Review"></i><% end %> 
+              <a href="/tests/<%=test.id%>"><%=h(test.name)%></a>
+               - Started on <%=test.created_at.strftime("%-m/%-d/%Y at %l:%M %p")%> by <%=User.get(test.reviewer).name %>
+              <% if !test.description.nil? && !test.description.empty? %>
+                (<%= (h(test.description)).length > 50 ? (h(test.description))[0..50].strip + "..." : h(test.description) %>)
+              <% end %>
+              <% numComments = Comment.commentsForTest(test.id, @session[:uid], @session[:org]).length %>
+              <% if numComments > 0 %>
+              &nbsp;<i class="fa fa-comment-o" rel="tooltip" title="<%=numComments%> comments on this test"></i>
+              <% end %>
+              <br />
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<%= erb :footer_partial %>

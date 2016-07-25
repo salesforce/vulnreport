@@ -1,0 +1,140 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+  $(function() {
+    $("#rt-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available RecordTypes</div>",
+                            selectionHeader: "<div class='msHeader'>RecordTypes Using VulnType</div>",
+                          });
+
+    $("#sec-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available Sections</div>",
+                            selectionHeader: "<div class='msHeader'>Sections on VulnType</div>",
+                          });
+  });
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>VulnTypes <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/vulntypes"><i class="fa fa-wrench"></i> VulnTypes</a></li>
+      <li class="active"><i class="fa fa-group"></i> <%=h(@vt.name)%></li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/vulntypes/<%=@vt.id%>">
+      <%= csrf_tag %>
+
+      <div class="form-group">
+          <label for="isEnabled" class="col-sm-2 control-label">
+            Enabled:
+          </label>
+          <div class="col-sm-2">
+            <input type="checkbox" name="isEnabled" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" <%=@enabled%>>
+          </div>
+      </div>
+
+      <div class="form-group">
+        <label for="vtName" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="vtName" name="vtName" placeholder="Name" value="<%=h(@vt.name)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="vtLabel" class="col-sm-2 control-label">Label: </label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="vtLabel" name="vtLabel" placeholder="Label (for exported reports)" value="<%=h(@vt.label)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="cwe" class="col-sm-2 control-label">CWE Mapping ID: </label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="cwe" name="cwe" placeholder="CWE ID" value="<%=@vt.cwe_mapping%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="vtPri" class="col-sm-2 control-label">Default Priority: </label>
+        <div class="col-sm-4">
+          <select class="form-control" id="vtPri" name="vtPri">
+            <option value="<%=VULN_PRIORITY::CRITICAL%>" <% if @vt.priority == VULN_PRIORITY::CRITICAL %>selected<%end%>>Critical</option>
+            <option value="<%=VULN_PRIORITY::HIGH%>" <% if @vt.priority == VULN_PRIORITY::HIGH %>selected<%end%>>High</option>
+            <option value="<%=VULN_PRIORITY::MEDIUM%>" <% if @vt.priority == VULN_PRIORITY::MEDIUM %>selected<%end%>>Medium</option>
+            <option value="<%=VULN_PRIORITY::LOW%>" <% if @vt.priority == VULN_PRIORITY::LOW %>selected<%end%>>Low</option>
+            <option value="<%=VULN_PRIORITY::INFORMATIONAL%>" <% if @vt.priority == VULN_PRIORITY::INFORMATIONAL %>selected<%end%>>Informational</option>
+            <option value="-1" <% if @vt.priority.nil? %>selected<%end%>>None</option>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="html" class="col-sm-2 control-label">Report HTML: </label>
+        <div class="col-sm-6">
+          <textarea class="form-control" rows="8" id="html" name="html"><%=h(@vt.html)%></textarea>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">
+        App Record Types
+        <small style="font-size:6pt;">Select which Record Types this vulnerability should be available on</small>
+      </h4>
+
+      <div class="form-group">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-6">
+          <select multiple="multiple" id="rt-multiselect" name="rtms[]" rel="jqms">
+            <% @appRecordTypes.each do |rt| %>
+              <option value="<%=rt.id%>" <% if !@vt.enabledRTs.nil? && @vt.enabledRTs.include?(rt.id) %>selected<% end %>><%=h(rt.name)%></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">
+        Enabled Sections
+        <small style="font-size:6pt;">Select which data sections are available on this VulnType</small>
+      </h4>
+
+      <div class="form-group">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-6">
+          <select multiple="multiple" id="sec-multiselect" name="secms[]" rel="jqms">
+            <option value="<%=SECT_TYPE::BURP%>" <% if !@vt.enabledSections.nil? && @vt.enabledSections.include?(SECT_TYPE::BURP) %>selected<% end %>>Burp Data</option>
+            <option value="<%=SECT_TYPE::URL%>" <% if !@vt.enabledSections.nil? && @vt.enabledSections.include?(SECT_TYPE::URL) %>selected<% end %>>URL</option>
+            <option value="<%=SECT_TYPE::FILE%>" <% if !@vt.enabledSections.nil? && @vt.enabledSections.include?(SECT_TYPE::FILE) %>selected<% end %>>File</option>
+            <option value="<%=SECT_TYPE::SSHOT%>" <% if !@vt.enabledSections.nil? && @vt.enabledSections.include?(SECT_TYPE::SSHOT) %>selected<% end %>>Screenshot</option>
+            <option value="<%=SECT_TYPE::CODE%>" <% if !@vt.enabledSections.nil? && @vt.enabledSections.include?(SECT_TYPE::CODE) %>selected<% end %>>Code / Request</option>
+            <option value="<%=SECT_TYPE::OUTPUT%>" <% if !@vt.enabledSections.nil? && @vt.enabledSections.include?(SECT_TYPE::OUTPUT) %>selected<% end %>>Output / Response</option>
+            <option value="<%=SECT_TYPE::NOTES%>" <% if !@vt.enabledSections.nil? && @vt.enabledSections.include?(SECT_TYPE::NOTES) %>selected<% end %>>Notes</option>
+            <option value="<%=SECT_TYPE::PAYLOAD%>" <% if !@vt.enabledSections.nil? && @vt.enabledSections.include?(SECT_TYPE::PAYLOAD) %>selected<% end %>>Payload File</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:40px;">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save Vulnype</button>
+        </div>
+        <div class="col-sm-2"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

@@ -1,0 +1,23 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>VulnTypes <small>ID Listing</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li class="active"><i class="fa fa-wrench"></i> VulnTypes</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+
+<div class="row">
+  <div class="col-lg-12">
+    <% @vts.each do |vt| %>
+      <%=vt.id%> - <%=vt.name%>
+      <br />
+    <%end%>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

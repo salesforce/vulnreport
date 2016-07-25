@@ -1,0 +1,70 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>All Starred Vulns</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dash</a></li>
+      <li class="active"><i class="fa fa-star"></i> All Starred Vulns</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-edit"></i> All Starred Vulns</h3>
+      </div>
+      <div class="panel-body">
+        <table class="table table-striped tablesorter" style="margin-top:-12px;">
+          <thead>
+            <tr>
+              <th style="width:1%"><i class="fa fa-sort-down"></i></th>
+              <th style="width:10%"><b>Found</b> <i class="fa fa-sort"></i></th>
+              <th style="width:30%"><b>Vulnerability</b> <i class="fa fa-sort"></i></th>
+              <th style="width:23%"><b>Application</b> <i class="fa fa-sort"></i></th>
+              <th style="width:12%"><b>Test</b> <i class="fa fa-sort"></i></th>
+              <th style="width:12%"><b>Cycle</b> <i class="fa fa-sort"></i></th>
+              <th style="width:12%"><b>62org SRID</b> <i class="fa fa-sort"></i></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @vulns.each do |v| %>
+              <tr>
+                <td style="width:1%"></td>
+                <td style="width:10%">
+                  <%=v.created_at.strftime('%m/%d/%y')%>
+                </td>
+                <td style="width:30%">
+                  <a href="/tests/<%=v.test.id%>/<%=v.id%>"><%=v.type_str%></a>
+                </td>
+                <td style="width:23%">
+                  <a href="/reviews/<%=v.test.application.id%>"><%=v.test.application.name%></a>
+                </td>
+                <td style="width:12%">
+                  <a href="/tests/<%=v.test.id%>"><%=v.test.name%></a>
+                </td>
+                <td style="width:12%">
+                  <% if v.test.isReReview %>
+                    Re-Review
+                  <% else %>
+                    Initial
+                  <% end %>
+                </td>
+                <td style="width:12%">
+                  <% if v.test.application.isLinked? %>
+                    <a href="<%=v.test.application.linkedObjectURL%>" target="_blank"><%=v.test.application.linkedObjectText%></a>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

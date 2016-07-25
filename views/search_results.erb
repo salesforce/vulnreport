@@ -1,0 +1,90 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+  $(function () {
+    $('#rtmulti').multiselect({
+      allSelectedText: 'All Types',
+      buttonWidth: '175px',
+      includeSelectAllOption: true,
+      buttonClass: 'btn btn-default'
+    });
+  });
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Search</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li class="active"><i class="fa fa-search"></i> Search</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-1" style="text-align:center;"></div>
+
+  <form role="form" action="/search" method="GET">
+    <div class="col-lg-8" style="text-align:center; padding-right:0px;">
+      <div class="form-group input-group" style="text-align:center;">
+        <input type="text" class="form-control" placeholder="Search Query" id="searchInput" name="searchInput" value="<%=@q%>">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="submit">
+            <i class="fa fa-search"></i>
+          </button>
+        </span>
+      </div>    
+    </div>
+    <div class="col-lg-2" style="padding-left:0px; text-align:left;">       
+      <select name="rt[]" id="rtmulti" multiple="multiple">
+        <% @allowedRecordTypesFull.each do |rt| %>
+          <option value="<%=rt.id%>" <% if @selectedRecordTypes.nil? || @selectedRecordTypes.include?(rt.id) %>selected<% end %>><%=rt.name%></option>
+        <% end %>
+      </select>
+    </div>
+  </form>
+
+  <div class="col-lg-1" style="text-align:center;"></div>
+</div>
+
+<div class="row">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-10">
+    <h4 style="margin-bottom:-12px;" id="appsResultHeader">Reviews (<%=@reviewResults.size%>)</h4>
+    <hr style="margin-bottom:8px;" />
+    <ul>
+      <% @reviewResults.each do |rr| %>
+        <li><a href="/reviews/<%=rr.id%>"><%=h(rr.name)%> (Created <%=rr.created_at.strftime('%m/%d/%Y')%>)</a></li>
+      <% end %>
+    </ul>
+
+    <h4 style="margin-top:20px; margin-bottom:-12px;" id="testsResultHeader">Tests (<%=@testResults.size%>)</h4>
+    <hr style="margin-bottom:8px;" />
+    <ul>
+      <% @testResults.each do |tr| %>
+        <li style="margin-bottom:16px;">
+          <a href="/tests/<%=tr.id%>"><%=h(tr.name)%></a>
+          <br />
+          &nbsp;&nbsp; Test for <a href="/reviews/<%=tr.application_id%>"><%=h(tr.application.name)%></a>
+          <br />
+          &nbsp;&nbsp; Started on <%=tr.created_at.strftime("%-m/%-d/%Y")%> <% if tr.complete && !tr.closed_at.nil? %> - <b>Finished on <%=tr.closed_at.strftime("%-m/%-d/%Y")%></b> <% end %>
+        </li>
+      <% end %>
+    </ul>
+
+    <% if !@vrloResults.nil? && @vrloResults.size > 0 %>
+      <% @vrloResults.each do |r| %>
+        <h4 style="margin-top: 20px; margin-bottom:-12px;" id="listingsResultHeader"><%=r[:title]%> (<%=r[:results].size%>)</h4>
+        <hr style="margin-bottom:8px;" />
+        <ul>
+          <% r[:results].each do |rr| %>
+            <li><a href="<%=rr[:link]%>"><%=h(rr[:text])%></a></li>
+          <% end %>
+        </ul>
+      <% end %>
+    <% end %>
+  </div>
+  <div class="col-lg-1"></div>
+</div>
+
+<%= erb :footer_partial %>

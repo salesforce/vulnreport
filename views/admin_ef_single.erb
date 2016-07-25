@@ -1,0 +1,125 @@
+<%= erb :header_partial %>
+
+<style>
+  .codeEditorTA{
+    font-family: Consolas, monaco, monospace;
+    font-size: 8pt;
+  }
+</style>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Export Formats <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/exportFormats"><i class="fa fa-print"></i> Export Formats</a></li>
+      <% if @default %>
+        <li class="active"><i class="fa fa-print"></i> Default Export Format</li>
+      <% else %>
+        <li class="active"><i class="fa fa-print"></i> <%=h(@ef.name)%></li>
+      <% end %>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <% if @default %>
+      <form class="form-horizontal" role="form" method="POST" action="/admin/exportFormats/0">
+    <% else %>
+      <form class="form-horizontal" role="form" method="POST" action="/admin/exportFormats/<%=@ef.id%>">
+    <% end %>
+      <%= csrf_tag %>
+
+      <div class="form-group">
+        <label for="efName" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-8">
+          <% if @default %>
+            <input type="text" class="form-control" id="efName" name="efName" placeholder="Name" value="Default" disabled>
+          <% else %>
+            <input type="text" class="form-control" id="efName" name="efName" placeholder="Name" value="<%=@ef.name%>">
+          <% end %>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="efDesc" class="col-sm-2 control-label">Description: </label>
+        <div class="col-sm-8">
+          <% if @default %>
+            <input type="text" class="form-control" id="efDesc" name="efDesc" placeholder="Description" value="Default export format used if Record Type does not specify an overriding format" disabled>
+          <% else %>
+            <input type="text" class="form-control" id="efDesc" name="efDesc" placeholder="Description" value="<%=@ef.description%>">
+          <% end %>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="col-sm-1"></div>
+      <b>Template Code</b>
+      <div class="form-group">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-9">
+          <textarea name="efTemplateCode" class="form-control codeEditorTA" rows="20" wrap="off"><%=@fileContents%></textarea>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save Format</button>
+        </div>
+        <div class="col-sm-4"></div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-9" style="text-align:left;">
+          <b>To use a variable, use <span class="codeSpan">&lt;%=var&gt;</span>. To ensure escaping, use <span class="codeSpan">h(var)</span></b>
+          <br /><br />
+          <table><tr style="width:100%;">
+            <td style="width:50%; padding-right:8px; vertical-align: top">
+              <b>Available Variables - App</b>
+              <ul>
+                <li><span class="codeSpan">@app.name</span> - Name of the app/review (e.g. 'Core Code Review')</li>
+                <li><span class="codeSpan">@app.id</span> - App's Unique ID</li>
+              </ul>
+
+              <b>Available Variables - Test</b>
+              <ul>
+                <li><span class="codeSpan">@test.name</span> - Name of the test (e.g. 'Test 1')</li>
+                <li><span class="codeSpan">@test.verified_vulns</span> - Vulns attached to test that are not marked Unverified or False Positive</li>
+                <li><span class="codeSpan">@test.description</span> - Description of the test (e.g. 'My test of their new protections')</li>
+                <li><span class="codeSpan">@test.id</span> - Test's Unique ID</li>
+              </ul>
+            </td>
+            <td style="width:50%; padding-left:8px; vertical-align: top">
+              <b>Available Variables - Vuln</b>
+              <br/>
+              <i>When enumerating vulns from @test.verified_vulns or @test.vulnerabilities</i>
+              <ul>
+                <li><span class="codeSpan">v.type_str</span> - Name of the vulnerability's class (e.g. SXSS)</li>
+                <li><span class="codeSpan">v.type_html</span> - HTML of the vuln type's description</li>
+                <li><span class="codeSpan">v.descriptor</span> - Location this vuln was found (URL or FILE sections)</li>
+                <li><span class="codeSpan">v.vuln_priority</span> - VULN_PRIORITY enum. To access the Vuln risk level string use: <span class="codeSpan">vulnPriorityToString(v.vuln_priority)</span></li>
+                <li><span class="codeSpan">v.sections</span> - All data sections attached to the vuln (array)</li>
+                <li><span class="codeSpan">v.id</span> - Vuln's Unique ID</li>
+              </ul>
+
+              <b>Available Variables - Section</b>
+              <br/>
+              <i>When enumerating Vuln data sections via <span class="codeSpan">v.sections</span></i>
+              <ul>
+                <li>In general you should only use <span class="codeSpan">s.html_formatted</span> which produces a correctly formatted section and header based on type</li>
+              </ul>
+            </td>
+          </tr></table>
+        <div class="col-sm-2"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

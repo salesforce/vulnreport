@@ -1,0 +1,62 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Reports</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li><a href="/reports"><i class="fa fa-bar-chart-o"></i> Reports</a></li>
+      <li class="active"><i class="fa fa-bar-chart-o"></i> Monthly Allocation - Current Allocations</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row" style="margin-top:-8px; margin-bottom:10px;">
+  <div class="col-lg-12">
+    <% prevDate = @startDate << 1 %>
+    <% nextDate = @startDate >> 1 %>
+  	<div style="width:60%; text-align:center;">
+      <a href="/reports/alloc/<%=prevDate.month%>/<%=prevDate.year%>"><i class="fa fa-chevron-left" style="margin-right:10px; cursor:pointer;"></i></a> 
+      Allocations for the month of <b><%=@startDate.strftime('%B %Y')%></b> 
+      <a href="/reports/alloc/<%=nextDate.month%>/<%=nextDate.year%>"><i class="fa fa-chevron-right" style="margin-left:10px; cursor:pointer;"></i></a>
+    </div>
+
+  	<% if @users.size > 0 %>
+	  	<table class="table table-striped tablesorter" style="table-layout:fixed;width:60%;margin-top:16px;margin-bottom:0px;">
+			<thead><tr>
+				<th style="width:40%"><b>Reviewer</b> <i class="fa fa-sort"></i></th>
+				<th style="width:10%"><b>Auto</b> <i class="fa fa-sort"></i></th>
+        <th style="width:25%"><b>Allocation</b> <i class="fa fa-sort"></i></th>
+        <th style="width:25%"><b>Apps to Date</b> <i class="fa fa-sort"></i></th>
+			</tr></thead>
+
+			<% @users.each do |u| %>
+				<tr>
+					<td style="width:40%"><%=u.name%></td>
+          <td style="width:10%"><% if !@data[u.id][:allocNil] && @data[u.id][:auto] %><i class="fa fa-check"></i><%end%></td>
+					<td style="width:25%">
+            <% if @data[u.id][:allocNil] %>
+              0% <small><i>&nbsp;&nbsp;(none set)</i></small>
+            <%else%>
+              <%=@data[u.id][:allocPct]%>% (<%=@data[u.id][:allocApps].round%> apps)
+            <%end%>
+          </td>
+          <td style="width:25%"><%=@data[u.id][:apps].length%> apps / <%=@data[u.id][:numTests]%> tests</td>
+				</tr>
+			<% end %>
+    </table>
+    <table class="table table-striped" style="table-layout:fixed;width:60%;margin-top:0px;">
+      <tr>
+        <td style="width:40%;border-top:1px solid #888;"><b><i>TOTAL</i></b></td>
+          <td style="width:10%;border-top:1px solid #888;"></td>
+          <td style="width:25%;border-top:1px solid #888;"><b><i><%=@totalReviewsAllocated%> apps</i></b></td>
+          <td style="width:25%;border-top:1px solid #888;"><b><i><%=@totalReviewsActual%> apps / <%=@totalTestsActual%> tests</i></b></td>
+        </tr>
+	    </table>
+	<% else %>
+		<br /><br />Report returned no results
+	<% end %>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

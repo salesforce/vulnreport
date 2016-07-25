@@ -1,0 +1,94 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Application <small>Create New</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li class="active"><i class="fa fa-folder-open"></i> New External</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12" style="margin-left:22px;">
+    <p>Create a new Security Review by choosing a name and review type below. Separate security tests within the same overall security review should not have multiple Security Reviews created
+    via this screen. Multiple tests should be created belonging to the same review.</p>
+  </div>
+</div>
+
+<div class="row" style="margin-top:22px;">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/reviews/new">
+      <%= csrf_tag %>
+      
+      <div class="form-group">
+        <label for="appName" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="appName" name="appName" placeholder="Review Name">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="appDescr" class="col-sm-2 control-label">Description: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="appDescr" name="appDescr" placeholder="Review Description/Notes">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="recordType" class="col-sm-2 control-label">Review Type: </label>
+        <div class="col-sm-6">
+          <select class="form-control" id="recordType" name="recordType">
+            <% @appRecordTypes.each do |rt| %>
+              <option value="<%=rt.id%>"><%=rt.name%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="owner" class="col-sm-2 control-label">App Owner: </label>
+        <div class="col-sm-6">
+          <select class="form-control" id="owner" name="owner">
+            <option value="0">-- Unassigned --</option>
+            <% @users.each do |u| %>
+              <option value="<%=u.id%>" <% if @session[:uid] == u.id %>selected<% end %>><%=h(u.name)%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="geo" class="col-sm-2 control-label">App Geo: </label>
+        <div class="col-sm-6">
+          <select class="form-control" id="geo" name="geo">
+            <% GEO.constants.each do |g| %>
+              <option value="<%=GEO.const_get(g)%>" <% if @defaultGeo == GEO.const_get(g) %>selected<% end %>><%=geoToString(GEO.const_get(g))%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Create Review</button>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

@@ -1,0 +1,75 @@
+<%= erb :header_partial %>
+
+ <div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Audit Monitor Alert Detail</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li><a href="/auditMonitors"><i class="fa fa-eye"></i> Audit Monitor Alerts</a></li>
+      <li class="active"><i class="fa fa-ellipsis-h"></i> Monitor Alert #<%=@ma.id%></li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12" style="margin-bottom:10px;">
+    <h4 style="margin-top:0px">
+      <%=getMonitorTypeString(@ma.event_type)%>
+      <% if @ma.flagged %>
+	    	<small style="color:#d9534f; margin-left: 8px;">
+	    		<i class="fa fa-flag"></i> This Alert has been Flagged for Review
+	    	</small>
+	    <% end %>
+    </h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+	<div class="col-lg-5" style="margin-bottom:10px; margin-left:20px;">
+		<b>Triggered by: </b> 
+		<% if @ma.actor.nil? || @ma.actor == 0 %>
+			Cron/Auto <i class="fa fa-info-circle" rel="tooltip" title="Monitor runs on a cron. Suspect User will be the one that caused the alert to trigger"></i>
+		<% else %>
+			<%=h(User.get(@ma.actor).name)%>
+		<%end%>
+		<br />
+		<b>Triggered at: </b> <%=@ma.created_at.strftime('%-m/%-d/%y %H:%M:%S')%>
+		<br />
+		<% if @ma.reviewed %>
+			<br />
+			<b>Reviewed by: </b><%=h(User.get(@ma.reviewed_by).name)%>
+		<% end %>
+	</div>
+
+	<div class="col-lg-5" style="margin-bottom:10px; margin-left:20px;">
+		<b>Suspect: </b> <%=getMonitorSuspectString(@ma)%>
+		<br />
+		<b>Affected Object: </b> <%=getMonitorTargetString(@ma)%>
+		<br />
+		<% if @ma.reviewed %>
+			<br />
+			<b>Reviewed at: </b><%=@ma.reviewed_at.strftime('%-m/%-d/%y %H:%M:%S')%>
+		<% end %>
+	</div>
+</div><!-- /.row -->
+
+<div class="row">
+ 	<div class="col-lg-12" style="margin-bottom:10px; margin-left:20px;">
+ 		<% if !@ma.reviewed %>
+			<a href="/auditMonitors/<%=@ma.id%>/markReviewed"><button class="btn btn-success btn-sm"><i class="fa fa-check"></i> Mark Reviewed</button></a>
+		<% end %>
+
+		<% if !@ma.flagged %>
+			<a href="/auditMonitors/<%=@ma.id%>/flag"><button class="btn btn-danger btn-sm"><i class="fa fa-flag"></i> Flag Alert</button></a>
+		<% end %>
+
+		<% if @ma.reviewed %>
+			<a href="/auditMonitors/<%=@ma.id%>/reopen"><button class="btn btn-warning btn-sm"><i class="fa fa-refresh"></i> Reopen Alert</button></a>
+		<% end %>
+		
+		<div>
+	</div>
+</div>
+
+<%= erb :footer_partial %>

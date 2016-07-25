@@ -1,0 +1,30 @@
+<div class="btn-group" id="btn_group_<%=ma.id%>">
+  <% if !ma.reviewed %>
+    <button type="button" class="btn btn-sm btn-warning" id="btn_<%=ma.id%>" onclick="markMAReviewed(<%=ma.id%>)">Not Reviewed</button>
+    <button type="button" class="btn btn-sm btn-warning dropdown-toggle" id="btn_caret_<%=ma.id%>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  <% elsif ma.reviewed && ma.flagged %>
+    <button type="button" class="btn btn-sm btn-danger" id="btn_<%=ma.id%>" onclick="reopenMA(<%=ma.id%>)">Flagged</button>
+    <button type="button" class="btn btn-sm btn-danger dropdown-toggle" id="btn_caret_<%=ma.id%>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  <% else %>
+    <button type="button" class="btn btn-sm btn-success" id="btn_<%=ma.id%>" onclick="flagMA(<%=ma.id%>)">Reviewed - OK</button>
+    <button type="button" class="btn btn-sm btn-success dropdown-toggle" id="btn_caret_<%=ma.id%>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  <% end %>
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" id="btn_dd_<%=ma.id%>">
+    <% if !ma.reviewed %>
+      <li><a href="/auditMonitors/<%=ma.id%>/markReviewed" style="color:#4cae4c;"><i class="fa fa-check"></i> Mark Reviewed</a></li>
+    <% end %>
+
+    <% if !ma.flagged %>
+      <li><a href="/auditMonitors/<%=ma.id%>/flag" style="color:#d43f3a;"><i class="fa fa-flag"></i> Flag</a></li>
+    <% end %>
+
+    <% if ma.reviewed %>
+      <li><a href="/auditMonitors/<%=ma.id%>/reopen" style="color:#eea236;"><i class="fa fa-rotate-left"></i> Reopen</a></li>
+    <% end %>
+
+    <li role="separator" class="divider"></li>
+    <li><a href="/auditMonitors/<%=ma.id%>"><i class="fa fa-ellipsis-h"></i>&nbsp; View Details</a></li>
+  </ul>
+</div>

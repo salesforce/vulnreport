@@ -1,0 +1,139 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+  $(function() {
+    $("#rt-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available RecordTypes</div>",
+                            selectionHeader: "<div class='msHeader'>RecordTypes Using VulnType</div>",
+                          });
+
+    $("#sec-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available Sections</div>",
+                            selectionHeader: "<div class='msHeader'>Sections on VulnType</div>",
+                          });
+  });
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>VulnTypes <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/vulntypes"><i class="fa fa-wrench"></i> VulnTypes</a></li>
+      <li class="active"><i class="fa fa-group"></i> New VulnType</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/vulntypes/new">
+      <%= csrf_tag %>
+
+      <div class="form-group">
+          <label for="isEnabled" class="col-sm-2 control-label">
+            Enabled:
+          </label>
+          <div class="col-sm-2">
+            <input type="checkbox" name="isEnabled" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" checked>
+          </div>
+      </div>
+
+      <div class="form-group">
+        <label for="vtName" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="vtName" name="vtName" placeholder="Name">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="vtLabel" class="col-sm-2 control-label">Label: </label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="vtLabel" name="vtLabel" placeholder="Label (for exported reports)">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="cwe" class="col-sm-2 control-label">CWE Mapping ID: </label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="cwe" name="cwe" placeholder="CWE ID">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="vtPri" class="col-sm-2 control-label">Default Priority: </label>
+        <div class="col-sm-4">
+          <select class="form-control" id="vtPri" name="vtPri">
+            <option value="<%=VULN_PRIORITY::CRITICAL%>">Critical</option>
+            <option value="<%=VULN_PRIORITY::HIGH%>">High</option>
+            <option value="<%=VULN_PRIORITY::MEDIUM%>">Medium</option>
+            <option value="<%=VULN_PRIORITY::LOW%>">Low</option>
+            <option value="<%=VULN_PRIORITY::INFORMATIONAL%>">Informational</option>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="html" class="col-sm-2 control-label">Report HTML: </label>
+        <div class="col-sm-6">
+          <textarea class="form-control" rows="8" id="html" name="html"></textarea>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">
+        App Record Types
+        <small style="font-size:6pt;">Select which Record Types this vulnerability should be available on</small>
+      </h4>
+
+      <div class="form-group">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-6">
+          <select multiple="multiple" id="rt-multiselect" name="rtms[]" rel="jqms">
+            <% @appRecordTypes.each do |rt| %>
+              <option value="<%=rt.id%>"><%=h(rt.name)%></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">
+        Enabled Sections
+        <small style="font-size:6pt;">Select which data sections are available on this VulnType</small>
+      </h4>
+
+      <div class="form-group">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-6">
+          <select multiple="multiple" id="sec-multiselect" name="secms[]" rel="jqms">
+            <option value="<%=SECT_TYPE::BURP%>" selected>Burp Data</option>
+            <option value="<%=SECT_TYPE::URL%>" selected>URL</option>
+            <option value="<%=SECT_TYPE::FILE%>" selected>File</option>
+            <option value="<%=SECT_TYPE::SSHOT%>" selected>Screenshot</option>
+            <option value="<%=SECT_TYPE::CODE%>" selected>Code / Request</option>
+            <option value="<%=SECT_TYPE::OUTPUT%>" selected>Output / Response</option>
+            <option value="<%=SECT_TYPE::NOTES%>" selected>Notes</option>
+            <option value="<%=SECT_TYPE::PAYLOAD%>" selected>Payload File</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Create Type</button>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

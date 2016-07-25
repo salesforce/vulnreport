@@ -1,0 +1,86 @@
+/*
+* Copyright (c) 2016, salesforce.com, inc.
+* All rights reserved.
+* Licensed under the BSD 3-Clause license. 
+* For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
+*/
+
+tr.danger > td > a, a:hover, a:active, a:focus{
+  color: #610B0B;
+}
+
+tr.warning > td > a, a:hover, a:active, a:focus{
+  color: #DBA901;
+}
+
+.dblToUpdate {
+  border-bottom: 1px dashed #AAA;
+  cursor: pointer;
+}
+
+.dblToUpdate:hover {
+  border-bottom: 1px dashed #111;
+  cursor: pointer;
+}
+
+.breadcrumb-select{
+  font-size: 10pt;
+  height: 20px;
+  background: transparent;
+  color: #666;
+  border: 1px solid #CCC;
+}
+
+.bulkptc-select{
+  font-size: 10pt;
+  height: 22px;
+  background: transparent;
+  color: #EEE;
+  border: 1px solid #EEE;
+}
+
+.desaturate{
+  -webkit-filter: grayscale(100%);
+  -moz-filter: grayscale(100%);
+  filter: grayscale(100%);
+}
+
+.geo-icon{
+  border:1px solid #BBB;
+}
+
+span.codeSpan{
+  font-family: Consolas,monaco,monospace; 
+}
+
+.msHeader{
+  text-align: center;
+  font-weight: bold;
+}
+
+.panel-bg-title{
+  padding-top: 8px;
+  padding-left: 15px;
+  margin-bottom: -8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #959595;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.bodyPanels{
+  margin-bottom: 10px;
+}
+
+.bodyPanels .panel{
+  margin-bottom: 6px;
+}
+
+.bodyPanels .panel .panel-body h1,h2,h3,h4,h5{
+  margin-top: 0px;
+}
+
+.navbar-brand{
+  font-weight: 500;
+}

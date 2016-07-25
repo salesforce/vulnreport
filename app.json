@@ -1,0 +1,46 @@
+{
+  "name": "Vulnreport",
+  "description": "Open-source pentesting management and automation platform released by Salesforce Product Security",
+  "keywords": [
+    "Security",
+    "Pentesting",
+    "Automation"
+  ],
+  "website": "http://vulnreport.io/",
+  "repository": "https://github.com/salesforce/vulnreport",
+  "success_url": "http://vulnreport.io/documentation#installConfig",
+  "scripts": {
+    "postdeploy": "./SEED.rb"
+  },
+  "env": {
+    "VR_SESSION_SECRET": {
+      "description": "Session secret key for Vulnreport sessions",
+      "generator": "secret"
+    },
+    "RACK_ENV": {
+      "description": "Environment to run as",
+      "value": "production"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "hobby"
+    }
+  },
+  "image": "heroku/ruby",
+  "addons": [
+    {
+      "plan": "heroku-postgresql:hobby-dev"
+    },
+    {
+      "plan": "heroku-redis:hobby-dev"
+    },
+    {
+      "plan": "rollbar:free"
+    },
+    {
+      "plan": "sendgrid:starter"
+    }
+  ]
+}

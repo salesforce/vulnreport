@@ -1,0 +1,117 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+    function navToGeo(e){
+      window.location = "/geo/" + $(e).val();
+    }
+
+    function navToDash(e){
+      window.location = "/showdash/" + $(e).val();
+    }
+
+    $(function() {
+      $(".tablesorter_dash").tablesorter( {sortList: [[0,0]]} );
+    });
+
+    var selCount = 0;
+    function enableBulkPtc(){
+      //deselect all checkboxes, reset counter to 0, show checkboxes, contractor selection, and submission button
+      $(".bulk_cb").attr('checked', false);
+      updateSelCount();
+      $(".bulk_cb").show();
+      $("#ptcToggle").css('color', '#5CB85B');
+      $("#bulkPtcForm").css('display', 'inline');
+      $("#ptcToggle").attr('onclick', 'cancelBulkPtc()');
+    }
+
+    function cancelBulkPtc(){
+      //hide all checkboxes, hide options, revert color of ptc icon, deselect checkboxes, reset counter
+      $(".bulk_cb").hide();
+      $(".bulk_cb").attr('checked', false);
+      updateSelCount();
+      $("#ptcToggle").css('color', '#FFF');
+      $("#ptcToggle").attr('onclick', 'enableBulkPtc()');
+      $("#bulkPtcForm").css('display', 'none');
+    }
+
+    function updateSelCount(){
+      window.selCount = $(".bulk_cb:checked").length;
+      $("#bulkPtcPassBtn").text("Pass Selected (" + String(window.selCount) + ")");
+    }
+
+    function doBulkPtc(){
+      var ptcForm = $("#bulkPtcForm");
+
+      $('.bulk_cb:checked').each(function(idx){
+        var clone = $(this).clone();
+        $(this).after(clone).css('display', 'none').appendTo(ptcForm);
+      });
+
+      ptcForm.submit();
+    }
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Dashboard</small></h1>
+    <ol class="breadcrumb">
+      <li class="active"><i class="fa fa-dashboard"></i> Dashboard 
+        <select class="breadcrumb-select" name="dcSelect" style="margin-left:4px;" onchange="navToDash(this)">
+          <option value="0" <% if @dashId == 0 %>selected<% end %>>VR Default Dashboard</option>
+          <% @dashOptions.each do |dc| %>
+            <option value="<%=dc.id%>" <% if dc.id == @dashId %>selected<% end %>><%=h(dc.name)%></option>
+          <% end %>
+        </select>
+      </li>
+      <li class="active" style="float:right;">
+        Geo:&nbsp;
+        <select class="breadcrumb-select" onchange="navToGeo(this)">
+          <option value="0" <% if @geo == 0 %>selected<% end %>>All</option>
+          <% GEO.constants.each do |g| %>
+            <option value="<%=GEO.const_get(g)%>" <% if @geo == GEO.const_get(g) %>selected<% end %>><%=geoToString(GEO.const_get(g))%></option>
+          <% end %>
+        </select>
+      </li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<% if @user.org == 0 %>
+<div class="alert alert-warning alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  Your Vulnreport account is not yet verified. Please contact your Vulnreport admin.
+</div>
+<% end %>
+
+<% if (@user.useAllocation && !@user.allocation.nil? && @user.allocation.wasAutoSet && !contractor?) %>
+<div class="alert alert-warning">
+  Your monthly allocation for <%=Date.today.strftime('%B')%> has been auto-set to <b><%=@user.allocation.allocation%>%</b>. Please <a class="alert-link" href="/confirmAlloc"><u>confirm this</u></a> or <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> now.
+</div>
+<% elsif (@user.useAllocation && @user.allocation.nil? && !contractor?) %>
+<div class="alert alert-warning">
+  You have not yet <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> for <%=Date.today.strftime('%B')%>. Please do so now!
+</div>
+<% end %>
+
+<% if @dashError %>
+  <center>
+    <p><b>There was an error generating this dashboard</b></p>
+    <p><%=@errstr%></p>
+  </center>
+<% else %>
+  <% if @showStats %>
+    <%= erb :dash_stats_partial, :locals => {:block_1 => @statblocks[0],
+                                             :block_2 => @statblocks[1],
+                                             :block_3 => @statblocks[2],
+                                             :block_4 => @statblocks[3]
+                                            } %>
+   <% end %>
+
+  <% @panels.each do |panel| %>
+    <%= erb :dash_generic_panel_partial, :locals => {:title => panel[:title], :color => panel[:color], :records => panel[:records], :maxwks => panel[:maxwks], 
+                                                     :zerotext => panel[:zerotext], :fetch_time => panel[:fetch_time]
+                                                    } %>
+  <% end %>
+<% end %>
+
+<%= erb :footer_partial %>

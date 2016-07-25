@@ -1,0 +1,78 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Record Types <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/recordTypes"><i class="fa fa-cube"></i> Record Types</a></li>
+      <li class="active"><i class="fa fa-cube"></i> New Record Type</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/recordTypes/new">
+      <%= csrf_tag %>
+
+      <div class="form-group">
+          <label for="isActive" class="col-sm-2 control-label">
+            Active:
+          </label>
+          <div class="col-sm-2">
+            <input type="checkbox" name="isActive" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" checked>
+          </div>
+      </div>
+
+      <div class="form-group">
+        <label for="rtName" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="rtName" name="rtName" placeholder="Name">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="rtDesc" class="col-sm-2 control-label">Description: </label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="rtDesc" name="rtDesc" placeholder="Description">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+          <label for="isLinked" class="col-sm-2 control-label">
+            Linked Object:
+          </label>
+          <div class="col-sm-2">
+            <input type="checkbox" name="isLinked" id="isLinked" rel="switch" data-size="small" data-on-text="Yes" data-on-color="info" data-off-text="No">
+          </div>
+      </div>
+
+      <div class="form-group">
+        <label for="" class="col-sm-2 control-label">Linked Object: </label>
+        <div class="col-sm-4">
+          <select class="form-control" id="rtLinkTo" name="rtLinkTo">
+            <option value="0">None</option>
+            <% @linkOptions.each do |lt| %>
+              <option value="<%=lt[:key]%>"><%=lt[:name]%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Create Type</button>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

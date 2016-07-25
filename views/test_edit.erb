@@ -1,0 +1,89 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@test.name)%> <small>Security Test for <%=h(@app.name)%></small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li><a href="/tests/<%=@test.id%>"><i class="fa fa-edit"></i> <%=h(@test.name)%></a></li>
+      <li class="active"><i class="fa fa-ellipsis-h"></i> Edit</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<% if @save_error %>
+<div class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  Failed to save test
+</div>
+<% end %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/tests/<%=@test.id%>/edit">
+      <%= csrf_tag %>
+      
+      <div class="form-group">
+        <label for="testName" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="testName" name="testName" placeholder="Test Name" value="<%=h(@test.name)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="testDescr" class="col-sm-2 control-label">Description: </label>
+        <div class="col-sm-6">
+          <textarea class="form-control" name="testDescr" id="testDescr"><%=h(@test.description)%></textarea>
+          
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="reviewer" class="col-sm-2 control-label">Reviewer: </label>
+        <div class="col-sm-4">
+          <select class="form-control" name="reviewer">
+            <% @users.each do |u| %>
+              <option value="<%=u.id%>" <% if u.id == @rev.id %>selected<% end %>><%=u.name%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-4" style="text-align:left;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="isContractorTest" class="col-sm-2 control-label">
+          Contractor Test:
+        </label>
+        <div class="col-sm-1">
+          <input type="checkbox" name="isContractorTest" onchange="showCon(this)" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger" <%=@isContractorTest%>>
+        </div>
+        <div class="col-sm-6" style="text-align:left;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="eid" class="col-sm-2 control-label">External EID: </label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" id="eid" name="eid" placeholder="External EID (Optional)" value="<%=h(@test.ext_eid)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save Test</button>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

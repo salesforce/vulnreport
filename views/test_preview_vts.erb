@@ -1,0 +1,42 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@test.name)%> <small>Security Test for <%=h(@app.name)%></small></h1>
+
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li><a href="/tests/<%=@test.id%>"><i class="fa fa-edit"></i> <%=h(@test.name)%></a></li>
+      <li class="active"><i class="fa fa-cubes"></i> View Vuln Type Details</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-10">
+    The following are the VulnTypes enabled for the RecordType that this test's application belongs to and the public descriptions and remediation steps that will be added to reports exported from this test. To add VulnTypes or modify the descriptions, please contact your Vulnreport admin.
+  </div>
+  <div class="col-lg-1"></div>
+</div>
+
+<% @vulnTypes.each do |vt| %>
+  <div class="row" style="margin-bottom:12px;">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-10">
+      <h4><%=h(vt.name)%></h4>
+      <div style="margin-left:16px;">
+        <% if vt.html.nil? || vt.html.strip.empty? %>
+          <i>No description provided</i>
+        <% else %>
+          <%=vt.html%>
+        <% end %>
+      </div>
+    </div>
+    <div class="col-lg-1"></div>
+  </div>
+<% end %>
+
+
+<%= erb :footer_partial %>

@@ -1,0 +1,87 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Reports</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li><a href="/reports"><i class="fa fa-bar-chart-o"></i> Reports</a></li>
+      <li class="active"><i class="fa fa-bar-chart-o"></i> Tests - Apps and Tests over Time</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :"reports/datepicker_partial" %>
+
+<div class="row" style="margin-top:-8px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	<h4>Apps and Tests over Time</h4>
+  	<canvas id='graph' width="1100px;" height="450px"></canvas>
+  </div>
+</div>
+
+<div class="row" style="margin-top:0px; margin-bottom:10px;">
+  <div class="col-lg-12" style="text-align:center;">
+  	<span style="color:rgba(151,187,205,1);">Internal # Tests</span>
+  	<span style="color:#F7464A; margin-left:24px;">Contractor # Tests</span>
+  	<span style="color:rgba(253,180,92,1);margin-left:24px;">Total Unique Apps</span>
+  </div>
+</div>
+
+<script type="text/javascript">
+	var data = {
+		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
+		datasets : [{
+			name: 'Internal Tests',
+			strokeColor : 'rgba(151,187,205,1)',
+			pointColor : 'rgba(151,187,205,1)',
+			pointStrokeColor: '#FFF',
+			data : [<%=@nonConTestCounts.join(',')%>]
+		 },
+		 {
+			name: 'Contractor Tests',
+			strokeColor : 'rgba(247,70,74,1)',
+			pointColor : 'rgba(247,70,74,1)',
+			pointStrokeColor: '#FFF',
+			data : [<%=@conTestCounts.join(',')%>]
+		 },
+		 {
+			name: 'Total Unique Apps',
+			strokeColor : 'rgba(253,180,92,1)',
+			pointColor : 'rgba(253,180,92,1)',
+			pointStrokeColor: '#FFF',
+			data : [<%=@appCounts.join(',')%>]
+		 }]
+	};
+
+	var max = <%=@appCounts.max%>;
+	var maxSteps = 25;
+	var steps = Math.min(max, maxSteps);
+	
+	var options = {
+		scaleGridLineColor : 'rgba(0,0,0,.15)',
+		scaleLineColor : 'rgba(0,0,0,.35)',
+		bezierCurve : false,
+		datasetFill : false,
+		datasetStrokeWidth : 3,
+		scaleOverride: true,
+	    scaleSteps: steps,
+	    scaleStepWidth: Math.ceil(max / steps),
+	    scaleStartValue: 0
+	};	
+
+	var ctx = $('#graph').get(0).getContext('2d');
+	var chart = new Chart(ctx).Line(data, options);
+</script>
+
+<div class="row" style="margin-top:10px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	<h4>Date Range Totals</h4>
+  	<b>Total Apps Tested: </b><%=@appCountTotal%><br />
+  	<b>Total Security Tests: </b><%=@totalTests%><br />
+  	&nbsp;&nbsp;&nbsp;<b>Internal: </b><%=@totalNonConTests%><br />
+  	&nbsp;&nbsp;&nbsp;<b>Contractor: </b><%=@totalConTests%>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

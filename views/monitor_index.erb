@@ -1,0 +1,123 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+  //Not Reviewed -> Reviewed OK -> Flagged -> Not Reviewed
+  function markMAReviewed(maid){
+    $.post("/auditMonitors/"+maid+"/markReviewed", 
+            { _csrf: "<%=csrf_token%>"},
+            function(){
+              $('#btn_'+maid).removeClass('btn-warning');
+              $('#btn_caret_'+maid).removeClass('btn-warning');
+              $('#btn_'+maid).addClass('btn-success');
+              $('#btn_caret_'+maid).addClass('btn-success');
+              $('#btn_'+maid).text('Reviewed - OK');
+              $('#btn_'+maid).attr("onclick", "flagMA("+maid+")")
+            }
+          ).fail(function(){
+            alert("Error marking reviewed");
+          });
+  }
+
+  function reopenMA(maid){
+    $.post("/auditMonitors/"+maid+"/reopen", 
+            { _csrf: "<%=csrf_token%>"},
+            function(){
+              $('#btn_'+maid).removeClass('btn-danger');
+              $('#btn_caret_'+maid).removeClass('btn-danger');
+              $('#btn_'+maid).addClass('btn-warning');
+              $('#btn_caret_'+maid).addClass('btn-warning');
+              $('#btn_'+maid).text('Not Reviewed');
+              $('#btn_'+maid).attr("onclick", "markMAReviewed("+maid+")")
+            }
+          ).fail(function(){
+            alert("Error marking reviewed");
+          });
+  }
+
+  function flagMA(maid){
+    $.post("/auditMonitors/"+maid+"/flag", 
+            { _csrf: "<%=csrf_token%>"},
+            function(){
+              $('#btn_'+maid).removeClass('btn-success');
+              $('#btn_caret_'+maid).removeClass('btn-success');
+              $('#btn_'+maid).addClass('btn-danger');
+              $('#btn_caret_'+maid).addClass('btn-danger');
+              $('#btn_'+maid).text('Flagged');
+              $('#btn_'+maid).attr("onclick", "reopenMA("+maid+")")
+            }
+          ).fail(function(){
+            alert("Error marking reviewed");
+          });
+  }
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Audit Monitor Alerts</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li class="active"><i class="fa fa-eye"></i> Audit Monitor Alerts</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12" style="padding-left:20px; margin-bottom:10px;">
+    <!-- view options (show only un reviewed, show only flagged, show all) (by status, by type) -->
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-eye"></i> Monitor Alerts
+          <span style="position:absolute;right:25px;">
+            <% if !@last.nil? %>
+              <a href="?os=<%=@last%>" style="color:#FFF;"><i class="fa fa-chevron-left"></i></a>
+            <% end %>
+            <%=@start%> to <%=@end%> of <%=@total%>
+            <% if !@next.nil? %>
+              <a href="?os=<%=@next%>" style="color:#FFF;"><i class="fa fa-chevron-right"></i></a>
+            <% end %>
+          </span>
+        </h3>
+      </div>
+      <div class="panel-body">
+        <% if @noMonitorTypes %>
+          <p>
+            No EVENT_TYPE's are configured as Monitor Event Types. Monitor Event Types are tpes of audit events that are configured to be treated as alerts to be reviewed by Vulnreport users as opposed to permanent audit trail records. These can be created and configured with minimal effort in your Vulnreport schema. Please see the Vulnreport documentation for more information and to get started.
+          </p>
+        <% else %>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th style="width:15%"></th>
+                <th style="width:15%"><b>Date/Time</b></th>
+                <th style="width:25%"><b>Monitor Rule</b></th>
+                <th style="width:45%"><b>Triggered By</b></th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% @mas.each do |ma| %>
+                <tr id="ma_<%=ma.id%>">
+                  <td style="width:15%">
+                    <%= erb :monitor_alert_button_partial, :locals => {:ma => ma} %>
+                  </td>
+                  <td style="width:15%"><a href="/auditMonitors/<%=ma.id%>"><%=ma.event_at.strftime('%-m/%-d/%y %H:%M:%S')%></a></td>
+                  <td style="width:25%"><%=getMonitorTypeString(ma.event_type)%></td>
+                  <td style="width:45%"><%=getMonitorCausedByString(ma)%></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<%= erb :footer_partial %>

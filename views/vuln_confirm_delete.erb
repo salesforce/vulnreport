@@ -1,0 +1,36 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@vuln.type_str)%> <small>Vulnerability for <%=h(@test.name)%></small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li><a href="/tests/<%=@test.id%>"><i class="fa fa-edit"></i> <%=h(@test.name)%></a></li>
+      <li class="active"><i class="fa fa-exclamation"></i> <%=h(@vuln.type_str)%></li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+
+<div class="row" style="margin-top:0px;">
+  <div class="col-lg-12">
+    <h4 style="color:#B40404;"><i class="fa fa-exclamation"></i> Confirm Deletion</h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+  </div>
+</div>
+
+<div class="row" style="margin-top:0px;">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-4" style="text-align:center;">
+    <form method="POST" action="/tests/<%=@test.id%>/<%=@vuln.id%>/delete">
+    <%= csrf_tag %>
+    This vuln will be <b>permanently deleted</b>
+    <br /><br />
+    <button type="submit" class="btn btn-success" name="confirm" value="confirm">Confirm</button>
+    <button type="submit" class="btn btn-danger" name="confirm" value="cancel">Cancel</button>
+  </div>
+  <div class="col-lg-7"></div>
+</div>
+
+<%= erb :footer_partial %>

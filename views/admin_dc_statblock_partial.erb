@@ -1,0 +1,43 @@
+<b>Block <%=blocknum%></b>
+<br />
+<span style="font-size: 8pt;">Count:</span>
+<select name="block<%=blocknum%>_type" style="width:130px;" onchange="checkRtDisplay(this, 's<%=blocknum%>')">
+  <% DASHPANEL_TYPE.constants.each do |pt| %>
+    <option value="<%=DASHPANEL_TYPE.const_get(pt)%>" <% if !@dc.stats[blocknum-1].nil? && @dc.stats[blocknum-1][:type] == DASHPANEL_TYPE.const_get(pt) %>selected<% end %>>
+      <%=panelTypeToString(DASHPANEL_TYPE.const_get(pt))%>
+    </option>
+  <% end %>
+</select>
+
+<br />
+<div id="panelRecordType_s<%=blocknum%>" <% if !@dc.stats[blocknum-1].nil? && @nonRtTypes.include?(@dc.stats[blocknum-1][:type]) %>style="display: none;"<% else %>style="display: block;"<% end %>>
+  <span style="font-size: 8pt;">From:</span>
+  <select name="block<%=blocknum%>_rt" style="width:130px; margin-top:8px;">
+    <% @rtOpts.each do |rt| %>
+      <option value=<%=rt.id%> <% if !@dc.stats[blocknum-1].nil? && @dc.stats[blocknum-1][:rt] == rt.id %>selected<% end %>><%=h(rt.name)%></option>
+    <% end %>
+  </select>
+</div>
+
+<span style="font-size: 8pt;">Text:</span> 
+<input type="text" name="block<%=blocknum%>_text" placeholder="Stat Text" size="18" style="margin-top:8px;" <% if !@dc.stats[blocknum-1].nil? %>value="<%=@dc.stats[blocknum-1][:text]%>"<% end %> />
+
+<br />
+<span style="font-size: 8pt;">Color:</span>
+<select name="block<%=blocknum%>_color" style="width:130px; margin-top: 8px;">
+  <option value="info" <% if !@dc.stats[blocknum-1].nil? && @dc.stats[blocknum-1][:color] == "info" %>selected<% end %>>Blue</option>
+  <option value="success" <% if !@dc.stats[blocknum-1].nil? && @dc.stats[blocknum-1][:color] == "success" %>selected<% end %>>Green</option>
+  <option value="warning" <% if !@dc.stats[blocknum-1].nil? && @dc.stats[blocknum-1][:color] == "warning" %>selected<% end %>>Yellow</option>
+  <option value="danger" <% if !@dc.stats[blocknum-1].nil? && @dc.stats[blocknum-1][:color] == "danger" %>selected<% end %>>Red</option>
+  <option value="auto10" <% if !@dc.stats[blocknum-1].nil? && @dc.stats[blocknum-1][:color] == "auto10" %>selected<% end %>>Auto (Yellow @ 10, Red @ 20)</option>
+  <option value="auto20" <% if !@dc.stats[blocknum-1].nil? && @dc.stats[blocknum-1][:color] == "auto20" %>selected<% end %>>Auto (Yellow @ 20, Red @ 40)</option>
+  <option value="auto30" <% if !@dc.stats[blocknum-1].nil? && @dc.stats[blocknum-1][:color] == "auto30" %>selected<% end %>>Auto (Yellow @ 30, Red @ 60)</option>
+</select>
+
+<br />
+<div style="width:80%; margin:10px auto 0px auto;">
+  <div class="input-group iconpicker-container">
+    <input data-placement="bottomRight" class="form-control icp iconpicker-element iconpicker-input" value="<%=@dc.stats[blocknum-1][:icon]%>" type="text" name="block<%=blocknum%>_icon" placeholder="Icon">
+    <span class="input-group-addon"><i class="fa <%=@dc.stats[blocknum-1][:icon]%>"></i></span>
+  </div>
+</div>

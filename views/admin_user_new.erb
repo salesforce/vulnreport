@@ -1,0 +1,146 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Users <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/users"><i class="fa fa-user"></i> Users</a></li>
+      <li class="active"><i class="fa fa-plus"></i> Manually Add New User</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/users/new">
+      <%= csrf_tag %>
+
+      <div class="form-group">
+          <label for="isVerified" class="col-sm-2 control-label">
+            User Verified:
+          </label>
+          <div class="col-sm-2">
+            <input type="checkbox" name="isVerified" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger">
+          </div>
+      </div>
+
+      <div class="form-group">
+        <label for="userName" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="userName" name="userName" placeholder="Name">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+          <i class="fa fa-question-circle" rel="tooltip" title="Must match org62 drop down option"></i>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="userInitials" class="col-sm-2 control-label">Initials: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="userInitials" name="userInitials" placeholder="Initials">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+          <i class="fa fa-question-circle" rel="tooltip" title="Used in org62 record comments"></i>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="userEmail" class="col-sm-2 control-label">Email Address: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="userEmail" name="userEmail" placeholder="Email Address">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="userOrg" class="col-sm-2 control-label">Org: </label>
+        <div class="col-sm-4">
+          <select class="form-control" id="userOrg" name="userOrg">
+            <option value="0">--Unverified User--</option>
+            <optgroup label="Active Orgs">
+              <% @orgs.each do |o| %>
+                <% if !o.contractor %>
+                  <option value="<%=o.id%>"><%=o.name%></option>
+                <% end %>
+              <% end %>
+            </optgroup>
+            <optgroup label="Contractor Orgs">
+              <% @orgs.each do |o| %>
+                <% if o.contractor %>
+                  <option value="<%=o.id%>"><%=o.name%></option>
+                <% end %>
+              <% end %>
+            </optgroup>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="isAdmin" class="col-sm-2 control-label">
+          Admin User:
+        </label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isAdmin" rel="switch" data-size="small" data-on-text="Yes" data-on-color="danger" data-off-text="No">
+        </div>
+
+        <label for="isReportsOnly" class="col-sm-2 control-label">
+          Reports Only User:
+        </label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isReportsOnly" rel="switch" data-size="small" data-on-text="Yes" data-off-text="No">
+          <i class="fa fa-question-circle" style="padding-left:5px;" rel="tooltip" title="Only able to view data trend reports - designed for ISV Team"></i>
+        </div>
+      </div>
+
+      <% if getSetting('AUTH_SSO_ENABLED') == 'true' %>
+        <hr />
+        <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">SSO Information <small style="font-size:6pt;"></small></h4>
+
+        <div class="form-group">
+          <label for="sso_user" class="col-sm-2 control-label">SSO User: </label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="sso_user" name="sso_user" placeholder="SSO User">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sso_id" class="col-sm-2 control-label">SSO User ID: </label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="sso_id" name="sso_id" placeholder="SSO User ID">
+          </div>
+        </div>
+      <% end %>
+
+      <% if getSetting('AUTH_LOGIN_ENABLED') == 'true' %>
+        <hr />
+        <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">Login Information <small style="font-size:6pt;"></small></h4>
+
+        <div class="form-group">
+          <label for="login_user" class="col-sm-2 control-label">Username: </label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="login_user" name="login_user" placeholder="Username">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="login_password" class="col-sm-2 control-label">Password: </label>
+          <div class="col-sm-6">
+            <input type="password" class="form-control" id="login_password" name="login_password" placeholder="Password">
+          </div>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save User</button>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

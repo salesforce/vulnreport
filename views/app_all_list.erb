@@ -1,0 +1,71 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>All Reviews</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li class="active"><i class="fa fa-globe"></i> All Reviews</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :"reports/datepicker_partial" %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-globe"></i> All Reviews  (<%=@reviews.size%>)
+          <span style="position:absolute;right:25px;">
+            <% if !@last.nil? %>
+              <a href="?os=<%=@last%>" style="color:#FFF;"><i class="fa fa-chevron-left"></i></a>
+            <% end %>
+            <%=@start%> to <%=@end%> of <%=@total%>
+            <% if !@next.nil? %>
+              <a href="?os=<%=@next%>" style="color:#FFF;"><i class="fa fa-chevron-right"></i></a>
+            <% end %>
+          </span>
+        </h3>
+      </div>
+      <div class="panel-body">
+        <table class="table table-striped tablesorter" style="margin-top:-12px;">
+          <thead>
+            <tr>
+              <th style="width:15%;"><b>Linked?</b> <i class="fa fa-sort"></i></th>
+              <th style="width:30%"><b>Application Name</b> <i class="fa fa-sort"></i></th>
+              <th style="width:17%"><b>Type</b> <i class="fa fa-sort"></i></th>
+              <th style="width:8%"><b># Tests</b> <i class="fa fa-sort"></i></th>
+              <th style="width:10%"><b>Total Vulns</b> <i class="fa fa-sort"></i></th>
+              <th style="width:10%"><b>Last Status</b> <i class="fa fa-sort"></i></th>
+              <th style="width:10%"><b>Last Test</b> <i class="fa fa-sort"></i></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @reviews.each do |a| %>
+            <tr>
+              <td style="width:15%;">
+                <% if a.isLinked? %>
+                  <a href="<%=a.linkedObjectURL%>" target="_blank"><%=a.linkedObjectText%></a>
+                <% else %>
+                  -
+                <% end %>
+              </td>
+              <td style="width:30%;"><a href="/reviews/<%=a.id%>"><%=h(a.name)%></a></td>
+              <td style="width:17%"><%=h(a.recordTypeName)%> <%=a.typeIcons%></td>
+              <td style="width:8%; text-align: center;"><%=a.tests.size%></td>
+              <td style="width:10%; text-align: center;"><%=a.totalvulns%></td>
+              <td style="width:10%; text-align: center;"><%=a.lastStatusFormatted%></td>
+              <td style="width:10%"><% if a.tests.size > 0 %><%=a.tests.last.created_at.strftime('%m/%d/%Y')%><% end %></td>
+            </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

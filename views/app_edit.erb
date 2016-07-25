@@ -1,0 +1,193 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+  $(function() {
+    $("#user-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available Users</div>",
+                            selectionHeader: "<div class='msHeader'>Users Allowed to Access</div>",
+                            selectableOptgroup: true
+                          });
+
+    $("#flags-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available Flags</div>",
+                            selectionHeader: "<div class='msHeader'>Assigned Flags</div>",
+                            selectableOptgroup: true
+                          });
+  });
+</script>
+
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@app.name)%> <small><%=h(@app.recordTypeName)%></small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li class="active"><i class="fa fa-ellipsis-h"></i> Edit</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<% if @save_error %>
+<div class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  <% if !@save_error_str.nil? %>
+    <%=h(@save_error_str)%>
+  <% else %>
+    Failed to save review
+  <% end %>
+</div>
+<% end %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/reviews/<%=@app.id%>/edit">
+      <%= csrf_tag %>
+      
+      <div class="form-group">
+        <label for="appName" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="appName" name="appName" placeholder="Review Name" value="<%=h(@app.name)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="appDescr" class="col-sm-2 control-label">Description: </label>
+        <div class="col-sm-6">
+          <textarea class="form-control" name="appDescr" id="appDescr"><%=h(@app.description)%></textarea>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="recordType" class="col-sm-2 control-label">Type: </label>
+        <div class="col-sm-6">
+          <select class="form-control" id="recordType" name="recordType">
+            <option value="0" disabled <% if @app.record_type == 0 %>selected<%end%>>-- None Selected / Default --</option>
+            <% @appRecordTypes.each do |rt| %>
+              <option value="<%=rt.id%>" <% if @app.record_type == rt.id %>selected<%end%>><%=rt.name%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="owner" class="col-sm-2 control-label">Owner: </label>
+        <div class="col-sm-6">
+          <select class="form-control" id="owner" name="owner">
+            <option value="0" <% if @app.owner.nil? || @app.owner == 0 %>selected<%end%>>-- Unassigned --</option>
+            <optgroup label="Active Users">
+              <% @users.each do |u| %>  
+                <% if !u.contractor? %>
+                  <option value="<%=u.id%>" <% if @app.owner == u.id %>selected<% end %>><%=h(u.name)%></option>
+                <% end %>
+              <% end %>
+            </optgroup>
+
+            <% if @canPassToContractor %>
+              <optgroup label="Contractor Users">
+                <% @users.each do |u| %>  
+                  <% if u.contractor? %>
+                    <option value="<%=u.id%>" <% if @app.owner == u.id %>selected<% end %>><%=h(u.name)%></option>
+                  <% end %>
+                <% end %>
+              </optgroup>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="geo" class="col-sm-2 control-label">Geo: </label>
+        <div class="col-sm-6">
+          <select class="form-control" id="geo" name="geo">
+            <option value="0" disabled <% if @app.geo == 0 %>selected<%end%>>-- None Selected (!) --</option>
+            <% GEO.constants.each do |g| %>
+              <option value="<%=GEO.const_get(g)%>" <% if @app.geo == GEO.const_get(g) %>selected<% end %>><%=geoToString(GEO.const_get(g))%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="addEmails" class="col-sm-2 control-label">Additional Emails: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="addEmails" name="addEmails" placeholder="Additional emails to CC on reports (comma-separated)" value="<%=h(@app.add_emails)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="isGlobal" class="col-sm-2 control-label">Global App: </label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isGlobal" rel="switch" data-size="small" data-on-text="Yes" data-on-color="danger" data-off-text="No" <%=@isGlobal%>>
+          <i class="fa fa-question-circle" rel="tooltip" title="ANY authenticated vulnreport user can see this app"></i>
+        </div>
+
+        <label for="isPrivate" class="col-sm-2 control-label">Private App: </label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isPrivate" rel="switch" data-size="small" data-on-text="Yes" data-on-color="danger" data-off-text="No" <%=@isPrivate%>>
+          <i class="fa fa-question-circle" rel="tooltip" title="Only specified users and admins can access"></i>
+        </div>
+      </div>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">
+        Allowed Users 
+        <small style="font-size:8pt;">For Private Apps or to Override Security Settings <% if admin? %>[<a href="/reviews/<%=@app.id%>/permCheck">View Permission Calculations</a>]<% end %></small>
+      </h4>
+
+      <div class="form-group">
+        <label for="user-multiselect" class="col-sm-2 control-label"></label>
+        <div class="col-sm-6">
+          <select multiple="multiple" id="user-multiselect" name="userms[]" rel="jqms">
+            <% @orgs.each do |org| %>
+              <optgroup label='<%=h(org.name)%>'>
+                <% org.activeUsers.each do |u| %>
+                  <option value="<%=u.id%>" <% if !@app.allow_UIDs.nil? && @app.allow_UIDs.include?(u.id) %>selected<% end %>><%=h(u.name)%></option>
+                <% end %>
+              </optgroup>
+            <% end %>
+          </select>
+        </div>
+      </div>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">
+        Application Flags
+        <small style="font-size:8pt;"></small>
+      </h4>
+
+      <div class="form-group">
+        <label for="flags-multiselect" class="col-sm-2 control-label"></label>
+        <div class="col-sm-6">
+          <select multiple="multiple" id="flags-multiselect" name="flagms[]" rel="jqms">
+            <% @availableFlags.each do |f| %>
+              <option value="<%=f.id%>" <% if @app.flagIds.include?(f.id) %>selected<% end %>><%=h(f.name)%></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save Review</button>
+        </div>
+        <div class="col-sm-2"></div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

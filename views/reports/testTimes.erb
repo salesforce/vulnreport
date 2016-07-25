@@ -1,0 +1,102 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Reports</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li><a href="/reports"><i class="fa fa-bar-chart-o"></i> Reports</a></li>
+      <li class="active"><i class="fa fa-bar-chart-o"></i> Tests - Test and Approval Times</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :"reports/datepicker_partial" %>
+
+<div class="row" style="margin-top:-8px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	This report shows data about the time from the start of a test to its completion (and approval flow if needed) for tests started in a given period of time. Tests are included in this report only if the <b>close time</b> was within the date range. To see time that a review spent in the Queue before test completion, please run the <a href="/reports/tests/timeInQueue">Total Time in Queue</a> report.
+  </div>
+</div>
+
+<div class="row" style="margin-top:20px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	<h4>Test Times (Days)</h4>
+  	<canvas id='TestTimes' width="1100px;" height="400px"></canvas>
+  </div>
+</div>
+
+<div class="row" style="margin-top:0px; margin-bottom:10px;">
+  <div class="col-lg-12" style="text-align:center;">
+  	<span style="color:rgba(151,187,205,1);">Internal Test Times (Days)</span>
+  	<span style="color:#F7464A; margin-left:24px;">Contractor Total Test Times (Test + Approval) (Days)</span>
+  </div>
+</div>
+
+<div class="row" style="margin-top:20px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	<h4>Contractor Test and Approval Times (Days)</h4>
+  	<canvas id='ApprovalTimes' width="1100px;" height="400px"></canvas>
+  </div>
+</div>
+
+<div class="row" style="margin-top:0px; margin-bottom:10px;">
+  <div class="col-lg-12" style="text-align:center;">
+  	<span style="color:#F7464A; margin-left:24px;">Contractor Test Times (Days)</span>
+  	<span style="color:#FDB45C; margin-left:24px;">Approval Times (Days)</span>
+  </div>
+</div>
+
+<script type="text/javascript">
+	var testData = {
+		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
+		datasets : [{
+			name: 'Internal Test Times',
+			strokeColor : 'rgba(151,187,205,1)',
+			pointColor : 'rgba(151,187,205,1)',
+			pointStrokeColor: '#FFF',
+			data : [<%=@counts.join(',')%>]
+		 },
+		 {
+			name: 'Contractor Total Test Times',
+			strokeColor : 'rgba(247,70,74,1)',
+			pointColor : 'rgba(247,70,74,1)',
+			pointStrokeColor: '#FFF',
+			data : [<%=@conCounts.map.with_index{|x,i| x + @approvalCounts[i]}.join(',')%>]
+		 }]
+	};
+
+	var approvalData = {
+		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
+		datasets : [{
+			name: 'Contractor Test Times',
+			strokeColor : 'rgba(247,70,74,1)',
+			pointColor : 'rgba(247,70,74,1)',
+			pointStrokeColor: '#FFF',
+			data : [<%=@conCounts.join(',')%>]
+		 },
+		 {
+			name: 'Approval Times',
+			strokeColor : 'rgba(253,180,92,1)',
+			pointColor : 'rgba(253,180,92,1)',
+			pointStrokeColor: '#FFF',
+			data : [<%=@approvalCounts.join(',')%>]
+		 }]
+	};
+
+	var options = {
+		scaleGridLineColor : 'rgba(0,0,0,.15)',
+		scaleLineColor : 'rgba(0,0,0,.35)',
+		bezierCurve : false,
+		datasetFill : false,
+		datasetStrokeWidth : 3,
+	};
+	
+
+	var testCtx = $('#TestTimes').get(0).getContext('2d');
+	var approvalCtx = $('#ApprovalTimes').get(0).getContext('2d');
+	var testChart = new Chart(testCtx).Line(testData, options);
+	var approvalChart = new Chart(approvalCtx).Line(approvalData, options);
+</script>
+
+<%= erb :footer_partial %>

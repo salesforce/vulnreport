@@ -1,0 +1,186 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+  $(function() {
+    $("#org-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available Orgs</div>",
+                            selectionHeader: "<div class='msHeader'>Orgs Allowed to Access</div>",
+                          });
+
+    $("#vt-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available VulnTypes (<span id='vt-selall' style='cursor:pointer; text-decoration:underline;'>All</span>)</div>",
+                            selectionHeader: "<div class='msHeader'>Enabled VulnTypes (<span id='vt-selnone' style='cursor:pointer; text-decoration:underline;'>None</span>)</div>",
+                          });
+
+    $("#vt-selall").click(function(){
+      $("#vt-multiselect").multiSelect('select_all');
+      return false;
+    });
+
+    $("#vt-selnone").click(function(){
+      $("#vt-multiselect").multiSelect('deselect_all');
+      return false;
+    });
+  });
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Record Types <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/recordTypes"><i class="fa fa-cube"></i> Record Types</a></li>
+      <li class="active"><i class="fa fa-group"></i> <%=h(@rt.name)%></li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/recordTypes/<%=@rt.id%>">
+      <%= csrf_tag %>
+
+      <div class="form-group">
+          <label for="isActive" class="col-sm-2 control-label">
+            Active:
+          </label>
+          <div class="col-sm-2">
+            <input type="checkbox" name="isActive" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" <% if @rt.active %>checked<% end %>>
+          </div>
+      </div>
+
+      <div class="form-group">
+        <label for="rtName" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="rtName" name="rtName" placeholder="Name" value="<%=@rt.name%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="rtDesc" class="col-sm-2 control-label">Description: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="rtDesc" name="rtDesc" placeholder="Description" value="<%=@rt.description%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="rtExport" class="col-sm-2 control-label">Export Format: </label>
+        <div class="col-sm-6">
+          <select class="form-control" id="rtExport" name="rtExport">
+            <option value="0" <% if @rt.exportFormat == 0 %>selected<% end %>>Default</option>
+            <% @exportFormats.each do |ef| %>
+              <option value="<%=ef.id%>" <% if @rt.exportFormat == ef.id %>selected<% end %>><%=ef.name%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+          <label for="isLinked" class="col-sm-2 control-label">Linked Type:</label>
+          <div class="col-sm-1">
+            <input type="checkbox" name="isLinked" id="isLinked" rel="switch" data-size="small" data-on-text="Yes" data-on-color="info" data-off-text="No" <% if @rt.isLinked %>checked<% end %>>
+          </div>
+
+          <label for="" class="col-sm-1 control-label">Object: </label>
+          <div class="col-sm-4">
+            <select class="form-control" id="rtLinkTo" name="rtLinkTo">
+              <option value="0" <% if @rt.linkedObjectKey.nil? || @rt.linkedObjectKey.empty? %>selected<% end %>>None</option>
+              <% @linkOptions.each do |lt| %>
+                <option value="<%=lt[:key]%>" <% if @rt.linkedObjectKey == lt[:key] %>selected<% end %>><%=lt[:name]%></option>
+              <% end %>
+            </select>
+          </div>
+      </div>
+
+      <div class="form-group">
+        <label for="isPassable" class="col-sm-2 control-label">
+          <i class="fa fa-info-circle" rel="tooltip" title="Whether or not this RT can be passed to contractors for testing"></i> 
+          Contractor Passable:
+        </label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isPassable" rel="switch" data-size="small" data-on-text="Yes" data-on-color="info" data-off-text="No" <% if @rt.canBePassedToCon %>checked<% end %>>
+        </div>
+
+        <label for="isProvPassable" class="col-sm-2 control-label">
+          <i class="fa fa-info-circle" rel="tooltip" title="Whether or not Tests on this RT can be provisionally passed"></i> 
+          Provisional Pass:
+        </label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isProvPassable" rel="switch" data-size="small" data-on-text="Yes" data-on-color="info" data-off-text="No" <% if @rt.canBeProvPassed %>checked<% end %>>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="defaultPrivate" class="col-sm-2 control-label">
+          <i class="fa fa-info-circle" rel="tooltip" title="If yes, Applications of this type will be private by default"></i> 
+          Default Private:
+        </label>
+        <div class="col-sm-1">
+          <input type="checkbox" name="defaultPrivate" rel="switch" data-size="small" data-on-text="Yes" data-on-color="warning" data-off-text="No" <% if @rt.defaultPrivate %>checked<% end %>>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="rtPriorities" class="col-sm-2 control-label">
+          <i class="fa fa-info-circle" rel="tooltip" title="Comma-separated string from high-low (5 values). E.g. Critical, High, Medium, Low, Informational"></i>
+          Vuln Priorities: 
+        </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="rtPriorities" name="rtPriorities" placeholder="Vuln Priorities" value="<%=@rt.vulnPriorities%>"> 
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">Record Type Assignments <small style="font-size:8pt;">Affects both ability to use and view</small></h4>
+
+      <div class="form-group">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-6">
+          <select multiple="multiple" id="org-multiselect" name="orgms[]" rel="jqms">
+            <optgroup label="Vulnreport Orgs">
+              <% @regOrgs.each do |org| %>
+                <option value="<%=org.id%>" <% if @orgsAllowed.include?(org.id) %>selected<% end %>><%=h(org.name)%></option>
+              <% end %>
+            </optgroup>
+            <optgroup label="Contractors">
+              <% @conOrgs.each do |org| %>
+                <option value="<%=org.id%>" <% if @orgsAllowed.include?(org.id) %>selected<% end %>><%=h(org.name)%></option>
+              <% end %>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">
+        VulnTypes <small style="font-size:8pt;">Enable VulnTypes for use on Tests of this RecordType</small>
+        </h4>
+
+      <div class="form-group">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-6">
+          <select multiple="multiple" id="vt-multiselect" name="vtms[]" rel="jqms">
+            <% @vulnTypes.each do |vt| %>
+              <option value="<%=vt.id%>" <% if @enabledVTs.include?(vt.id) %>selected<% end %>><%=h(vt.name)%></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:22px;">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save Type</button>
+        </div>
+        <div class="col-sm-2"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

@@ -1,0 +1,58 @@
+<% title ||= "Records" %>
+<% records ||= [] %>
+<% zerotext ||= "" %>
+<% maxwks ||= nil %>
+<% color ||= "primary" %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-<%=color%>">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-edit"></i> <%=h(title)%>  (<%=getPanelRecordsCount(records)%>)
+          <span style="position:absolute;right:25px;">
+            <% if !fetch_time.nil? %>
+                <a href="/?cacheref=1" style="color:#FFF;">
+                  <i class="fa fa-refresh" style="cursor:pointer;" rel="tooltip" title="Data updated <%=fetch_time%>"></i>
+                </a>
+            <% end %>
+          </span>
+        </h3>
+      </div>
+      <div class="panel-body">
+        <table class="table table-striped tablesorter" style="margin-top:-12px; margin-bottom:0px;">
+          <thead>
+            <tr>
+              <th style="width:10%;"><b>Linked?</b> <i class="fa fa-sort"></i></th>
+              <th style="width:25%"><b>Application Name</b> <i class="fa fa-sort"></i></th>
+              <th style="width:20%"><b>Type</b> <i class="fa fa-sort"></i></th>
+              <th style="width:15%"><b>Owner</b> <i class="fa fa-sort"></i></th>
+              <th style="width:10%"><b>Status</b> <i class="fa fa-sort"></i></th>
+              <th style="width:10%"><b>Active Since</b> <i class="fa fa-sort"></i></th>
+              <th style="width:10%"><b># Tests</b> <i class="fa fa-sort"></i></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% if records.size == 0 %>
+              <tr>
+                <td colspan="9" align="center">
+                  <%=h(zerotext)%>
+                </td>
+              </tr>
+            <% else %>
+              <% records.each do |rec| %>
+                <%= erb :dash_generic_row_partial, :locals => {:rec => rec, :isChild => false, :maxwks => maxwks} %>
+                <% if !rec[:children].nil? %>
+                  <% rec[:children].each do |crec| %>
+                    <%= erb :dash_generic_row_partial, :locals => {:rec => crec, :isChild => true, :parentRec => rec, :maxwks => maxwks} %>
+                  <% end %>
+                <% end %>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

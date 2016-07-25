@@ -1,0 +1,10 @@
+<div class="row" style="margin-top:-10px; margin-bottom:20px;">
+	<div class="col-lg-11">
+		<ul class="nav nav-tabs">
+			<li role="presentation" <% if request.path_info == "/admin/settings" %>class="active"<% end %>><a href="/admin/settings"><i class="fa fa-gear"></i> VR Settings</a></li>
+			<li role="presentation" <% if request.path_info == "/admin/settings/mail" %>class="active"<% end %>><a href="/admin/settings/mail"><i class="fa fa-envelope"></i> VR Mail Settings</a></li>
+			<li role="presentation" <% if request.path_info == "/admin/settings/cache" %>class="active"<% end %>><a href="/admin/settings/cache"><i class="fa fa-fire"></i> Cache Settings</a></li>
+		</ul>
+	</div>
+	<div class="col-lg-1"></div>
+</div>

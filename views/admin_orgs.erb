@@ -1,0 +1,103 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Orgs <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li class="active"><i class="fa fa-group"></i> Orgs</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <div style="margin: -6px 0px 10px 8px;">
+      <a href="/admin/orgs/new"><i class="fa fa-plus"></i> New Org</a>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-group"></i> Super Orgs</h3>
+      </div>
+      <div class="panel-body">
+        <table class="table table-striped">
+          <tr>
+            <td style="width:10%"><b>Delete</b></td>
+            <td style="width:75%"><b>Name</b></td>
+            <td style="width:15%"><b># Users</b></td>
+          </tr>
+
+          <% @superOrgs.each do |o| %>
+          <tr id="org_<%=o[:id]%>">
+            <td style="width:10%"><a href="/admin/orgs/<%=o[:id]%>/delete"><button class="btn btn-danger btn-sm">Delete Org</button></a></td>
+            <td style="width:75%"><a href="/admin/orgs/<%=o[:id]%>"><%=h(o[:name])%></a></td>
+            <td style="width:15%"><%=h(o[:num])%></td>
+          </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-group"></i> Vulnreport Orgs</h3>
+      </div>
+      <div class="panel-body">
+        <table class="table table-striped">
+          <tr>
+            <td style="width:10%"><b>Delete</b></td>
+            <td style="width:75%"><b>Name</b></td>
+            <td style="width:15%"><b># Users</b></td>
+          </tr>
+
+          <% @regOrgs.each do |o| %>
+          <tr id="org_<%=o[:id]%>">
+            <td style="width:10%"><a href="/admin/orgs/<%=o[:id]%>/delete"><button class="btn btn-danger btn-sm">Delete Org</button></a></td>
+            <td style="width:75%"><a href="/admin/orgs/<%=o[:id]%>"><%=h(o[:name])%></a></td>
+            <td style="width:15%"><%=h(o[:num])%></td>
+          </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-group"></i> Contractor Orgs</h3>
+      </div>
+      <div class="panel-body">
+        <table class="table table-striped">
+          <tr>
+            <td style="width:10%"><b>Delete</b></td>
+            <td style="width:75%"><b>Name</b></td>
+            <td style="width:15%"><b># Users</b></td>
+          </tr>
+
+          <% @conOrgs.each do |o| %>
+          <tr id="org_<%=o[:id]%>">
+            <td style="width:10%"><a href="/admin/orgs/<%=o[:id]%>/delete"><button class="btn btn-danger btn-sm">Delete Org</button></a></td>
+            <td style="width:75%"><a href="/admin/orgs/<%=o[:id]%>"><%=h(o[:name])%></a></td>
+            <td style="width:15%"><%=h(o[:num])%></td>
+          </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<%= erb :footer_partial %>

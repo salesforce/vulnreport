@@ -1,0 +1,55 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@test.name)%> <small>Security Test for <%=h(@app.name)%></small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li class="active"><i class="fa fa-edit"></i> <%=h(@test.name)%></li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+
+<div class="row" style="margin-top:0px;">
+  <div class="col-lg-12">
+    <h4>Confirm Status Change</h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+  </div>
+</div>
+
+<div class="row" style="margin-top:0px;">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-4" style="text-align:center;">
+    <form method="POST" action="/tests/<%=@test.id%>/updatestatus">
+    <%= csrf_tag %>
+    <input type="hidden" name="newstatus" value="<%=@newstatus%>" />
+    This test will be marked as <span style="color:<%=@color%>"><%=@newstatus%></span>.
+    
+    <% if @newstatus == "passed" && @informational %>
+      <br /><br />
+      <b>You are passing this test with informational findings</b>
+    <% end %>
+    
+    <% if @disagree %>
+      <br /><br />
+      Your result disagrees with the pending result.<br />Please enter a discrepency reason
+      <br />
+      <textarea name="disagreeReason" rows="4" style="width:370px; margin: 0 auto;" class="form-control"></textarea>
+    <% end %>
+    
+    <% if @test.application.recordType.isLinked && @test.application.isLinked? && !contractor? %>
+      <br /><br />
+      Linked Object (<%=@test.application.getVRLO.vrlo_name%>) Actions? <input type="checkbox" name="vrloActions" rel="switch" data-size="small" data-on-text="Yes" data-off-text="No" checked>
+      <i class="fa fa-question-circle" rel="tooltip" title="Recommended. This will fire all registered linked object actions"></i>
+    <% end %>
+    
+    <br /><br />
+    <button type="submit" class="btn btn-success" name="confirm" value="confirm">Confirm</button>
+    <button type="submit" class="btn btn-danger" name="confirm" value="cancel">Cancel</button>
+  </div>
+  <div class="col-lg-7"></div>
+</div>
+
+<%= erb :footer_partial %>

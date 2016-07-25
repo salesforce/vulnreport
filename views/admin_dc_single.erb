@@ -1,0 +1,302 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+  function toggleStatsPanel(e){
+    if($(e)[0].checked){
+      $("#statsPanel").css("display", "block");
+    }else{
+      $("#statsPanel").css("display", "none");
+    }
+  }
+
+  function checkRtDisplay(e, idx){
+    var nonRtTypes = [<%=DASHPANEL_TYPE::MYACTIVE%>,<%=DASHPANEL_TYPE::MY_WNO_TESTS%>,<%=DASHPANEL_TYPE::MY_PASSED%>,<%=DASHPANEL_TYPE::MY_FAILED%>,<%=DASHPANEL_TYPE::MY_ALL%>,<%=DASHPANEL_TYPE::MY_APPROVALS%>];
+    
+    if(nonRtTypes.indexOf(parseInt($(e).val())) > -1){
+      $('#panelRecordType_'+idx).css("display", "none");
+    }else{
+      $('#panelRecordType_'+idx).css("display", "block");
+    }
+  }
+
+  $(document).ready(function(){
+    $('.icp').iconpicker({selectedCustomClass: 'label label-primary'});
+  });
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Dash Configs <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/dashConfigs"><i class="fa fa-dashboard"></i> Dashboard Configs</a></li>
+      <li class="active"><i class="fa fa-dashboard"></i> <%=h(@dc.name)%></li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/dashConfigs/<%=@dc.id%>">
+      <%= csrf_tag %>
+      <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control" id="name" name="name" placeholder="Name" value="<%=@dc.name%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="desc" class="col-sm-2 control-label">Description: </label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control" id="desc" name="desc" placeholder="Description" value="<%=@dc.description%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="isActive" class="col-sm-2 control-label">Active:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isActive" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger" <% if @dc.active %>checked<% end %>>
+        </div>
+      </div>
+
+      <div class="form-group">
+          <label for="showStats" class="col-sm-2 control-label">
+            Stats Bar:
+          </label>
+          <div class="col-sm-1">
+            <input type="checkbox" name="showStats" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" 
+              data-off-text="No" <% if @dc.showStats %>checked<% end %> onchange="toggleStatsPanel(this);">
+          </div>
+          <div class="col-sm-1" style="text-align:left; margin-left:-10px; padding-top:3px;">
+            <i class="fa fa-info-circle" rel="tooltip" title="Display four quick-look stats boxes above dashboard"></i>
+          </div>
+      </div>
+
+      <div class="form-group" id="statsPanel" <% if @dc.showStats %>style="display:block;"<% else %>style="display:none;"<% end %>>
+        <div class="col-sm-1"></div>
+
+        <div class="col-lg-9">
+          <div class="panel panel-default" style="margin-bottom: 0px;">
+            <div class="panel-heading">
+              <h3 class="panel-title">Stats Boxes</h3>
+            </div>
+            <div class="panel-body">
+              <div class="col-sm-3" style="padding:5px; border-right: 1px solid #BBB; text-align: center;">
+                <%=erb :admin_dc_statblock_partial, :locals => {:blocknum => 1}%>
+              </div>
+
+              <div class="col-sm-3" style="padding:5px; border-right: 1px solid #BBB; text-align: center;">
+                <%=erb :admin_dc_statblock_partial, :locals => {:blocknum => 2}%>
+              </div>
+
+              <div class="col-sm-3" style="padding:5px; border-right: 1px solid #BBB; text-align: center;">
+                <%=erb :admin_dc_statblock_partial, :locals => {:blocknum => 3}%>
+              </div>
+
+              <div class="col-sm-3" style="padding:5px; text-align: center;">
+                <%=erb :admin_dc_statblock_partial, :locals => {:blocknum => 4}%>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-1"></div>
+      </div>
+
+
+      <div class="form-group">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-3" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save Dashboard</button>
+        </div>
+        <div class="col-sm-4"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<% @dc.panels.each_with_index do |panel, idx| %>
+  <div class="row">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/dashConfigs/<%=@dc.id%>/editPanel/<%=idx%>">
+      <%= csrf_tag %>
+      <div class="col-lg-1"></div>
+      <div class="col-lg-9">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><b>Current Panel:</b> <%=panel[:title]%></h3>
+          </div>
+          <div class="panel-body" style="padding-bottom:0px;">
+
+            <div class="form-group">
+              <label for="panelTitle" class="col-sm-2 control-label">Panel Title: </label>
+              <div class="col-sm-3">
+                <input type="text" class="form-control" id="panelTitle" name="panelTitle" value="<%=h(panel[:title])%>">
+              </div>
+              
+              <label for="panelTitle" class="col-sm-3 control-label">Panel Color: </label>
+              <div class="col-sm-3">
+                <select name="panelColor" id="panelColor" class="form-control">
+                  <option value="primary" <% if panel[:color] == 'primary' %>selected<% end %>>Blue</option>
+                  <option value="success" <% if panel[:color] == 'success' %>selected<% end %>>Green</option>
+                  <option value="warning" <% if panel[:color] == 'warning' %>selected<% end %>>Yellow</option>
+                  <option value="danger" <% if panel[:color] == 'danger' %>selected<% end %>>Red</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="panelType" class="col-sm-2 control-label">Panel Type: </label>
+              <div class="col-sm-3">
+                <select name="panelType" id="panelType" class="form-control" onchange="checkRtDisplay(this, <%=idx%>)">
+                  <% DASHPANEL_TYPE.constants.each do |pt| %>
+                    <option value="<%=DASHPANEL_TYPE.const_get(pt)%>" <% if panel[:type] == DASHPANEL_TYPE.const_get(pt) %>selected<% end %>><%=panelTypeToString(DASHPANEL_TYPE.const_get(pt))%></option>
+                  <% end %>
+                </select>
+              </div>
+
+              <div id="panelRecordType_<%=idx%>" <% if @nonRtTypes.include?(panel[:type]) %>style="display: none;"<% else %>style="display: block;"<% end %>>
+                <label for="panelRecordType" class="col-sm-3 control-label">Record Type: </label>
+                <div class="col-sm-3">
+                  <select name="panelRecordType" id="panelRecordType" class="form-control">
+                    <% @rtOpts.each do |rt| %>
+                      <option value=<%=rt.id%> <% if panel[:rt] == rt.id %>selected<% end %>><%=h(rt.name)%></option>
+                    <% end %>
+                  </select>
+                </div>
+                <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+                  <i class="fa fa-info-circle" rel="tooltip" title="Which App RecordType to pull applications from in this panel."></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="panelMaxWks" class="col-sm-2 control-label">Warning Level: </label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" id="panelMaxWks" name="panelMaxWks" value="<%=panel[:maxwks].to_s%>">
+              </div>
+              <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+                <i class="fa fa-info-circle" rel="tooltip" title="Highlight tests active longer than this many weeks. Warning highlight two weeks prior."></i>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="panelZeroText" class="col-sm-2 control-label">Zero Text: </label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" id="panelZeroText" name="panelZeroText" value="<%=h(panel[:zerotext])%>">
+              </div>
+              <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+                <i class="fa fa-info-circle" rel="tooltip" title="Text to show when no records match panel's criteria"></i>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="col-sm-4"></div>
+              <div class="col-sm-4" style="text-align:center;">
+                <button type="submit" class="btn btn-danger" id="delete" name="save" value="delete">DELETE Panel</button>
+                <button type="submit" class="btn btn-success" id="save" name="save" value="save">Save Panel</button>
+              </div>
+              <div class="col-sm-4"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2"></div>
+    </form>
+  </div>
+<% end %>
+
+<div class="row">
+  <form class="form-horizontal" role="form" method="POST" action="/admin/dashConfigs/<%=@dc.id%>/newPanel">
+    <%= csrf_tag %>
+    <div class="col-lg-1"></div>
+    <div class="col-lg-9">
+      <div class="panel panel-success">
+        <div class="panel-heading">
+          <h3 class="panel-title">New Panel</h3>
+        </div>
+        <div class="panel-body" style="padding-bottom:0px;">
+
+          <div class="form-group">
+            <label for="panelTitle" class="col-sm-2 control-label">Panel Title: </label>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" id="panelTitle" name="panelTitle" placeholder="New Panel Title">
+            </div>
+
+            <label for="panelTitle" class="col-sm-3 control-label">Panel Color: </label>
+            <div class="col-sm-3">
+              <select name="panelColor" id="panelColor" class="form-control">
+                <option value="primary">Blue</option>
+                <option value="success">Green</option>
+                <option value="warning">Yellow</option>
+                <option value="danger">Red</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="panelType" class="col-sm-2 control-label">Panel Type: </label>
+            <div class="col-sm-3">
+              <select name="panelType" id="panelType" class="form-control"  onchange="checkRtDisplay(this, 'new')">
+                <% DASHPANEL_TYPE.constants.each do |pt| %>
+                  <option value="<%=DASHPANEL_TYPE.const_get(pt)%>"><%=panelTypeToString(DASHPANEL_TYPE.const_get(pt))%></option>
+                <% end %>
+              </select>
+            </div>
+
+            <div id="panelRecordType_new">
+              <label for="panelRecordType" class="col-sm-3 control-label">Record Type: </label>
+              <div class="col-sm-3">
+                <select name="panelRecordType" id="panelRecordType" class="form-control">
+                  <% @rtOpts.each do |rt| %>
+                    <option value=<%=rt.id%>><%=h(rt.name)%></option>
+                  <% end %>
+                </select>
+              </div>
+              <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+                <i class="fa fa-info-circle" rel="tooltip" title="Which App RecordType to pull applications from in this panel."></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="panelMaxWks" class="col-sm-2 control-label">Warning Level: </label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="panelMaxWks" name="panelMaxWks" placeholder="Max Weeks Active (#)">
+            </div>
+            <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+              <i class="fa fa-info-circle" rel="tooltip" title="Highlight tests active longer than this many weeks. Warning highlight two weeks prior."></i>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="panelZeroText" class="col-sm-2 control-label">Zero Text: </label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" id="panelZeroText" name="panelZeroText" placeholder="No records returned">
+            </div>
+            <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+              <i class="fa fa-info-circle" rel="tooltip" title="Text to show when no records match panel's criteria"></i>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4" style="text-align:center;">
+              <button type="submit" class="btn btn-success" id="save" name="save" value="save">Add Panel to Dashboard</button>
+            </div>
+            <div class="col-sm-4"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-2"></div>
+  </form>
+</div>
+
+<%= erb :footer_partial %>

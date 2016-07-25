@@ -1,0 +1,62 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Reports</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li class="active"><i class="fa fa-bar-chart-o"></i> Reports</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row" style="margin-top:-8px; margin-bottom:10px;">
+  <div class="col-lg-12">
+    Choose a report to run
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-4">
+    <b>Tests Reports</b>
+    <ul>
+      <li><a href="/reports/tests/testTimes">Test and Approval Times</a></li>
+      <li><a href="/reports/tests/ttr">Total Time to Test Resolution</a></li>
+      <li><a href="/reports/tests/searchByVuln">Tests by Vuln Type(s)</a></li>
+      <li><a href="/reports/tests/testsToPass">Tests to Pass</a></li>
+      <li><a href="/reports/tests/testsOverTime">Apps and Tests over Time</a></li>
+      <li><a href="/reports/tests/resolutionsOverTime">Resolutions over Time</a></li>
+      <li><a href="/reports/tests/disagreementsOverTime">Disagreements over Time</a></li>
+    </ul>
+  </div>
+
+  <div class="col-lg-4">
+    <b>Vuln Data Reports</b>
+    <ul>
+      <li><a href="/reports/vulns/VulnsByType">Vulns by Type</a></li>
+      <li><a href="/reports/vulns/vulnerabilitiesOverTime">Vulns over Time</a></li>
+      <li><a href="/vulns/starredVulns">Starred Vulns</a></li>
+    </ul>
+    <b>Reviewer Reports</b>
+    <ul>
+      <li><a href="/reports/reviewer/statsByReviewer">Stats by Reviewer</a></li>
+      <li><a href="/reports/reviewer/statsByOrg">Stats by Org</a></li>
+    </ul>
+  </div>
+  
+  <div class="col-lg-4">
+    <b>Allocation Reports</b>
+    <ul>
+      <li><a href="/reports/alloc/thisMonth">Current Allocations</a></li>
+      <li><a href="/reports/alloc/userHistorical">Historical Allocation</a></li>
+      <li><a href="/reports/alloc/allocVTests">Allocation v Actual</a></li>
+    </ul>
+    <b>Data/Quality Reports</b>
+    <ul>
+      <li><a href="/reports/tests/disagreements">Approval Flow Disagreements</a></li>
+      <li><a href="/reports/sys/dash">Sys Dash</a></li>
+    </ul>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

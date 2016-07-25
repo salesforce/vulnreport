@@ -1,0 +1,35 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Reports</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li><a href="/reports"><i class="fa fa-bar-chart-o"></i> Reports</a></li>
+      <li class="active"><i class="fa fa-bar-chart-o"></i> Sys Dash</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row" style="margin-top:-8px; margin-bottom:10px; margin-left:22px;">
+  <div class="col-lg-12">
+  	<b>Total Applications: </b><%=@numApps%>
+    <br />
+    <b>Total Security Tests: </b><%=@numTests%>
+    <br />
+    <b>Total Vulns: </b><%=@numVulns%>
+    <br />
+    <b>Total Comments: </b><%=@numComments%> (and <%=@numNotifications%> notifications)
+    <br />
+    <b>Total App/Flag Links: </b><%=@numFlags%>
+    <br /><br />
+    <b>Total Users: </b><%=@numUsers%>
+    <br />
+    <b>Total Orgs: </b><%=@numOrgs%>
+    <br /><br />
+    <b>Total Audit Records: </b><%=@auditCount%>
+  </div>
+</div>
+
+
+<%= erb :footer_partial %>

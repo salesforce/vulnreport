@@ -1,0 +1,52 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Orgs <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/orgs"><i class="fa fa-group"></i> Orgs</a></li>
+      <li><a href="/admin/orgs/<%=@org.id%>"><i class="fa fa-group"></i> <%=h(@org.name)%></a></li>
+      <li class="active"><i class="fa fa-times"></i> Delete Org</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+
+<div class="row" style="margin-top:0px;">
+  <div class="col-lg-12">
+    <h4 style="color:#B40404;"><i class="fa fa-exclamation"></i> Confirm Deletion</h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+  </div>
+</div>
+
+<div class="row" style="margin-top:0px;">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-6" style="text-align:left;">
+    <form method="POST" action="/admin/orgs/<%=@org.id%>/delete">
+    <%= csrf_tag %>
+    <p>This organization will be <b>permanently deleted</b>.</p>
+    
+    <p style="margin-bottom:0px;">This will affect the following users:</p>
+    <ul>
+      <% @users.each do |u| %>
+        <li><a href="/admin/users/<%=u.id%>" target="_blank"><%=h(u.name)%></a></li>
+      <% end %>
+    </ul>
+
+    <p>Please choose a new org for users, applications, and tests to be migrated to</p>
+    <select name="newOrg">
+      <% @orgOptions.each do |o| %>
+        <option value="<%=o.id%>"><%=h(o.name)%><% if o.contractor %> (Contractor)<% end %></option>
+      <% end %>
+    </select>
+
+    <br /><br />
+
+    <button type="submit" class="btn btn-success" name="confirm" value="confirm">Confirm</button>
+    <button type="submit" class="btn btn-danger" name="confirm" value="cancel">Cancel</button>
+  </div>
+  <div class="col-lg-7"></div>
+</div>
+
+<%= erb :footer_partial %>

@@ -1,0 +1,24 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small><span style="color:#B40404;"><i class="fa fa-exclamation"></i> ERROR</span></small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li class="active"><i class="fa fa-exclamation"></i> Error</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-1" style="text-align:center;"></div>
+  <div class="col-lg-10" style="text-align:center;">
+    The following error was encountered when processing your request:
+    <br /><br />
+    <%=@errstr%>
+  </div>
+  <div class="col-lg-1" style="text-align:center;"></div>
+</div>
+
+
+<%= erb :footer_partial %>

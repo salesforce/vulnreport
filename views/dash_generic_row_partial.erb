@@ -1,0 +1,46 @@
+<% recwks = ((rec[:test].nil?) ? -1 : ((Date.today - rec[:test].created_at).to_f)/7) %>
+
+<% if !maxwks.nil? && recwks >= 0 && recwks >= maxwks %>
+  <tr class="danger">
+<% elsif !maxwks.nil? && recwks >= 0 && recwks >= (maxwks-2) %>
+  <tr class="warning">
+<% else %>
+  <tr>
+<% end %>
+  <td style="width:10%">
+    <% if !rec[:app].isLinked? %>
+      -
+    <% else %>
+      <a href="<%=rec[:app].linkedObjectURL%>" target="_blank">
+        <%=rec[:app].linkedObjectText%>
+      </a>
+    <% end %>
+  </td>
+  <td style="width:25%">
+    <% if isChild %>
+      <i class="fa fa-level-up fa-rotate-90" rel="tooltip" title="Extension Package for <%=h(parentRec[:app].name)%>" style="margin-left:10px; margin-right:4px;"></i>
+    <% end %>
+    <a href="/reviews/<%=rec[:app].id%>"><%=h(rec[:app].name)%></a>
+  </td>
+  <td style="width:20%"><%=h(rec[:app].recordTypeName)%> <%=rec[:app].typeIcons%></td>
+  <td style="width:15%"><% if rec[:app].owner.nil? %><i><%=h(rec[:app].ownerName)%></i><% else %><%=h(rec[:app].ownerName)%><% end %></td>
+  <td style="width:10%"><%=rec[:app].lastStatusFormatted%></td>
+  <td style="width:10%">
+    <% if !maxwks.nil? && recwks >= 0 && recwks >= maxwks %>
+      <b><span style="color:#B40404;">
+    <% elsif !maxwks.nil? && recwks >= 0 && recwks >= (maxwks-2) %>
+      <b><span style="color:#DBA901;">
+    <% end %>
+
+    <% if rec[:test].nil? %>
+      -
+    <% else %>
+      <%=rec[:test].created_at.strftime('%m/%d/%Y')%>
+    <% end %>
+
+    <% if !maxwks.nil? && recwks >= 0 && recwks >= maxwks %>
+      </span></b>
+    <% end %>
+  </td>
+  <td style="width:10%"><%=rec[:app].tests.size%></td>
+</tr>

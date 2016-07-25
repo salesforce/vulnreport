@@ -1,0 +1,102 @@
+<%= erb :header_partial %>
+
+<script>
+  $(document).ready(function(){
+    $('input[type=radio][name=vr_mail_method]').change(function(){
+      if(this.value == "custom"){
+        $("#customMailSettings").show();
+      }else{
+        $("#customMailSettings").hide();
+      }
+    });
+  });
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Settings</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li class="active"><i class="fa fa-envelope"></i> Mail Settings</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :admin_vrsettings_nav_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+  	<form class="form-horizontal" role="form" method="POST" action="/admin/settings/mail">
+  		
+      <div class="form-group">
+        <label for="vr_from_email" class="col-sm-2 control-label">VR NoReply Address:</label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control" name="vr_from_email" size="80" value="<%=h(@vr_from_email)%>">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="vr_mail_method" class="col-sm-2 control-label">Mail Method:</label>
+        <div class="col-sm-8">
+          <label class="radio-inline">
+            <input type="radio" name="vr_mail_method" value="sendmail" <% if @vr_mail_method.nil? || @vr_mail_method == "sendmail" %>checked<% end %>> System sendmail
+          </label>
+          <label class="radio-inline">
+            <input type="radio" name="vr_mail_method" value="custom" <% if @vr_mail_method == "custom" %>checked<% end %>> Custom mail
+          </label>
+        </div>
+      </div>
+
+      <div id="customMailSettings" <% if @vr_mail_method.nil? || @vr_mail_method == "sendmail" %>style="display:none;"<% end %>>
+        <hr />
+        <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">Custom Mail Settings <small style="font-size:8pt;"></small></h4>
+
+        <div class="form-group">
+          <label for="vr_mail_addr" class="col-sm-2 control-label">Mail Server Addr:</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" name="vr_mail_addr" size="80" value="<%=@vr_mail_addr%>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="vr_mail_port" class="col-sm-2 control-label">Mail Server Port:</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" name="vr_mail_port" size="80" value="<%=@vr_mail_port%>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="vr_mail_domain" class="col-sm-2 control-label">Domain:</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" name="vr_mail_domain" size="80" value="<%=@vr_mail_domain%>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="vr_mail_user" class="col-sm-2 control-label">Username:</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" name="vr_mail_user" size="80" value="<%=@vr_mail_user%>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="vr_mail_pass" class="col-sm-2 control-label">Password:</label>
+          <div class="col-sm-8">
+            <input type="password" class="form-control" name="vr_mail_pass" size="80" placeholder="Leave blank to not change">
+          </div>
+        </div>
+      </div>
+
+	    <div class="form-group" style="margin-top:30px;">
+        	<div class="col-sm-3"></div>
+        	<div class="col-sm-3" style="text-align:center;">
+        		<button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save Settings</button>
+        	</div>
+        	<div class="col-sm-2"></div>
+      </div>
+      <%=csrf_tag%>
+  	</form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

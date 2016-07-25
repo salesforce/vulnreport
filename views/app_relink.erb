@@ -1,0 +1,31 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@app.name)%> <small><%=h(@app.recordTypeName)%></small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li class="active"><i class="fa fa-random"></i> Link to new object</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+	<div class="col-lg-1"></div>
+	<div class="col-lg-6">
+	  	<form class="form-horizontal" role="form" method="POST" action="/reviews/<%=@app.id%>/relink">
+	      <%= csrf_tag %>
+	     
+	    Enter the Entity ID of the new external object (<%=@app.getVRLO.vrlo_name%>) to link to.
+	    <br /><br />
+	    <input type="text" class="form-control" id="eid" name="eid" placeholder="Entity ID">
+	    <br />
+	    <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Attach Review</button>
+
+	    </form>
+	</div>
+	<div class="col-lg-5"></div>
+</div>
+
+<%= erb :footer_partial %>

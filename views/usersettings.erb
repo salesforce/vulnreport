@@ -1,0 +1,150 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+    $(function () {
+        $("#userAlloc").bootstrapSlider({
+          formatter: function(value) {
+            testsAtMaxAlloc_yr = <%=@user.allocCoeff.to_i%>;
+            testsAtMaxAlloc_month = testsAtMaxAlloc_yr/12;
+            testsEstimate = Math.round((value/100)*testsAtMaxAlloc_month)
+            $("#userAllocDetail").text(value + '% - est. ' + testsEstimate + ' reviews');
+            return value + '%';
+          }
+        });
+    });
+</script>
+
+<style>
+  #userAllocSlider .slider-selection {
+    background: #428bca;
+  }
+</style>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>User Settings</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li class="active"><i class="fa fa-user"></i> User Settings</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :usersettings_nav_partial %>
+
+<% if @saved %>
+<div class="alert alert-success alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  User settings updated
+</div>
+<% end %>
+
+<% if @save_error %>
+<div class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  Failed to save user settings
+</div>
+<% end %>
+
+<% if (@user.useAllocation && !@user.allocation.nil? && @user.allocation.wasAutoSet && !contractor?) %>
+<div class="alert alert-warning">
+  Your allocation for <%=Date.today.strftime('%B')%> has been auto-set to <b><%=@user.allocation.allocation%>%</b>. Please <a class="alert-link" href="/confirmAlloc"><u>confirm this</u></a> or <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> now.
+</div>
+<% elsif (@user.useAllocation && @user.allocation.nil? && !contractor?) %>
+<div class="alert alert-warning">
+  You have not yet <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> for <%=Date.today.strftime('%B')%>. Please do so now!
+</div>
+<% end %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/usersettings">
+      <%= csrf_tag %>
+      <div class="form-group">
+        <label for="userName" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="userName" name="userName" placeholder="Name (must match org62 drop down option)" value="<%=h(@user.name)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+          <i class="fa fa-question-circle" rel="tooltip" title="Must match org62 drop down option"></i>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="userInitials" class="col-sm-2 control-label">Initials: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="userInitials" name="userInitials" placeholder="Initials" value="<%=h(@user.initials)%>">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email" class="col-sm-2 control-label">Email: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="email" name="email" placeholder="Email" value="<%=h(@user.email)%>">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="dashConfig" class="col-sm-2 control-label">Dashboard Config:</label>
+        <div class="col-sm-6">
+          <select name="dashConfig" class="form-control">
+            <option value="-1" <% if @user.dashOverride == -1 %>selected<% end %>>No Override / Org Default Dashboard</option>
+            <option value="0" <% if @user.dashOverride == 0 %>selected<% end %>>Default Dashboard</option>
+            <% @dashConfigs.each do |dc| %>
+              <option value="<%=dc.id%>" <% if @user.dashOverride == dc.id %>selected<% end %>><%=h(dc.name)%></option>
+            <% end %>
+          </select>        
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+          <i class="fa fa-question-circle" rel="tooltip" title="Override your org's dashboard configuration."></i>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="userGeo" class="col-sm-2 control-label">Default Geo: </label>
+        <div class="col-sm-4">
+          <select class="form-control" id="userGeo" name="userGeo">
+            <% GEO.constants.each do |g| %>
+              <option value="<%=GEO.const_get(g)%>" <% if @user.defaultGeo == GEO.const_get(g) %>selected<% end %>><%=geoToString(GEO.const_get(g))%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="user_ext_eid" class="col-sm-2 control-label">External EID: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="user_ext_eid" name="user_ext_eid" placeholder="External EID (optional)" value="<%=h(@user.extEID)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+          <i class="fa fa-question-circle" rel="tooltip" title="Entity ID for user in external system, if implemented. Optional."></i>
+        </div>
+      </div>
+
+      <% if @user.useAllocation %>
+      <div class="form-group">
+        <label for="userAlloc" class="col-sm-2 control-label">Monthly Allocation (<%=Date.today.strftime('%B')%>) </label>
+        <div class="col-sm-8" style="padding-top:14px;">
+          <b style="margin-right:10px;">0%</b>
+          <input id="userAlloc" name="userAlloc" type="text" value="" data-slider-id="userAllocSlider" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="<%=@alloc%>"/>
+          <b style="margin-left:10px;">100%</b>
+          <span id="userAllocDetailWrap" style="margin-left: 10px; font-weight: bold;">(<span id="userAllocDetail" style="font-weight: bold;">0% - est. 0 tests</span>)</span>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+      <% end %>
+
+      <div class="form-group">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save User Settings</button>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

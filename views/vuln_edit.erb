@@ -1,0 +1,85 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+  function toggleCustom(e){
+    if($(e).val() == 0){
+      $("#customTypeFormGroup").css('display', 'block');
+    }else{
+      $("#customTypeFormGroup").css('display', 'none');
+    }
+  }
+
+  function checkForm(form){
+    if($("#vulnType").val() == 0 && $.trim($("#customTypeName").val()) == ""){
+      $("#customTypeFormGroup").addClass("has-error");
+      setTimeout(function(){
+        $("#customTypeFormGroup").removeClass("has-error");
+      }, 5000);
+      return false;
+    }else{
+      return true;
+    }
+  }
+</script>
+
+<% if !@error.nil? && !@error.empty? %>
+<div class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  h(<%=@error%>)
+</div>
+<% end %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@vuln.type_str)%> <small>Vulnerability for <%=h(@test.name)%></small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li><a href="/tests/<%=@test.id%>"><i class="fa fa-edit"></i> <%=h(@test.name)%></a></li>
+      <li><a href="/tests/<%=@test.id%>/<%=@vuln.id%>"><i class="fa fa-exclamation"></i> <%=h(@vuln.type_str)%></a></li>
+      <li class="active"><i class="fa fa-ellipsis-h"></i> Edit</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/tests/<%=@test.id%>/<%=@vuln.id%>/edit" onsubmit="return checkForm(this)">
+      <%= csrf_tag %>
+      
+      <div class="form-group">
+        <label for="vulnType" class="col-sm-2 control-label">Vuln Type: </label>
+        <div class="col-sm-6" style="padding-top:6px;">
+          <select name="vulnType" id="vulnType" onchange="toggleCustom(this)">
+            <% @vulnTypes.each do |vt| %>
+              <option value="<%=vt.id%>" <% if @vuln.vulntype == vt.id %>selected<% end %>><%=vt.name%></option>
+            <% end %>
+            <option value="0" <% if @vuln.vulntype == 0 %>selected<% end %>>Custom Type</option>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group" id="customTypeFormGroup" <% if @vuln.vulntype != 0 %>style="display:none;"<%end%>>
+        <label for="customTypeName" class="col-sm-2 control-label">Custom Name: </label>
+        <div class="col-sm-6" style="padding-top:6px;">
+          <input type="text" class="form-control" id="customTypeName" name="customTypeName" size="30" style="width:350px;" <%if @vuln.vulntype == 0 %>value="<%=h(@vuln.custom)%>"<%end%>>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save Vuln</button>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

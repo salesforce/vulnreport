@@ -1,0 +1,8 @@
+.env
+server.*
+.DS_*
+*.rdb
+.yardopts
+.yardoc/*
+doc/*
+log/*

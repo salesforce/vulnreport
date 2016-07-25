@@ -1,0 +1,54 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Dash Configs <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/dashConfigs"><i class="fa fa-print"></i> Dashboard Configs</a></li>
+      <li class="active"><i class="fa fa-dashbaord"></i> New Dashboard Config</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/dashConfigs/new">
+      <%= csrf_tag %>
+
+      <div class="form-group">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-8">
+          Enter the name and description for a new Dashboard Config. You will be able to edit the dashboard on the next screen.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="name" name="name" placeholder="Name">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="desc" class="col-sm-2 control-label">Description: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="desc" name="desc" placeholder="Description">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Create and Edit Dashboard</button>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

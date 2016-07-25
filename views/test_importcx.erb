@@ -1,0 +1,49 @@
+<%= erb :header_partial %>
+
+<% if !@error.nil? && !@error.empty? %>
+<div class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  <%=h(@error)%>
+</div>
+<% end %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@test.name)%> <small>Security Test for <%=h(@app.name)%></small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li><a href="/tests/<%=@test.id%>"><i class="fa fa-edit"></i> <%=h(@test.name)%></a></li>
+      <li class="active"><i class="fa fa-cloud-upload"></i> Import CX</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <h4>Import Vulns from Checkmarx Scan</h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+    <div>
+        <form class="form-inline" role="form" action="/tests/<%=@test.id%>/cx" enctype="multipart/form-data" method="POST" style="margin-bottom:12px;">
+        <%= csrf_tag %>
+        <div class="form-group col-lg-7" style="margin-left:15px;">
+          <label for="cxxml">Checkmarx XML:</label>
+          <input type="file" class="form-control" id="cxxml" placeholder="CX XML" name="cxxml">
+        </div>
+
+        <div class="form-group col-lg-7" style="margin-left:15px; margin-top:20px;">
+          <label for="mdzip">Metadata Zip (optional):</label>
+          <input type="file" class="form-control" id="mdzip" placeholder="MD ZIP" name="mdzip">
+        </div>
+
+        <div class="form-group col-lg-7" style="margin-left:15px; margin-top:20px;">
+          <button type="submit" class="btn btn-default" name="uploadcx">Import CX Data</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<%= erb :footer_partial %>

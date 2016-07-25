@@ -1,0 +1,106 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+    function toggleSect(s){
+      var data = $('#'+s+'Data');
+      var icon = $('#'+s+'Icon');
+      if(data.css('display') == 'none'){
+        data.show();
+        icon.removeClass('fa-plus-square');
+        icon.addClass('fa-minus-square');
+      }else{
+        data.hide();
+        icon.removeClass('fa-minus-square');
+        icon.addClass('fa-plus-square');
+      }
+    }
+
+
+    function addVuln(vid, tid, data){
+      verif = $("#verified").prop('checked')
+      $.post("/tests/"+tid+"/cxadd", 
+                { data: data, verif: verif, _csrf: "<%=csrf_token%>", ajax: true},
+                function(){
+                  $("#cxvuln_"+vid).slideUp();
+                }
+              ).fail(function(){
+                //
+              });
+    }
+
+    function addVulnSect(vn, tid){
+      $('#type_sect_'+vn+'_Data').fadeOut();
+      $('.'+vn+'_button').each(function() { $(this).click(); });
+    }
+
+
+</script>
+
+<% if !@error.nil? && !@error.empty? %>
+<div class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  <%=h(@error)%>
+</div>
+<% end %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1><%=h(@test.name)%> <small>Security Test for <%=h(@app.name)%></small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
+      <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
+      <li><a href="/tests/<%=@test.id%>"><i class="fa fa-edit"></i> <%=h(@test.name)%></a></li>
+      <li class="active"><i class="fa fa-cloud-upload"></i> Import CX</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <h4>Import Vulns from Checkmarx Scan (<%=@total%>)</h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+    <div style="margin-left:22px; margin-bottom:20px;">
+      Import vulns as verified? <input type="checkbox" rel="switch" id="verified" 
+      data-on-text="<i class='fa fa-check' style='color:#009933;''></i>" data-on-color="default" 
+      data-off-text="<i class='fa fa-times' style='color:#B40404;''></i>" data-off-color="default"
+      data-size="small" 
+      checked >
+    </div>
+
+    <div>
+      <% @vtypes.keys.each do |vt| %>
+        <% vname = vt %>
+        <% vname_one = vt.gsub(" ", "_") %>
+        <% vtid = @vtypes[vname] %>
+        <div id="type_sect_<%=vname_one%>_Data" style="margin-left:22px; margin-bottom:20px;">
+          <h4>
+            <i class="fa fa-minus-square" id="type_list_<%=vname_one%>_Icon" onclick="toggleSect('type_list_<%=vname_one%>_')" style="cursor:pointer;"></i>
+            <%=vname%> (<%=@counts[vname]%>)
+            <button class="btn btn-info btn-sm" onclick="addVulnSect('<%=vname_one%>', '<%=@test.id%>')">Import All</button>
+          </h4>
+
+          <div id="type_list_<%=vname_one%>_Data">
+            <% @vulns.each do |v| %>
+              <% if v[:vuln].downcase == vname.downcase %>
+                <% vid = SecureRandom.uuid %>
+                <div id="cxvuln_<%=vid%>" style="margin-left:22px; margin-bottom:20px;">
+                  File: <%=v[:filename]%> (line <%=v[:linenum]%>, col <%=v[:column]%>)
+                  <button class="btn btn-default btn-sm <%=vname_one%>_button" style="margin-left:6px;" onclick="addVuln('<%=vid%>', '<%=@test.id%>', '<%=Base64.encode64(YAML::dump(v)).gsub("\n", "")%>')">
+                    Import Vuln
+                  </button>
+                  <% if v[:snip] && !v[:snip].nil? %>
+                    <pre><%=h(v[:snip])%></pre>
+                  <% end %>
+                  <pre><%=h(v[:pathstring])%></pre>          
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+
+<%= erb :footer_partial %>

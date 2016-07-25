@@ -1,0 +1,288 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+  function resetPW(){
+    var uid = <%=@user.id%>;
+
+    $.post("/admin/users/"+uid+"/resetpw", 
+            { _csrf: "<%=csrf_token%>"},
+            function(){
+              $('#resetBtnDiv').html("<button type=\"button\" class=\"btn btn-success\">User password reset and user emailed</button>")
+            }
+          ).fail(function(){
+            alert("Error resetting password");
+          });
+
+    $('#resetBtn').text("...");
+  }
+
+  function toggleApproverSettings(e){
+    if(e.checked){
+      $("#approverSettings").show();
+    }else{
+      $("#approverSettings").hide();
+    }
+  }
+
+  $(function() {
+    $("#user-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available Users</div>",
+                            selectionHeader: "<div class='msHeader'>Approver Users</div>",
+                            selectableOptgroup: true
+                          });
+
+    $("#org-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available Orgs</div>",
+                            selectionHeader: "<div class='msHeader'>Approver Orgs</div>"
+                          });
+  });
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Users <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/users"><i class="fa fa-user"></i> Users</a></li>
+      <li class="active"><i class="fa fa-user"></i> <%=h(@user.name)%></li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<% if @updatedUser %>
+<div class="alert alert-success alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  User updated
+</div>
+<% end %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/users/<%=@user.id%>">
+      <%= csrf_tag %>
+
+      <div class="form-group">
+          <label for="isVerified" class="col-sm-2 control-label">User Verified:</label>
+          <div class="col-sm-2">
+            <input type="checkbox" name="isVerified" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger" <% if @user.verified? %>checked<% end %>>
+          </div>
+
+          <label for="isActive" class="col-sm-2 control-label">User Active:</label>
+          <div class="col-sm-2">
+            <input type="checkbox" name="isActive" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="warning" <% if @user.active %>checked<% end %>>
+          </div>
+      </div>
+
+      <div class="form-group">
+        <label for="userName" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="userName" name="userName" placeholder="Name" value="<%=h(@user.name)%>">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="userInitials" class="col-sm-2 control-label">Initials: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="userInitials" name="userInitials" placeholder="Initials (used in some comments)" value="<%=h(@user.initials)%>">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email" class="col-sm-2 control-label">Email: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="email" name="email" placeholder="Email" value="<%=h(@user.email)%>">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="userOrg" class="col-sm-2 control-label">Org: </label>
+        <div class="col-sm-4">
+          <select class="form-control" id="userOrg" name="userOrg">
+            <option value="0">--Unverified User--</option>
+            <optgroup label="Active Orgs">
+              <% @orgs.each do |o| %>
+                <% if !o.contractor %>
+                  <option value="<%=o.id%>" <% if o.id == @user.org %>selected<% end %>><%=o.name%></option>
+                <% end %>
+              <% end %>
+            </optgroup>
+            <optgroup label="Contractor Orgs">
+              <% @orgs.each do |o| %>
+                <% if o.contractor %>
+                  <option value="<%=o.id%>" <% if o.id == @user.org %>selected<% end %>><%=o.name%></option>
+                <% end %>
+              <% end %>
+            </optgroup>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="userGeo" class="col-sm-2 control-label">Default Geo: </label>
+        <div class="col-sm-4">
+          <select class="form-control" id="userGeo" name="userGeo">
+            <% GEO.constants.each do |g| %>
+              <option value="<%=GEO.const_get(g)%>" <% if @user.defaultGeo == GEO.const_get(g) %>selected<% end %>><%=geoToString(GEO.const_get(g))%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="user_ext_eid" class="col-sm-2 control-label">External EID: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="user_ext_eid" name="user_ext_eid" placeholder="External EID (optional)" value="<%=h(@user.extEID)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;">
+          <i class="fa fa-info-circle" rel="tooltip" title="Entity ID for user in external system, if implemented. Optional."></i>
+        </div>
+      </div>
+
+      <% if getSetting('AUTH_SSO_ENABLED') == 'true' %>
+        <hr />
+        <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">SSO Information <small style="font-size:6pt;"></small></h4>
+
+        <div class="form-group">
+          <label for="sso_user" class="col-sm-2 control-label">SSO User: </label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="sso_user" name="sso_user" placeholder="SSO Username" value="<%=h(@user.sso_user)%>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sso_id" class="col-sm-2 control-label">SSO ID: </label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="sso_id" name="sso_id" placeholder="SSO ID" value="<%=h(@user.sso_id)%>">
+          </div>
+        </div>
+      <% end %>
+
+      <% if getSetting('AUTH_LOGIN_ENABLED') == 'true' %>
+        <hr />
+        <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">Login Information <small style="font-size:6pt;"></small></h4>
+
+        <div class="form-group">
+          <label for="login_user" class="col-sm-2 control-label">Username: </label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="login_user" name="login_user" placeholder="Username" value="<%=h(@user.username)%>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="login_password" class="col-sm-2 control-label">Password: </label>
+          <div class="col-sm-6" id="resetBtnDiv">
+            <button type="button" id="resetBtn" class="btn btn-danger" onclick="resetPW()">Reset Password and Email</button>
+          </div>
+        </div>
+      <% end %>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">User Permissions <small style="font-size:6pt;">Something something as few as necessary...</small></h4>
+
+      <div class="form-group">
+        <label for="isAdmin" class="col-sm-2 control-label">VR Admin:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isAdmin" rel="switch" data-size="small" data-on-text="Yes" data-on-color="danger" data-off-text="No" <% if @user.admin %>checked<% end %>>
+          <i class="fa fa-info-circle" style="padding-left:5px;" rel="tooltip" title="Vulnreport Admin - can see/modify ALL"></i>
+        </div>
+
+        <label for="isReportsOnly" class="col-sm-2 control-label">Reports Only User:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isReportsOnly" rel="switch" data-size="small" data-on-text="Yes" data-on-color="info" data-off-text="No" <% if @user.reportsOnly %>checked<% end %>>
+          <i class="fa fa-info-circle" style="padding-left:5px;" rel="tooltip" title="Only able to use reporting functionality. Respects org-level RecordType restrictions."></i>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="isAuditor" class="col-sm-2 control-label">Audit Monitor Alerts:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isAuditor" rel="switch" data-size="small" data-on-text="Yes" data-on-color="danger" data-off-text="No" <% if @user.canAuditMonitors %>checked<% end %>>
+          <i class="fa fa-info-circle" style="padding-left:5px;" rel="tooltip" title="Can audit alerts from monitor triggers"></i>
+        </div>
+
+        <label for="isPPApprover" class="col-sm-2 control-label">Provisional Pass:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isPPApprover" rel="switch" data-size="small" data-on-text="Yes" data-on-color="danger" data-off-text="No" <% if @user.provPassApprover %>checked<% end %>>
+          <i class="fa fa-info-circle" style="padding-left:5px;" rel="tooltip" title="Can approve provisional pass requests"></i>
+        </div>        
+      </div>
+
+      <div class="form-group">
+        <label for="isConPasser" class="col-sm-2 control-label">Pass to Contractor:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isConPasser" rel="switch" data-size="small" data-on-text="Yes" data-on-color="info" data-off-text="No" <% if @user.canPassToCon %>checked<% end %>>
+          <i class="fa fa-info-circle" style="padding-left:5px;" rel="tooltip" title="Can pass tests to contractors for accessible Record Types"></i>
+        </div>        
+
+        <label for="isApprovalRequired" class="col-sm-2 control-label">Require Test Approval:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isApprovalRequired" rel="switch" data-size="small" data-on-text="Yes" data-on-color="warning" data-off-text="No" <% if @user.requireApproval %>checked<% end %> onchange="toggleApproverSettings(this)">
+          <i class="fa fa-info-circle" style="padding-left:5px;" rel="tooltip" title="Cannot pass/fail tests without approval"></i>
+          <% if !@user.organization.nil? && @user.organization.requireApproval %>
+            <i class="fa fa-info-circle" style="padding-left:5px; color: #d9534f" rel="tooltip" title="User requires approval based on Organization. Setting true here will override approver choices. False will preserve org-level rules."></i>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="isAllocationUser" class="col-sm-2 control-label">Monthly Allocation:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isAllocationUser" rel="switch" data-size="small" data-on-text="Yes" data-on-color="info" data-off-color="default" data-off-text="No" <% if @user.useAllocation %> checked<% end %>>
+          <i class="fa fa-info-circle" style="padding-left:5px;" rel="tooltip" title="Uses monthly allocation system"></i>
+        </div>
+
+        <label for="allocCoeff" class="col-sm-2 control-label">Allocation Coefficient:</label>
+        <div class="col-sm-2">
+          <input type="text" name="allocCoeff" value="<%=@user.allocCoeff.to_i%>" class="form-control" style="width:80px; float:left;">
+          <i class="fa fa-info-circle" style="padding-left:5px; padding-top:10px;" rel="tooltip" title="# of reviews user would do if tasked 100% for a year"></i>
+        </div>
+      </div>
+
+      <div id="approverSettings" <% if !@user.requiresApproval? %>style="display:none;"<% end %>>
+        <hr />
+        <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">Approvers <small style="font-size:6pt;">Users/Orgs who can approve user's tests</small></h4>
+
+        <div class="form-group">
+          <label for="user-multiselect" class="col-sm-2 control-label"></label>
+          <div class="col-sm-6">
+            <select multiple="multiple" id="user-multiselect" name="approver_users[]" rel="jqms">
+              <% @orgs.each do |org| %>
+                <optgroup label='<%=h(org.name)%>'>
+                  <% org.activeUsers.each do |u| %>
+                    <% next if u.id == @user.id %>
+                    <option value="<%=u.id%>" <% if !@user.approver_users.nil? && @user.approver_users.include?(u.id) %>selected<% end %>><%=h(u.name)%></option>
+                  <% end %>
+                </optgroup>
+              <% end %>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="org-multiselect" class="col-sm-2 control-label"></label>
+          <div class="col-sm-6">
+            <select multiple="multiple" id="org-multiselect" name="approver_orgs[]" rel="jqms">
+              <% @orgs.each do |org| %>
+                <% next if org.id == @user.org %>
+                <option value="<%=org.id%>" <% if !@user.approver_orgs.nil? && @user.approver_orgs.include?(org.id) %>selected<% end %>><%=h(org.name)%></option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save User</button>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

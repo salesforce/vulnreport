@@ -1,0 +1,71 @@
+<%= erb :header_partial %>
+
+<script>
+  $(document).ready(function(){
+    $('#flagIcon').iconpicker({selectedCustomClass: 'label label-primary'});
+  });
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Application Flags <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/flags"><i class="fa fa-flag"></i> Application Flags</a></li>
+      <li class="active"><i class="fa fa-flag"></i> New</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/flags/new">
+      <%= csrf_tag %>
+      <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control" id="name" name="name" placeholder="Name">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="desc" class="col-sm-2 control-label">Description: </label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control" id="desc" name="desc" placeholder="Description">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="icon" class="col-sm-2 control-label">Icon: </label>
+        <div class="col-sm-8">
+          <div class="input-group iconpicker-container">
+            <input data-placement="bottomRight" class="form-control icp iconpicker-element iconpicker-input" type="text" name="icon" id="flagIcon" placeholder="Icon (optional)">
+            <span class="input-group-addon"><i class="fa"></i></span>
+          </div>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="isActive" class="col-sm-2 control-label">Active:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isActive" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger" checked>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-3" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save Flag</button>
+        </div>
+        <div class="col-sm-4"></div>
+      </div>
+      
+    </form>
+  </div>
+</div>
+
+
+<%= erb :footer_partial %>

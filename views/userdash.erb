@@ -1,0 +1,110 @@
+<%= erb :header_partial %>
+
+<style>
+  .graphs {
+      background:transparent !important;
+      box-shadow:none !important;
+  }
+  table .progress {
+      margin-bottom: 0;
+  }
+  .progress-bar-small {
+      border-radius:4px !important;
+  }
+</style>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>User Dashboard</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li class="active"><i class="fa fa-user"></i> User Dashboard</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<% if (@user.useAllocation && !@user.allocation.nil? && @user.allocation.wasAutoSet && !contractor?) %>
+<div class="alert alert-warning">
+  Your monthly allocation for <%=Date.today.strftime('%B')%> has been auto-set to <b><%=@user.allocation.allocation%>%</b>. Please <a class="alert-link" href="/confirmAlloc"><u>confirm this</u></a> or <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> now.
+</div>
+<% elsif (@user.useAllocation && @user.allocation.nil? && !contractor?) %>
+<div class="alert alert-warning">
+  You have not yet <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> for <%=Date.today.strftime('%B')%>. Please do so now!
+</div>
+<% end %>
+
+<div class="row">
+  <div class="col-lg-12">
+      <% if @user.useAllocation %>
+        <% prevDate = @date << 1 %>
+        <% nextDate = @date >> 1 %>
+        <h4 style="margin-top:0px;">
+          Your Allocation Statistics &nbsp;&nbsp;
+          (<a href="/userdash?y=<%=prevDate.year%>&m=<%=prevDate.month%>"><i class="fa fa-chevron-left" style="margin-right:4px; cursor:pointer;"></i></a> 
+          <%=@date.strftime('%B %Y')%> 
+          <a href="/userdash?y=<%=nextDate.year%>&m=<%=nextDate.month%>"><i class="fa fa-chevron-right" style="margin-left:4px; cursor:pointer;"></i></a>)
+        </h4>
+        <hr style="margin-top:4px; margin-bottom:4px;">
+        <div>
+          <% if @allocNil %>
+            <span style="color:#d9534f"><i>No Allocation Set for this month</i></span>
+          <%else%>
+            <div class="progress" style="margin-bottom:4px;">
+              <div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="<%=@appsTouched.size%>" aria-valuemin="0" aria-valuemax="<%=@allocApps%>" style="width:<%=@pbWidth%>%">
+                <%=@appsTouched.size%> / <%=@allocApps%> apps (<%=@allocCompletionPct.round(2)%>%)
+              </div>
+            </div>
+            <span style="margin-right:34px;">Allocation this month: <a href="/usersettings"><%=@alloc%>% (<%=@allocApps%> apps)</a> <% if @autoSet %><small><i>auto-set</i></small><% end %></span>
+            <span>Completed this month: <%=@appsTouched.size%> apps touched / <%=@numTests%> tests completed</span>
+          <%end%>
+        </div>
+      <% end %>
+  </div>
+</div>
+
+<div class="row" style="margin-top:30px;">
+  <div class="col-lg-12">
+    <h4 style="margin-top:0px;">Your Lifetime Test Statistics</h4>
+    <hr style="margin-top:4px; margin-bottom:4px;">
+
+    <b><%=@lifetimeTests%> total Security Tests conducted</b> / <%=@lifetimeAppsTouched.size%> apps touched
+    <br />
+    <div class="progress" style="margin-bottom:4px;">
+      <div class="progress-bar progress-bar-success" style="width: <%=@lifetimePassPct.round%>%">
+        <%=@lifetimePassPct.round(2)%>% Passes (<%=@lifetimePass%> tests)
+      </div>
+      <div class="progress-bar progress-bar-danger" style="width: <%=@lifetimeFailPct.round%>%">
+        <%=@lifetimeFailPct.round(2)%>% Fails (<%=@lifetimeFail%> tests)
+      </div>
+    </div>
+
+    <div style="width:100%">
+      <div style="width:40%;float:left;">
+        <%=@lifetimeVulns.size%> total vulnerabilities logged
+        <br />
+        Avg test resolution time: <%=@lifetimeTTRAvg.round(2)%> days 
+        <% if !@lifetimeMaxTest.nil? && !@lifetimeMinTest.nil? %>
+          (Max: <a href="/tests/<%=@lifetimeMaxTest.id%>"><%=@lifetimeMaxTestTime.to_f.round(2)%> days</a> / Min: <a href="/tests/<%=@lifetimeMinTest.id%>"><%=@lifetimeMinTestTime.to_f.round(2)%> days</a>)
+        <% end %>
+      </div>
+      <div style="margin-left:50%;width:40%;">
+        <b>Top 5 Vuln Types Found</b>
+        <table>
+          <% @topVulns.each do |tv| %>
+            <tr>
+              <td><%=tv[:vt]%></td>
+              <td style="padding-left:12px;"><%=tv[:count]%> vulns (<%=((tv[:count].to_f/@lifetimeVulns.size.to_f)*100).round(2)%>%)</td>
+              <td style="padding-left:12px; text-align:center; vertical-align:middle;">
+                <div class="progress graphs" style="width: 100px;">
+                  <div class="progress-bar progress-bar-small" role="progressbar" aria-valuenow="<%=tv[:count]%>" aria-valuemin="0" aria-valuemax="<%=@maxTopVulnCount.size%>" style="width:<%=((tv[:count].to_f/@maxTopVulnCount.to_f)*100).round%>%"></div>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+<%= erb :footer_partial %>

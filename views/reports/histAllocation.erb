@@ -1,0 +1,125 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Reports</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li><a href="/reports"><i class="fa fa-bar-chart-o"></i> Reports</a></li>
+      <li class="active"><i class="fa fa-bar-chart-o"></i> Monthly Allocation - Over Time</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :"reports/datepicker_partial", :locals => {:disableFlags => true} %>
+
+<div class="row" style="margin-top:-8px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	<canvas id='graph' width="1100px;" height="450px"></canvas>
+  </div>
+</div>
+
+<script type="text/javascript">
+	var data = {
+		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
+		datasets : [{
+			name: 'All',
+			strokeColor : 'rgba(151,187,205,1)',
+			pointColor : 'rgba(151,187,205,1)',
+			pointStrokeColor: '#FFF',
+			data : [<%=@datasets_rev["All"].join(',')%>]
+		 }]
+	};
+	
+	var max = <%=@datasets_rev["All"].max%>
+	var maxSteps = 25;
+	var steps = Math.min(max, maxSteps);
+	
+	var options = {
+		scaleGridLineColor : 'rgba(0,0,0,.15)',
+		scaleLineColor : 'rgba(0,0,0,.35)',
+		bezierCurve : false,
+		datasetFill : false,
+		datasetStrokeWidth : 3,
+		scaleOverride: true,
+	    scaleSteps: steps,
+	    scaleStepWidth: Math.ceil(max / steps),
+	    scaleStartValue: 0
+	};
+
+	var colors = [[151,187,205],[200,200,200],[0,0,255],[0,128,0],[0,255,255],[128,0,0],[255,0,0],[190,190,0],[255,0,255],[128,128,0],[128,128,128]];
+	var color_pointer = 1;
+	var other_datas = {
+		<% @datasets_rev.keys.each do |key| %>
+		'<%=key%>' : [{ 
+		  		name : '<%=key%>',
+		  		data : [<%=@datasets_rev[key].join(',')%>],
+		  		strokeColor : '', 
+		  		pointColor : '',
+		  		pointStrokeColor: '#FFF',
+		  		dsMax: <%=@datasets_rev[key].max%>
+		  	}],
+		<% end %>
+	}
+
+	var ctx = $('#graph').get(0).getContext('2d');
+	var trend = new Chart(ctx).Line(data, options);
+
+	function addDataSet(name, animate){
+	  	animate = typeof animate == undefined ? false : animate;
+	  	window.other_datas[name][0].strokeColor = 'rgba('+window.colors[window.color_pointer][0]+','+window.colors[window.color_pointer][1]+','+window.colors[window.color_pointer][2]+',1)';
+	  	window.other_datas[name][0].pointColor = 'rgba('+window.colors[window.color_pointer][0]+','+window.colors[window.color_pointer][1]+','+window.colors[window.color_pointer][2]+',1)';
+	  	var color_used = 'rgba('+window.colors[window.color_pointer][0]+','+window.colors[window.color_pointer][1]+','+window.colors[window.color_pointer][2]+',1)';
+	  	window.color_pointer++;
+	  	if(window.color_pointer >= colors.length){
+	  		window.color_pointer = 0;
+	  	}
+	  	window.data.datasets.push(window.other_datas[name][0]);
+	  	var opts = window.options;
+	  	opts.animation = animate;
+	  	window.trend = new Chart(window.ctx).Line(window.data, opts);
+	  	return color_used;
+	  }
+
+	  function removeDataSet(name, animate){
+	  	animate = typeof animate == undefined ? false : animate;
+	  	for(var i=0; i<window.data.datasets.length; i++){
+	  		if(window.data.datasets[i].name == name){
+	  			window.data.datasets.splice(i,1);
+	  		}
+	  	}
+	  	var opts = window.options;
+	  	opts.animation = animate;
+	  	window.trend = new Chart(window.ctx).Line(window.data, opts);
+	  }
+
+	  $(function(){
+	  	$('.dataset_chx').change(function(){
+	  		if($(this).is(':checked')) {
+	  			var color_used = addDataSet($(this).attr('name'));
+	  			$(this).parent().css('color',color_used);
+	  		}else{
+	  			removeDataSet($(this).attr('name'));
+	  			$(this).parent().css('color','inherit');
+	  		}
+	  	});
+	  });
+</script>
+
+<div class="row" style="margin-top:16px; margin-bottom:10px;">
+	<div class="col-lg-11" style="margin-left:22px;">
+		<div><input type='checkbox' name='All' class='dataset_chx' checked /> Total Allocation (reviews)</div>
+		<div style="display:table; width:100%; margin-top:10px;">
+			<% keysToCheck = @datasets_rev.keys %>
+			<% keysToCheck.delete("All") %>
+			<% keysToCheck.each_with_index do |k,i| %>
+				<% if (i%4 == 0) %><div style="display:table-row;width:100%;"><% end %>
+				<div style='display:table-cell;width:275px;'><input type="checkbox" name="<%=k%>" class="dataset_chx" /> <%=k%></div>
+				<% if (((i+1)%4 == 0) || (i == (keysToCheck.length-1))) %></div><% end %>
+			<% end %>
+		</div>
+	</div>
+	<div class="col-lg-1"></div>
+</div>
+
+<%= erb :footer_partial %>

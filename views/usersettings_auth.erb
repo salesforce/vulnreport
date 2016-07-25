@@ -1,0 +1,100 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>User Settings</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li class="active"><i class="fa fa-user"></i> User Settings</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :usersettings_nav_partial %>
+
+<% if @saved %>
+<div class="alert alert-success alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  Auth settings updated
+</div>
+<% end %>
+
+<% if @save_error %>
+<div class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  Failed to save auth settings - <%=@save_error_str%>
+</div>
+<% end %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/usersettings/auth">
+      <%= csrf_tag %>
+      
+      <% if getSetting('AUTH_SSO_ENABLED') == 'true' %>
+        <hr />
+        <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">SSO Information <small style="font-size:8pt;">Please ask an admin to update if necessary</small></h4>
+
+        <div class="form-group">
+          <label for="sso_user" class="col-sm-2 control-label">SSO User: </label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="sso_user" name="sso_user" placeholder="SSO Username" value="<%=h(@user.sso_user)%>" readonly>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="sso_id" class="col-sm-2 control-label">SSO ID: </label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="sso_id" name="sso_id" placeholder="SSO ID" value="<%=h(@user.sso_id)%>" readonly>
+          </div>
+        </div>
+      <% end %>
+
+      <% if getSetting('AUTH_LOGIN_ENABLED') == 'true' %>
+        <hr />
+        <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">Login Information <small style="font-size:8pt;">Vulnreport-direct authentication</small></h4>
+
+        <div class="form-group">
+          <label for="login_user" class="col-sm-2 control-label">Username: </label>
+          <div class="col-sm-6">
+            <input type="text" class="form-control" id="login_user" name="login_user" placeholder="Username" value="<%=h(@user.username)%>" readonly>
+          </div>
+        </div>
+
+        <% if !@user.password.nil? %>
+          <div class="form-group">
+            <label for="login_current_password" class="col-sm-2 control-label">Current Password: </label>
+            <div class="col-sm-6">
+              <input type="password" class="form-control" id="login_current_password" name="login_current_password" placeholder="Current Password">
+            </div>
+          </div>
+        <% end %>
+
+        <div class="form-group">
+          <label for="login_password" class="col-sm-2 control-label">Password: </label>
+          <div class="col-sm-6">
+            <input type="password" class="form-control" id="login_password" name="login_password" placeholder="New Password">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="login_password_conf" class="col-sm-2 control-label">Confirm: </label>
+          <div class="col-sm-6">
+            <input type="password" class="form-control" id="login_password_conf" name="login_password_conf" placeholder="Confirm Password">
+          </div>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-2" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save User Settings</button>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

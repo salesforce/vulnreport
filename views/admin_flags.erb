@@ -1,0 +1,61 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Application Flags <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li class="active"><i class="fa fa-flag"></i> Application Flags</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :admin_types_nav_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <span style="font-size:12pt;"><i class="fa fa-flag"></i> Application Flags</span>
+        <span style="position:absolute;right:25px;">
+          <a href="/admin/flags/new" style="color:#FFF;"><i class="fa fa-plus"></i> New App Flag</a>
+        </span>
+      </div>
+      <div class="panel-body" style="padding-top:0px;">
+        <table class="table table-striped" style="margin-bottom:0px;">
+          <thead>
+            <tr>
+              <th style="width:6%; text-align:center;"><b>Active</b></th>
+              <th style="width:6%; text-align:center;"><b>In Use</b></th>
+              <th style="width:6%; text-align:center;"><b>Icon</b></th>
+              <th style="width:30%"><b>Name</b></th>
+              <th style="width:42%"><b>Description</b></th>
+              <th style="width:10%"></th>
+            </tr>
+          </thead>
+
+          <% if !@flags.nil? %>
+            <% @flags.each do |flag| %>
+              <tr id="flag_<%=flag.id%>">
+                <td style="width:6%; text-align:center;"><% if flag.active %><i class="fa fa-check" style="color:#009933;"></i><% else %><i class="fa fa-times" style="color:#B40404;"></i><% end %></td>
+                <td style="width:6%; text-align:center;">
+                  <% if (flag.applications.size > 0) %>
+                    <i class="fa fa-check" style="color:#009933;"></i>
+                  <% else %>
+                    <i class="fa fa-times" style="color:#B40404;"></i>
+                  <% end %>
+                </td>
+                <td style="width:6%; text-align:center;"><% if !flag.icon.nil? || flag.icon.strip.empty? %><i class="fa <%=flag.icon%>"></i><% end %></td>
+                <td style="width:30%"><a href="/admin/flags/<%=flag.id%>"><%=h(flag.name)%></a></td>
+                <td style="width:42%"><%=h(flag.description)%></td>
+                <td style="width:10%"><a href="/admin/flags/<%=flag.id%>/delete"><button type="button" class="btn btn-danger">DELETE Flag</button></a></td>
+              </tr>
+            <% end %>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

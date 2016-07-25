@@ -1,0 +1,190 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+  $(function() {
+    $("#rt-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available RecordTypes</div>",
+                            selectionHeader: "<div class='msHeader'>Assigned RecordTypes</div>",
+                          });
+  });
+
+  function toggleApproverSettings(e){
+    if(e.checked){
+      $("#approverSettings").show();
+    }else{
+      $("#approverSettings").hide();
+    }
+  }
+
+  $(function() {
+    $("#user-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available Users</div>",
+                            selectionHeader: "<div class='msHeader'>Approver Users</div>",
+                            selectableOptgroup: true
+                          });
+
+    $("#org-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available Orgs</div>",
+                            selectionHeader: "<div class='msHeader'>Approver Orgs</div>"
+                          });
+  });
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Orgs <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/orgs"><i class="fa fa-group"></i> Orgs</a></li>
+      <li class="active"><i class="fa fa-group"></i> <%=h(@org.name)%></li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/orgs/<%=@org.id%>">
+      <%= csrf_tag %>
+
+      <div class="form-group">
+        <label for="orgName" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="orgName" name="orgName" placeholder="Name" value="<%=h(@org.name)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="isCon" class="col-sm-2 control-label">Contractor Org:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isCon" rel="switch" data-size="small" data-on-text="Yes" data-off-text="No" <% if @org.contractor %>checked<% end %>>
+        </div>
+
+        <label for="isSuper" class="col-sm-2 control-label">Super Org:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isSuper" rel="switch" data-size="small" data-on-text="Yes" data-on-color="danger" data-off-text="No" <% if @org.contractor%>disabled<% elsif @org.super %>checked<% end %>>
+          <i class="fa fa-info-circle" style="padding-left:5px;" rel="tooltip" title="Can view all reviews regardless of RecordType assignments"></i>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="dashConfig" class="col-sm-2 control-label">Dashboard Config:</label>
+        <div class="col-sm-6">
+          <select name="dashConfig" class="form-control">
+            <option value="0" <% if @org.dashconfig == 0 %>selected<% end %>>Default Dashboard</option>
+            <% @dashConfigs.each do |dc| %>
+              <option value="<%=dc.id%>" <% if @org.dashconfig == dc.id %>selected<% end %>><%=h(dc.name)%></option>
+            <% end %>
+          </select>        
+        </div>
+      </div>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">Org Permissions <small style="font-size:8pt;">Something something as few as necessary...</small></h4>
+
+      <div class="form-group">
+        <label for="canReport" class="col-sm-2 control-label">Use Reports:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="canReport" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" <% if @org.canReport %>checked<% end %>>
+        </div>
+
+        <label for="isApprovalRequired" class="col-sm-2 control-label">Require Test Approval:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isApprovalRequired" rel="switch" data-size="small" data-on-text="Yes" data-on-color="warning" data-off-text="No" <% if @org.requireApproval %>checked<% end %> onchange="toggleApproverSettings(this)">
+          <i class="fa fa-info-circle" style="padding-left:5px;" rel="tooltip" title="Cannot pass/fail tests without approval"></i>
+        </div>
+      </div>
+
+      <div id="approverSettings" <% if !@org.requireApproval %>style="display:none;"<% end %>>
+        <hr />
+        <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">Approvers <small style="font-size:6pt;">Users/Orgs who can approve user's tests</small></h4>
+
+        <div class="form-group">
+          <label for="user-multiselect" class="col-sm-2 control-label"></label>
+          <div class="col-sm-6">
+            <select multiple="multiple" id="user-multiselect" name="approver_users[]" rel="jqms">
+              <% @orgs.each do |org| %>
+                <optgroup label='<%=h(org.name)%>'>
+                  <% org.activeUsers.each do |u| %>
+                    <option value="<%=u.id%>" <% if !@org.approver_users.nil? && @org.approver_users.include?(u.id) %>selected<% end %>><%=h(u.name)%></option>
+                  <% end %>
+                </optgroup>
+              <% end %>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="org-multiselect" class="col-sm-2 control-label"></label>
+          <div class="col-sm-6">
+            <select multiple="multiple" id="org-multiselect" name="approver_orgs[]" rel="jqms">
+              <% @orgs.each do |org| %>
+                <% next if org.id == @org.id %>
+                <option value="<%=org.id%>" <% if !@org.approver_orgs.nil? && @org.approver_orgs.include?(org.id) %>selected<% end %>><%=h(org.name)%></option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">Record Type Assignments <small style="font-size:8pt;">Affects both ability to use and view</small></h4>
+
+      <div class="form-group">
+        <label for="rt-multiselect" class="col-sm-2 control-label"></label>
+        <div class="col-sm-6">
+          <select multiple="multiple" id="rt-multiselect" name="rtms[]" rel="jqms">
+            <% @appRecordTypes.each do |rt| %>
+              <option value="<%=rt.id%>" <% if @allowedRTs.include?(rt.id) %>selected<% end %>><%=h(rt.name)%></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:20px;">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-4" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save Org</button>
+          <a href="/admin/orgs/<%=@org.id%>/delete"><button type="button" class="btn btn-danger" id="delOrg" name="delOrg" value="delOrg">DELETE ORG</button></a>
+        </div>
+        <div class="col-sm-3"></div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<div class="row" style="margin-top:24px;">
+  <div class="col-lg-12">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-9">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title"><i class="fa fa-group"></i> <%=@org.name%> Users</h3>
+        </div>
+        <div class="panel-body">
+          <table class="table table-striped">
+            <tr>
+              <td style="width:10%"><b>Status</b></td>
+              <td style="width:30%"><b>Name</b></td>
+              <td style="width:10%"><b>Initials</b></td>
+              <td style="width:30%"><b>Email</b></td>
+            </tr>
+
+            <% @users.each do |u| %>
+            <tr>
+              <td style="width:10%"><%=u[:status]%></td>
+              <td style="width:40%"><a href="/admin/users/<%=u[:uid]%>"><%=h(u[:name])%></a></td>
+              <td style="width:10%"><%=h(u[:inits])%></td>
+              <td style="width:40%"><%=h(u[:email])%></td>
+            </tr>
+            <% end %>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-2"></div>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

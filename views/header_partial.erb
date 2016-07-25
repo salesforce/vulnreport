@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Powered by Vulnreport - http://vulnreport.io - Open-source penetration testing management and automation platform -->
+    <!--
+      ##
+      # Copyright (c) 2016, salesforce.com, inc.
+      # All rights reserved.
+      # Licensed under the BSD 3-Clause license. 
+      # For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
+      ##
+    -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <% if @pageTitle.nil? || @pageTitle.strip == "" %>
+      <title>Vulnreport | <%=h(@VRNAME)%></title>
+    <% else %>
+      <title><%=h(@pageTitle)%> | Vulnreport</title>
+    <% end %>
+
+    <!-- CSS Includes -->
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/sb-admin.css">
+    <link rel="stylesheet" href="/css/bootstrap-switch.min.css">
+    <link rel='stylesheet' href='/css/jquery-ui.min.css'>
+    <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/fontawesome-iconpicker.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.timeline.css">
+    <link rel="stylesheet" href="/css/bootstrap-slider.css">
+    <link rel="stylesheet" href="/css/bootstrap-multiselect.css">
+    <link rel="stylesheet" href="/css/flag-icon.min.css">
+    <link rel="stylesheet" href="/css/typeahead.bootstrap.css">
+    <link rel="stylesheet" href="/css/jquery.multiselect.css">
+    <link rel="stylesheet" href="/css/vulnreport.css">
+    
+    <!-- JS Includes -->
+    <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js'></script>
+    <script type='text/javascript' src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+
+    <script src="/js/bootstrap.js"></script>
+    <script src="/js/bootstrap-switch.min.js"></script>
+    <script src="/js/bootstrap-slider.min.js"></script>
+    <script src="/js/bootstrap-multiselect.js"></script>
+    <script src="/js/jquery.multiselect.min.js"></script>
+
+    <script src="/js/vr.datepicker.js"></script>
+    <script src="/js/vr.funcs.js"></script>
+
+    <script src="/js/Chart.min.js"></script>
+    <script src="/js/tablesorter/jquery.tablesorter.js"></script>
+    <script src="/js/typeahead.jquery.min.js"></script>
+    <script src="/js/bloodhound.min.js"></script>
+    <script src="/js/handlebars.js"></script>
+    <script src="/js/fontawesome-iconpicker.min.js"></script>
+    <script type="text/javascript" src="/js/ZeroClipboard.min.js"></script>
+
+    <!-- Initializations -->
+    <script type="text/javascript">
+      $(function() {
+        $(".tablesorter").tablesorter();
+        $("[rel='tooltip']").tooltip();
+        $("[rel='switch']").bootstrapSwitch();
+      });
+
+      var BH = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        prefetch: {
+          thumbprint: '<%=@bhthumb%>',
+          url: '/prefetchBH'
+        },
+        remote: {
+          url: '/remoteBH/%QUERY',
+          wildcard: '%QUERY'
+        }
+      });
+       
+      BH.initialize();
+
+      $(document).ready(function() {
+        $('.typeaheadInput').typeahead({
+          hint: true,
+          highlight: true,
+          minLength: 2
+        },
+        {
+          name: 'Projects',
+          displayKey: 'name',
+          source: BH.ttAdapter(),
+          templates: {
+            suggestion: Handlebars.compile('<a href="/reviews/{{id}}" class="typeaheadSuggestionLink"><p>{{name}}</p></a>')
+          }
+        }).bind("typeahead:autocompleted typeahead:selected", function(obj, datum){
+          window.location = "/reviews/" + datum.id;
+        });
+      });
+    </script>
+
+  </head>
+
+  <body>
+
+    <div id="wrapper">
+      <%= erb :nav_partial %>
+
+      <div id="page-wrapper">

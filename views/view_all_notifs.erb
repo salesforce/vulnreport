@@ -1,0 +1,41 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Notifications</small></h1>
+    <ol class="breadcrumb">
+    	<li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+    	<li class="active"><i class="fa fa-comment"></i> Notifications</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+	<div class="col-lg-1"></div>
+	<div class="col-lg-8">
+		<table class="table table-striped">
+			<tbody>
+				<% @notifs.each do |n| %>
+				<tr>
+					<td style="border:0; width:3%"><% if !n.viewed %><i class="fa fa-certificate" style="color:#dc0d17;"></i><% end %></td>
+					<td style="border:0; width:22%">
+						<% if !n.renewed_at.nil? %>
+							<%=n.renewed_at.strftime("%e %b %Y at %H:%M")%>
+						<% else %>
+							<%=n.created_at.strftime("%e %b %Y at %H:%M")%>
+						<% end %>
+					</td>
+					<td style="border:0; width:75%; text-align:left;">
+						<a href="<%=n.link%>" style="padding-left:6px;">
+	                  		<%=h(n.body)%>
+							<% if n.renewed_count > 0 %><span class="badge" style="position:relative; top:-1px; margin-left:2px;"><%=n.renewed_count+1%></span><%end%>
+						</a>
+					</td>
+				</tr>
+				<% end %>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<%= erb :footer_partial %>

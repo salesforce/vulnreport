@@ -1,0 +1,9 @@
+<div class="row" style="margin-top:-10px; margin-bottom:20px;">
+	<div class="col-lg-11">
+		<ul class="nav nav-tabs">
+			<li role="presentation" <% if request.path_info == "/usersettings" %>class="active"<% end %>><a href="/usersettings"><i class="fa fa-user"></i> User Settings</a></li>
+			<li role="presentation" <% if request.path_info == "/usersettings/auth" %>class="active"<% end %>><a href="/usersettings/auth"><i class="fa fa-lock"></i> Login Settings</a></li>
+		</ul>
+	</div>
+	<div class="col-lg-1"></div>
+</div>

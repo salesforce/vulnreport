@@ -1,0 +1,27 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Search</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li class="active"><i class="fa fa-search"></i> Search</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-1" style="text-align:center;"></div>
+  <div class="col-lg-10" style="text-align:center;">
+    This will search names and descriptions of all Reviews and Tests. Custom reporting and finding for reviews and tests by vulnerability type, etc. can be found in the <a href="/reports">Reports</a> section.
+    <br /><br />
+    <form role="form" action="/search" method="GET">
+      <input type="text" id="searchInput" name="searchInput" size="80" placeholder="Search Query">
+      <br /><br />
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+  </div>
+  <div class="col-lg-1" style="text-align:center;"></div>
+</div>
+
+<%= erb :footer_partial %>

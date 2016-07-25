@@ -1,0 +1,205 @@
+<% disableFlags ||= false %>
+<% disableRTSelect ||= false %>
+<% disableDates ||= false %>
+<% showReviewerOpt ||= false %>
+<% showOrgOpt ||= false %>
+<% showVulnTypeOpts ||= false %>
+<% totalIsOption ||= false %>
+<% appRecordTypes ||= getAllowedRTObjsForUser(@session[:uid]) %>
+<% appFlags ||= Flag.all(:active => true) %>
+
+<style>
+	.datepickerOptContainer{
+		float: left;
+		margin-left: 10px;
+		margin-top: 6px;
+	}
+
+	.datepickerLabel{
+		text-align: center;
+		color: #999;
+		font-weight: bold;
+		font-size: 10pt;
+	}
+</style>
+
+<script type="text/javascript">
+    $(function () {
+    	$('#rtmulti').multiselect({
+    		maxHeight: 200,
+    		includeSelectAllOption: true,
+    		allSelectedText: 'All Types',
+    		selectAllName: 'rtSelectAll',
+    		selectAllValue: 'all',
+    		buttonWidth: '150px',
+    		buttonClass: 'btn btn-default btn-sm'
+    	});
+    });
+
+    $(function () {
+    	$('#flagmulti').multiselect({
+    		maxHeight: 200,
+    		nonSelectedText: 'Ignore Flags',
+    		buttonWidth: '100px',
+    		buttonClass: 'btn btn-default btn-sm'
+    	});
+    });
+</script>
+
+<div class="row" style="margin-top:-8px; margin-bottom:10px;">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">Showing <b><%=@appTypeString%></b> apps <% if !disableDates %>for <b><%=@periodString%></b> <% if !@intString.nil?%> by <b><%=@intString%></b> <% end %><% end %></div>
+			<div class="panel-body" style="padding-top:0px; padding-left:0px;">
+				<form action="<%=@formsub%>" method='POST'>
+					<%=csrf_tag%>
+					<div>
+						<% if !disableDates %>
+							<div class="datepickerOptContainer">
+								<div class="datepickerLabel">Start Date</div>
+								<div><input type='text' id='startdate' name='startdate' value="<%=(@startdate.nil?) ? "" : @startdate.strftime('%m-%d-%Y')%>" size="10"></div>
+							</div>
+
+							<div class="datepickerOptContainer">
+								<div class="datepickerLabel">End Date</div>
+								<div><input type='text' id='enddate' name='enddate' value="<%=(@enddate.nil?) ? "" : @enddate.strftime('%m-%d-%Y')%>" size="10"></div>
+							</div>
+
+							
+							<% if !@intervals.nil? && @intervals.size > 0 %>
+								<div class="datepickerOptContainer">
+									<div class="datepickerLabel">By</div>
+									<div>
+										<select name="interval" <% if @intervals.size == 1 %>readonly<% end %>>
+										<% @intervals.each do |i| %>
+											<option value="<%=i.downcase%>" <% if @int == i.downcase%> selected <% end %>><%=i%></option>
+										<% end %>
+										</select>
+									</div>
+								</div>
+							<% end %>
+						<% end %>
+
+						<% if !disableFlags %>
+							<div class="datepickerOptContainer">
+								<div class="datepickerLabel">App Flags</div>
+								<div>
+									<select name="appFlags[]" id="flagmulti" multiple="multiple">
+										<% appFlags.each do |f| %>
+											<option value="<%=f.id%>" <% if !@selectedFlags.nil? && @selectedFlags.include?(f.id) %>selected<% end %>><%=h(f.name)%></option>
+										<% end %>
+									</select>
+								</div>
+							</div>
+						<% end %>
+
+						<% if !disableRTSelect %>
+							<div class="datepickerOptContainer">
+								<div class="datepickerLabel">Record Type</div>
+								<div>
+									<select name="recordTypes[]" id="rtmulti" multiple="multiple">
+										<% appRecordTypes.each do |rt| %>
+											<option value="<%=rt.id%>" <% if @selectedRecordTypes.nil? || @selectedRecordTypes.include?(rt.id) %>selected<% end %>><%=h(rt.name)%></option>
+										<% end %>
+									</select>
+								</div>
+							</div>
+						<% end %>
+
+						<div class="datepickerOptContainer">
+							<div class="datepickerLabel">&nbsp;</div>
+							<div>
+								<% if !disableDates %>
+									<button class="btn btn-default btn-sm" onclick="setDateRange('month')" type="button">Month</button>
+									<button class="btn btn-default btn-sm" onclick="setDateRange('lastmonth')" type="button">Prev. M</button>
+									<button class="btn btn-default btn-sm" onclick="setDateRange('quarter')" type="button">Qtr</button>
+									<button class="btn btn-default btn-sm" onclick="setDateRange('lastquarter')" type="button">Prev. Q</button>
+									<!--<button class="btn btn-default btn-sm" onclick="setDateRange('year')" type="button">Year</button>
+									<button class="btn btn-default btn-sm" onclick="setDateRange('lastyear')" type="button">Prev. Year</button>-->
+									<button class="btn btn-default btn-sm" onclick="setDateRange('fytd')" type="button">FYTD</button>
+									<button class="btn btn-default btn-sm" onclick="setDateRange('lastfy')" type="button">Prev. FY</button>
+									
+									<button class="btn btn-primary btn-sm" type="submit" name="alldata" style="margin-left:12px;">All</button>
+								<% end %>
+								<button class="btn btn-primary btn-sm" type='submit'>Run Report</button>
+							</div>
+						</div>
+					</div>
+
+					<div>
+						<% if showReviewerOpt %>
+							<div class="datepickerOptContainer">
+								<div class="datepickerLabel">Reviewer</div>
+								<div>
+									<select name="rid">
+									<% if totalIsOption %>
+										<option value="0" <% if @reviewer.id == 0%> selected <% end %>>Total</option>
+									<% end %>
+									<% @reviewers.each do |r| %>
+										<option value="<%=r[:id]%>" <% if @reviewer.id == r[:id]%> selected <% end %>><%=h(r[:name])%></option>
+									<% end %>
+									</select>
+								</div>
+							</div>
+						<% end %>
+
+						<% if showOrgOpt %>
+							<div class="datepickerOptContainer">
+							<div class="datepickerLabel">Reviewer Org</div>
+							
+							<div>
+								<select name="oid">
+								<% @orgs.each do |o| %>
+									<option value="<%=o[:id]%>" <% if @org.id == o[:id]%> selected <% end %>><%=o[:name]%></option>
+								<% end %>
+								</select>
+							</div>
+						<% end %>
+
+						<% if showVulnTypeOpts %>
+							<div style="margin-left:10px; float:left;">
+								<div style="display:table; width:100%; margin-top:10px;">
+									<b>Tests with <input type="radio" name="cond" value="any" id="cond_any" <%=(@cond.nil? || @cond == "any") ? "checked" : "" %> /> any / <input type="radio" name="cond" value="all" id="cond_all" <%=@cond == "all" ? "checked" : "" %> /> all of the selected vuln types:</b>
+								</div>
+								<div style="display:table; width:100%; margin-top:10px;">
+									<% @vts.each_with_index do |vt,i| %>
+										<% if (i%4 == 0) %><div style="display:table-row;width:100%;"><% end %>
+										<div style='display:table-cell;width:275px;'>
+											<input type="checkbox" name="vts[]" value="<%=vt.id%>" <%=(!@selVTs.nil? && @selVTs.include?(vt.id)) ? "checked" : "" %> /> <%=h(vt.name)%>
+										</div>
+										<% if (((i+1)%4 == 0) || (i == (@vts.length-1))) %></div><% end %>
+									<% end %>
+								</div>
+							</div>
+						<% end %>
+					</div>
+				</form>
+
+				<script type="text/javascript">
+		 			$(function(){
+		 				$('#startdate').datepicker({
+			 				showOn: 'focus', 
+			 				changeMonth: true,
+					        changeYear: true,
+					        showButtonPanel: true,
+			 				dateFormat: 'mm-dd-yy'
+			 			});
+		 			});
+		 			$(function(){
+		 				$('#enddate').datepicker({
+			 				showOn: 'focus', 
+			 				changeMonth: true,
+					        changeYear: true,
+					        showButtonPanel: true,
+			 				dateFormat: 'mm-dd-yy'
+			 			});
+			 		});
+					<% if !@period.nil? && @period != "all" %>
+						$(function(){$('#startdate').datepicker('setDate', '<%=@period.split("...")[0]%>');});
+		  				$(function(){$('#enddate').datepicker('setDate', '<%=@period.split("...")[1]%>');});
+		  			<% end %>
+				</script>
+			</div>
+		</div>
+	</div>
+</div>

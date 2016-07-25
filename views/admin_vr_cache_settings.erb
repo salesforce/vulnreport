@@ -1,0 +1,74 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+    function evict(key){
+      if(confirm("Evict this key?")){
+        $.post("/admin/settings/cache/evict/", 
+                { key: key, _csrf: "<%=csrf_token%>"},
+                function(){
+                  $("#cache_key_"+key).remove();
+                }
+              ).fail(function(){
+                alert("Error evicting key");
+              });
+      }
+    }
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Cache <small>Settings</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li class="active"><i class="fa fa-fire"></i> Cache Settings</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :admin_vrsettings_nav_partial %>
+
+<div class="row" style="margin-top:-4px; margin-bottom:12px;">
+  <div class="col-lg-11">
+    Cache layer can be implemented by Linked Objects and Custom DashConfigs in order to reduce latency introduced by external systems when pulling data about security reviews into Vulnreport. See documentation for more information on implementation and usage.
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-11">
+    <h4><span style="color:#B40404;"><i class="fa fa-exclamation"></i> CAUTION</span> <small>Manually manipulating the cache can negatively affect performance</small></h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+    <div style="margin-left:22px;">
+      <b>VR Cache Performance</b>
+      <div style="margin-left:22px;">
+        <b>Efficiency: </b><%=(@pct*100).round(2)%>% (<%=@hits%> hits / <%=@misses%> misses)
+        <br /><i>To date saving ~<%=(((@hits.to_f*5.0)/60.0)/60.0).round(2)%> hours of your life</i>
+      </div>
+    </div>
+
+    <div style="margin-left:22px; margin-top:20px;">
+      <b>VR Cache Warm Keys</b>
+      <div style="margin-left:22px;">
+        <table>
+          <tr>
+            <td><b>Key</b></td>
+            <td><b>TTL (mins)</b></td>
+            <td></td>
+          </tr>
+        <% @keysTTL.each do |r| %>
+          <% if r[:ttl] != -1 %>
+            <tr id="cache_key_<%=r[:key]%>">
+              <td style="padding-right:25px;"><%=r[:key]%></td>
+              <td style="padding-right:45px;"><%=(r[:ttl]/60.0).round(2)%></td>
+              <td><button class="btn btn-warning btn-sm" onclick="evict('<%=r[:key]%>')">Evict</button></td>
+            </tr>
+          <% end %>
+        <% end %>
+        </table>
+      </div>
+    </div>
+    
+  </div>
+  <div class="col-lg-1"></div>
+</div>
+
+<%= erb :footer_partial %>
