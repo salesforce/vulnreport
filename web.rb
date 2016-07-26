@@ -1215,11 +1215,12 @@ class Vulnreport < Sinatra::Base
 
 		# Get VRLO custom results
 		@vrloResults = Array.new
+		keysSearched = Array.new
 		@selectedRecordTypes.each do |rtid|
 			rt = RecordType.get(rtid)
 			if(rt.isLinked)
 				vrlo = VRLinkedObject.getByKey(rt.linkedObjectKey)
-				if(!vrlo.nil?)
+				if(!vrlo.nil? && !keysSearched.include?(vrlo.vrlo_key))
 					vrloSearchResults = nil
 					begin
 						vrloSearchResults = vrlo.doSearch(@q)
@@ -1227,6 +1228,8 @@ class Vulnreport < Sinatra::Base
 						vrloSearchResults = nil
 						Rollbar.error(e, "Error doing VRLO search", {:query => @q, :vrlo_key => rt.linkedObjectKey})
 					end
+
+					keysSearched << vrlo.vrlo_key
 
 					if(!vrloSearchResults.nil? && vrloSearchResults.size > 0)
 						@vrloResults << {:title => vrlo.vrlo_name, :results => vrloSearchResults}
