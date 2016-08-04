@@ -1804,7 +1804,7 @@ class Vulnreport < Sinatra::Base
 		@period = (params[:alldata]) ? "all" : form_datestring(params[:startdate], params[:enddate])		
 		
 		@startdate, @enddate, @periodString = parsePeriod(@period)
-		@selectedFlags, @appTypeString = parseFlags(form_flagstring(params[:flagsTypes]))
+		@selectedFlags, @appTypeString = parseFlags(form_flagstring(params[:appFlags], params[:flagSelectAll]))
 		@allowedRecordTypes = getAllowedRTsForUser(@session[:uid])
 		@selectedRecordTypes = params[:recordTypes]
 		rtSelectAll = (!params[:rtSelectAll].nil? && params[:rtSelectAll].to_s.downcase == "all")
