@@ -127,23 +127,17 @@ The XML format Vulnreport currently supports is:
     <Code>
       [Code Vuln Data]
     </Code>
-    <File>04ti00000004OZY\classes\clsSyncLog.cls</File>
+    <File>clsSyncLog.cls</File>
     <Code>
-      34 insert objSyncLog;
-      41 Insert objAttachment;
-      65 insert objAsyncQueue;
-      77 insert objAttachment;
+      hello world
     </Code>
     ...etc...
   </Vuln>
 
   <Vuln>
     <Type>6</Type>
-    <File>04ti00000004OZY\classes\clsSyncLog.cls</File>
-    <Code>
-      14 Public class clsSyncLog{
-    </Code>
-    <File>04ti00000004OZY\classes\CommonFunction.cls</File>
+    <File>clsSyncLog.cls</File>
+    <File>CommonFunction.cls</File>
     <Code>
       12 Public Class CommonFunction{
     </Code>
@@ -154,7 +148,7 @@ The XML format Vulnreport currently supports is:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 
-<Test xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://vulnreport.sfdcsec.com/xmlschema.xsd">
+<Test xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"">
   <Vuln>
     <Type>REQUIRED - EXACTLY 1 - INTEGER - ID of VulnType. 0 = Custom</Type>
     <CustomTypeName>OPTIONAL - EXACTLY 1 - STRING if TYPE == 0</CustomTypeName>
