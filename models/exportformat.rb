@@ -13,5 +13,5 @@ class ExportFormat
 	property :id,				Serial 		#@return [Integer] Primary Key
 	property :name,				String 		#@return [Name] Name of the ExportFormat
 	property :description,		Text 		#@return [String] User description of the ExportFormat
-	property :filename,			String  	#@return [String] Filename (excluding .erb) of the template for this export format (system name, not user-controlled)
+	property :erb,				Text 		#@return [String] ERB template code
 end

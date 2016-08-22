@@ -326,7 +326,7 @@ end
 def report_html(tid)
 	@test = Test.get(tid)
 	@app = @test.application
-
+	
 	rt = RecordType.get(@app.record_type)
 
 	if(rt.exportFormat.nil? || rt.exportFormat == 0)
@@ -335,8 +335,8 @@ def report_html(tid)
 		return renderer.result(binding)
 	else
 		ef = ExportFormat.get(rt.exportFormat)
-		f = File.open("exportTemplates/" + ef.filename + ".erb", "rb")
-		renderer = ERB.new(f.read)
+		f = ef.erb
+		renderer = ERB.new(f)
 		return renderer.result(binding)
 	end
 end

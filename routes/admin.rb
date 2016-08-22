@@ -1108,15 +1108,10 @@ class Vulnreport < Sinatra::Base
 			return erb :error
 		end
 
-		filename = name.gsub(/[^0-9a-z]/i, '').downcase
-		filename = filename[0..63] if(filename.size > 64)
-
 		defaultFile = File.open("exportTemplates/default.erb", "rb")
 		defaultContents = defaultFile.read
 
-		File.open("exportTemplates/" + filename + ".erb", "w"){ |f| f.write(defaultContents) }
-
-		ef = ExportFormat.create(:name => name, :description => desc, :filename => filename)
+		ef = ExportFormat.create(:name => name, :description => desc, :filename => filename, :erb => defaultContents)
 		redirect "/admin/exportFormats/#{ef.id}"
 	end
 
@@ -1136,11 +1131,10 @@ class Vulnreport < Sinatra::Base
 
 		if(efid == 0)
 			f = File.open("exportTemplates/default.erb", "rb")
+			@efERB = f.read
 		else
-			f = File.open("exportTemplates/" + @ef.filename + ".erb", "rb")
+			@efERB = @ef.erb
 		end
-
-		@fileContents = f.read
 
 		erb :admin_ef_single
 	end
@@ -1172,7 +1166,8 @@ class Vulnreport < Sinatra::Base
 		if(efid == 0)
 			File.open("exportTemplates/default.erb", "w"){ |f| f.write(newFileContents) }
 		else
-			File.open("exportTemplates/" + ef.filename + ".erb", "w"){ |f| f.write(newFileContents) }
+			ef.erb = newFileContents
+			ef.save
 		end
 
 		redirect "/admin/exportFormats/#{efid}"
