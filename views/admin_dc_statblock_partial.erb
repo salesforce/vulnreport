@@ -37,7 +37,7 @@
 <br />
 <div style="width:80%; margin:10px auto 0px auto;">
   <div class="input-group iconpicker-container">
-    <input data-placement="bottomRight" class="form-control icp iconpicker-element iconpicker-input" value="<%=@dc.stats[blocknum-1][:icon]%>" type="text" name="block<%=blocknum%>_icon" placeholder="Icon">
+    <input data-placement="bottomRight" class="form-control icp iconpicker-element iconpicker-input" <% if !@dc.stats.nil? && @dc.stats.size > 0 %>value="<%=@dc.stats[blocknum-1][:icon]%>"<% end %> type="text" name="block<%=blocknum%>_icon" placeholder="Icon">
     <span class="input-group-addon"><i class="fa <%=@dc.stats[blocknum-1][:icon]%>"></i></span>
   </div>
 </div>
