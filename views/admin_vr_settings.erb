@@ -113,6 +113,13 @@
         </div>
       </div>
 
+      <div class="form-group">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+          <small>Vulnreport expects SSO NAME-ID in the format <span style="font-family:onsolas, monaco, monospace;">urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</span></small>
+        </div>
+      </div>
+
       <hr />
       <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">Vulnreport Auth Settings <small style="font-size:8pt;"></small></h4>
 
@@ -127,6 +134,26 @@
           <input type="text" class="form-control" name="login_pwlen" size="6" value="<%=@login_pwlen%>">
         </div>
       </div>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">IP Access Restrictions <small style="font-size:8pt;">Limit access to Vulnreport</small></h4>
+
+      <div class="form-group">
+        <label for="ip_restrictions" class="col-sm-2 control-label">IP Restrictions: </label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="ip_restrictions" rel="switch" data-size="small" data-on-text="On" data-off-text="Off" <% if @ip_restrictions %>checked<% end %>>
+        </div>
+
+        <div class="col-sm-4">Your current IP is <%=@request_ip%></div>
+      </div>
+
+      <div class="form-group">
+        <label for="ip_restrictions_allowed" class="col-sm-2 control-label">Allowed IPs: </label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control" name="ip_restrictions_allowed" value="<%=@ip_restrictions_allowed%>" placeholder="Comma-separated list of IP addresses, ranges, or CIDRs (e.g. 1.2.3.4, 1.2.3.5-1.2.3.7, 5.6.7.8/31)">
+        </div>
+      </div>
+
 
 	    <div class="form-group" style="margin-top:30px;">
         	<div class="col-sm-3"></div>

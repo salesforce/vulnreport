@@ -20,6 +20,7 @@ require 'zip'
 require 'chronic'
 require 'net/http'
 require 'uri'
+require 'ipaddr'
 require 'cgi'
 require 'redis'
 require 'active_support/core_ext/date_time/calculations'
@@ -159,6 +160,17 @@ class Vulnreport < Sinatra::Base
 	end
 
 	before do
+		@request_ip = request.ip
+
+		if(getSetting('IP_RESTRICTIONS_ON') == 'true')
+			ip_allow = getSetting('IP_RESTRICTIONS_ALLOWED')
+			
+			if(!requestIPAllowed?(@request_ip, ip_allow))
+				logputs "IP address #{request.ip} does not match IP Access Restriction rules (#{ip_allow}) - REQUEST BLOCKED"
+				halt 401, "IP Access Restrictions do not allow access to Vulnreport from this IP address"
+			end
+		end
+
 		@session = session
 		@VRURL = settings.vrurl
 		@VRNAME = settings.vrname
@@ -1230,6 +1242,7 @@ class Vulnreport < Sinatra::Base
 					end
 
 					keysSearched << vrlo.vrlo_key
+					require 'ipaddr'
 
 					if(!vrloSearchResults.nil? && vrloSearchResults.size > 0)
 						@vrloResults << {:title => vrlo.vrlo_name, :results => vrloSearchResults}

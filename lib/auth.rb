@@ -9,6 +9,71 @@
 # Handle all Vulnreport authentication and permission functions.
 module VulnreportAuth
 	##
+	# Check a given IP address against IP Access Restriction rules to determine if access should be allowed
+	# @param request_ip [String] IP address to check access for
+	# @param ip_allow [String] String of comma-separated access rules (single IPs, CIDRs, and IP ranges)
+	# @return [Boolean] True if access should be allowed for request_ip, false otherwise
+	def requestIPAllowed?(request_ip, ip_allow)
+		if(!ip_allow.nil?)
+			request_ip = IPAddr.new(request.ip)
+			ip_allow_result = false
+
+			ip_allow_arr = ip_allow.split(",")
+
+			ip_allow_arr.each do |ip|
+				if(ip.include?("/"))
+					#CIDR case
+					begin
+						cidr = IPAddr.new(ip)
+					rescue Exception => e
+						#bad ip, do nothing
+						logputs "CIDR - IP Parse error for #{ip.inspect}. Skipping check!"
+						Rollbar.error(e, "CIDR - IP Parse error", {:cidr => ip})
+					end
+
+					if(cidr.include?(request_ip))
+						ip_allow_result = true
+						break
+					end
+				elsif(ip.include?("-"))
+					#Range case
+					begin
+						ips = ip.split("-")
+						low = IPAddr.new(ips[0])
+						high = IPAddr.new(ips[1])
+					rescue Exception => e
+						logputs "IP Range - IP Parse error for #{ip.inspect}. Skipping check!"
+						Rollbar.error(e, "IP Range - IP Parse error", {:range => ip})
+					end
+
+					if((low..high).include?(request_ip))
+						ip_allow_result = true
+						break
+					end
+				else
+					#Single IP case
+					begin
+						ip_addr = IPAddr.new(ip)
+					rescue Exception => e
+						#bad ip, do nothing
+						logputs "Single IP - IP Parse error for #{ip.inspect}. Skipping check!"
+						Rollbar.error(e, "Single IP - IP Parse error", {:ip => ip})
+					end
+
+					if(ip_addr.eql?(request_ip))
+						ip_allow_result = true
+						break
+					end
+				end
+			end
+
+			return ip_allow_result
+		else
+			return true
+		end
+	end
+	
+	##
 	# Checks if active session is a logged in user
 	# @return [Boolean] True if active user is logged in, false otherwise
 	def authorized?

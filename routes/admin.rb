@@ -112,6 +112,9 @@ class Vulnreport < Sinatra::Base
 
 		@login_auth = (getSetting('AUTH_LOGIN_ENABLED') == 'true')
 		@login_pwlen = getSetting('AUTH_LOGIN_PWLEN')
+
+		@ip_restrictions = (getSetting('IP_RESTRICTIONS_ON') == 'true')
+		@ip_restrictions_allowed = getSetting('IP_RESTRICTIONS_ALLOWED')
 				
 		@app_version = Vulnreport::VERSION::STRING
 		@app_hostname = %x{hostname}
@@ -136,6 +139,16 @@ class Vulnreport < Sinatra::Base
 
 		login_auth = (!params[:login_auth].nil?)
 		login_pwlen = params[:login_pwlen].strip
+
+		ip_restrictions = (!params[:ip_restrictions].nil?)
+		ip_restrictions_allowed = params[:ip_restrictions_allowed].strip
+		if(!ip_restrictions_allowed.nil? && !ip_restrictions_allowed.empty?)
+			ip_allowed_arr = ip_restrictions_allowed.split(",")
+			ip_allowed_arr.map!{|s| s.strip}
+		else
+			#Don't allow IP restrictions to be turned on with nothing allowed
+			ip_restrictions = false
+		end
 
 		if(!vr_name.nil? && !vr_name.empty?)
 			setSetting('VR_INS_NAME', vr_name)
@@ -170,6 +183,9 @@ class Vulnreport < Sinatra::Base
 
 		setSetting('AUTH_LOGIN_ENABLED', login_auth)
 		setSetting('AUTH_LOGIN_PWLEN', login_pwlen)
+
+		setSetting('IP_RESTRICTIONS_ON', ip_restrictions)
+		setSetting('IP_RESTRICTIONS_ALLOWED', ip_allowed_arr.join(',')) unless ip_allowed_arr.nil?
 
 		redirect "/admin/settings"
 	end
