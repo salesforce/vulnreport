@@ -103,7 +103,7 @@ class Vulnreport < Sinatra::Base
 			return erb :error
 		end
 
-		if(!rt.canBePassedToCon && newOwnerUser.contractor?)
+		if(!rt.canBePassedToCon && !newOwner.nil? && newOwnerUser.contractor?)
 			@errstr = "Invalid Owner - RecordType cannot be assigned to contractor"
 			return erb :error
 		end
