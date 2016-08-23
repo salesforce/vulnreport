@@ -755,7 +755,7 @@ class Vulnreport < Sinatra::Base
 			dcid = @user.dashOverride
 		else
 			if(!@user.verified?)
-				dcid == 0
+				dcid = 0
 			else
 				org = Organization.get(@user.org)
 				if(org.nil?)
@@ -768,7 +768,7 @@ class Vulnreport < Sinatra::Base
 
 		if(dcid > 0)
 			dc = DashConfig.get(dcid)
-			dcid == 0 if(dc.nil?)
+			dcid = 0 if(dc.nil?)
 		end
 
 		instance_exec dcid, &show_dash
