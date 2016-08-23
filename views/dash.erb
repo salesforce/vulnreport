@@ -99,7 +99,7 @@
     <p><%=@errstr%></p>
   </center>
 <% else %>
-  <% if @showStats %>
+  <% if @showStats && !@statblocks.nil? && @statblocks.size > 0 %>
     <%= erb :dash_stats_partial, :locals => {:block_1 => @statblocks[0],
                                              :block_2 => @statblocks[1],
                                              :block_3 => @statblocks[2],

@@ -10,7 +10,7 @@
   }
 
   function checkRtDisplay(e, idx){
-    var nonRtTypes = [<%=DASHPANEL_TYPE::MYACTIVE%>,<%=DASHPANEL_TYPE::MY_WNO_TESTS%>,<%=DASHPANEL_TYPE::MY_PASSED%>,<%=DASHPANEL_TYPE::MY_FAILED%>,<%=DASHPANEL_TYPE::MY_ALL%>,<%=DASHPANEL_TYPE::MY_APPROVALS%>];
+    var nonRtTypes = [<% NON_RT_DASHPANELS.each do |pt| %><%=pt%>,<% end %>];
     
     if(nonRtTypes.indexOf(parseInt($(e).val())) > -1){
       $('#panelRecordType_'+idx).css("display", "none");

@@ -420,6 +420,22 @@ class Vulnreport < Sinatra::Base
 						records << {:app => a, :test => nil}
 						addedThisPanel << a.id
 					end
+				elsif(panel[:type] == DASHPANEL_TYPE::UNASSIGNED_NEW_RT)
+					Application.all(:record_type => panel[:rt], :geo => geos, :owner => nil).each do |a|
+						next if(addedThisPanel.include?(a.id))
+						next if (a.tests.size > 0)
+						next if (a.isPrivate && !canViewReview?(a.id))
+						records << {:app => a, :test => nil}
+						addedThisPanel << a.id
+					end
+				elsif(panel[:type] == DASHPANEL_TYPE::UNASSIGNED_NEW_ALL)
+					Application.all(:geo => geos, :owner => nil).each do |a|
+						next if(addedThisPanel.include?(a.id))
+						next if (a.tests.size > 0)
+						next if (a.isPrivate && !canViewReview?(a.id))
+						records << {:app => a, :test => nil}
+						addedThisPanel << a.id
+					end
 				elsif(panel[:type] == DASHPANEL_TYPE::MY_PASSED)
 					Test.all(:reviewer => session[:uid], :complete => true, :pass => true, Test.application.geo => geos).each do |t|
 						next if(addedThisPanel.include?(t.application_id))
@@ -623,6 +639,22 @@ class Vulnreport < Sinatra::Base
 							end
 						elsif(stat[:type] == DASHPANEL_TYPE::APPS_WNO_TESTS)
 							Application.all(:record_type => stat[:rt], :geo => geos).each do |a|
+								next if(addedThisPanel.include?(a.id))
+								next if (a.tests.size > 0)
+								next if (a.isPrivate && !canViewReview?(a.id))
+								count += 1
+								addedThisPanel << a.id
+							end
+						elsif(stat[:type] == DASHPANEL_TYPE::UNASSIGNED_NEW_RT)
+							Application.all(:record_type => stat[:rt], :geo => geos, :owner => nil).each do |a|
+								next if(addedThisPanel.include?(a.id))
+								next if (a.tests.size > 0)
+								next if (a.isPrivate && !canViewReview?(a.id))
+								count += 1
+								addedThisPanel << a.id
+							end
+						elsif(stat[:type] == DASHPANEL_TYPE::UNASSIGNED_NEW_ALL)
+							Application.all(:geo => geos, :owner => nil).each do |a|
 								next if(addedThisPanel.include?(a.id))
 								next if (a.tests.size > 0)
 								next if (a.isPrivate && !canViewReview?(a.id))
