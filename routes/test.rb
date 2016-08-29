@@ -85,7 +85,7 @@ class Vulnreport < Sinatra::Base
 			else
 				@tid = @test.id
 				@aid = nil
-				return erb :private_app_warning
+				return erb :app_private_warning
 			end
 		end
 
