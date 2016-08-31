@@ -211,6 +211,11 @@
 							<b>CWE</b>: <a href="<%=v.cwe_link%>" target="_blank"><%=v.cwe_mapping%></a>
 						<% end %>
 					</div>
+
+					<h3>Risk Level / Priority</h3>
+					<div class="vulnDescrip">
+						<%=vulnPriorityToString(v.vuln_priority, @test.record_type)%>
+					</div>
 				<% end %>
 				
 				<% typeCount = 0 %>
@@ -226,6 +231,11 @@
 					<h3 class="findingHeader" id="vbody_<%=vv.id%>">Finding <%=findingCount%> of <%=typeCount%></h3>
 
 					<div class="finding">
+						<% if (vv.vuln_priority != v.vuln_priority) || vv.vulntype == 0 %>
+							<h4 class="sectHeader">Risk Level / Priority</h4>
+							<div class="sectBody"><%=vulnPriorityToString(vv.vuln_priority, @test.record_type)%></div>
+						<% end %>
+
 						<% vv.sections.sort{|x,y| x.listOrder <=> y.listOrder }.each do |sec| %>
 							<%=sec.html_formatted%>
 						<% end %>

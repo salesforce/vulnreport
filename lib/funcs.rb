@@ -231,6 +231,7 @@ end
 ##
 # Convert a Vulnerability Priority ENUM value (integer) to a String representing the priority
 # @param level [Fixnum] the {VULN_PRIORITY} Enum value
+# @param rtid [Integer] the ID of the RecordType to use for custom priority labels. Nil for default labels.
 # @return [String] the String representing that priority
 def vulnPriorityToString(level, rtid=nil)
 	rt = nil
