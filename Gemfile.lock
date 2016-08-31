@@ -144,6 +144,7 @@ GEM
     wasabi (3.5.0)
       httpi (~> 2.0)
       nokogiri (>= 1.4.2)
+    wkhtmltopdf-heroku (2.12.3.0)
     xml-simple (1.1.5)
     yard (0.8.7.6)
     yard-dm (0.1.1)
@@ -164,7 +165,7 @@ DEPENDENCIES
   json (~> 1.8.3)
   multipart-post (~> 2.0.0)
   nokogiri (~> 1.6.7.2)
-  pdfkit
+  pdfkit (~> 0.8.2)
   pg (~> 0.18.4)
   pony (~> 1.11)
   rack-ssl (~> 1.4.1)
@@ -178,6 +179,7 @@ DEPENDENCIES
   savon (~> 2.11.1)
   sinatra (~> 1.4.6)
   thin (~> 1.6.4)
+  wkhtmltopdf-heroku
   xml-simple (~> 1.1.5)
   yard (= 0.8.7.6)
   yard-dm (= 0.1.1)

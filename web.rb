@@ -43,6 +43,12 @@ require './lib/VRCron'
 require './lib/VRDashConfig'
 require './lib/VRLinkedObject'
 
+if(onHeroku?)
+	#Only load this gem if running on Heroku. If not on Heroku
+	#this dep should be handled by local library install, not gem
+	require 'wkhtmltopdf-heroku'
+end
+
 # Load all cron files and VRDashConfigs and register them later
 Dir["./crons/*.rb"].each {|cronfile| require cronfile}
 Dir["./customDashes/*.rb"].each {|dcfile| require dcfile}

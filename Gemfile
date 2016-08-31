@@ -29,4 +29,5 @@ gem 'yard', '0.8.7.6'
 gem 'yard-dm', '0.1.1'
 gem 'yard-sinatra', '1.0.0'
 gem 'eventmachine', '1.0.7'
-gem "pdfkit"
+gem "wkhtmltopdf-heroku"
+gem "pdfkit", '~> 0.8.2'

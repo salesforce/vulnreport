@@ -371,3 +371,12 @@ def getPanelRecordsCount(records)
 
 	return size
 end
+
+##
+# Based on ENV variables, detect if Vulnreport is running on Heroku. This detection
+# is based on the premise that a Heroku deploy will be using Heroku Postgres, resulting
+# in the presence of an environment variable similar to HEROKU_POSTGRESQL_...
+# @return [Boolean] True if running on Heroku, False otherwise
+def onHeroku?()
+	return ENV.any? {|x,_| x =~ /^HEROKU/ }
+end
