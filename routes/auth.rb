@@ -55,6 +55,8 @@ class Vulnreport < Sinatra::Base
 		@login_auth = (getSetting('AUTH_LOGIN_ENABLED') == 'true')
 		redirect "/saml/login" if (!@login_auth)
 
+		loginIp = env['HTTP_X_FORWARDED_FOR'] || env['HTTP_X_REAL_IP'] || request.ip
+
 		user = params[:username].strip.to_s
 		pass = params[:password].strip.to_s
 
@@ -67,6 +69,7 @@ class Vulnreport < Sinatra::Base
 			else
 				if(user.password == pass)
 					if(!user.active)
+						logAudit(EVENT_TYPE::USER_LOGIN_FAILURE, LINK_TYPE::USER, user.id, {:type => 'direct', :ip => loginIp, :ua => request.user_agent, :error => "inactive"}, user.id)
 						session[:login_error] = "User account inactive - please contact your admin"
 					else
 						#Do login
@@ -89,6 +92,8 @@ class Vulnreport < Sinatra::Base
 							end
 						end
 
+						logAudit(EVENT_TYPE::USER_LOGIN, LINK_TYPE::USER, user.id, {:type => 'direct', :ip => loginIp, :ua => request.user_agent}, user.id)
+
 						if(session[:loginredir].nil? || session[:loginredir].strip.empty?)
 							redirect "/"
 						else
@@ -96,6 +101,7 @@ class Vulnreport < Sinatra::Base
 						end
 					end
 				else
+					logAudit(EVENT_TYPE::USER_LOGIN_FAILURE, LINK_TYPE::USER, user.id, {:type => 'direct', :ip => loginIp, :ua => request.user_agent, :error => "pw"}, user.id)
 					session[:login_error] = "Invalid User/Pass"	
 				end
 			end
@@ -113,6 +119,8 @@ class Vulnreport < Sinatra::Base
 	post "/saml/finalize/?" do
 		response  = OneLogin::RubySaml::Response.new(params[:SAMLResponse])
 	    response.settings = saml_settings
+	    loginIp = env['HTTP_X_FORWARDED_FOR'] || env['HTTP_X_REAL_IP'] || request.ip
+
 		if response.is_valid? && (!response.name_id.empty?)
 			user = User.first(:sso_user => response.name_id)
 			newUserRedir = false
@@ -134,6 +142,8 @@ class Vulnreport < Sinatra::Base
 						session[:loginredir] = "/usersettings"
 						session[:geo] = GEO::USA
 						newUserRedir = true
+
+						logAudit(EVENT_TYPE::USER_LOGIN, LINK_TYPE::USER, user.id, {:type => 'sso', :ip => loginIp, :ua => request.user_agent}, user.id)
 					else
 						Rollbar.error("Error creating new user from SSO", {:errors => newuser.errors.inspect, :sso_user => response.name_id})
 						session[:login_error] = "There was an error creating your Vulnreport account. Please contact your Vulnreport admin."
@@ -146,6 +156,7 @@ class Vulnreport < Sinatra::Base
 				end
 			else
 				if(!user.active)
+					logAudit(EVENT_TYPE::USER_LOGIN_FAILURE, LINK_TYPE::USER, user.id, {:type => 'sso', :ip => loginIp, :ua => request.user_agent, :error => "inactive"}, user.id)
 					session[:login_error] = "Your user account is inactive. Please contact your Vulnreport admin."
 					redirect "/login"
 				else
@@ -168,6 +179,7 @@ class Vulnreport < Sinatra::Base
 							session[:initials] = user.initials
 						end
 					end
+					logAudit(EVENT_TYPE::USER_LOGIN, LINK_TYPE::USER, user.id, {:type => 'sso', :ip => loginIp, :ua => request.user_agent}, user.id)
 				end
 			end
 			

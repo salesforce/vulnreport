@@ -263,6 +263,7 @@ class Vulnreport < Sinatra::Base
 		end
 		
 		@orgs = Organization.all()
+		@logins = AuditRecord.all(:event_type => [EVENT_TYPE::USER_LOGIN, EVENT_TYPE::USER_LOGIN_FAILURE], :actor => @user.id, :order => [:event_at.desc], :limit => 10)
 
 		erb :admin_user_single
 	end
@@ -392,6 +393,44 @@ class Vulnreport < Sinatra::Base
 		redirect "/admin/users/#{@user.id}"
 	end
 
+	get '/admin/users/:uid/loginhistory/?' do
+		@user = User.get(params[:uid])
+		if(@user.nil?)
+			@errstr = "User not found"
+			return erb :error 
+		end
+
+		#Offset parse
+		lim = 50
+
+		if(params[:os].nil?)
+			offset = 0
+		else
+			offset = params[:os].to_i
+		end
+		@total = AuditRecord.count(:event_type => [EVENT_TYPE::USER_LOGIN, EVENT_TYPE::USER_LOGIN_FAILURE], :actor => @user.id)
+
+		@start = offset+1
+		@end = (offset+lim > @total) ? @total : (offset+lim)
+
+		@next = nil
+		if(offset+lim < @total)
+			@next = offset+lim
+		end
+
+		@last = nil
+		if(offset > 0)
+			@last = offset-lim
+			if(@last < 0)
+				@last = 0
+			end
+		end		
+		
+		@logins = AuditRecord.all(:event_type => [EVENT_TYPE::USER_LOGIN, EVENT_TYPE::USER_LOGIN_FAILURE], :actor => @user.id, :order => [:event_at.desc], :limit => lim, :offset => offset)
+
+		erb :admin_user_single_loginhistory
+	end
+
 	get '/admin/users/?' do
 		@adminUsers = Array.new
 		@conUsers = Array.new
@@ -414,27 +453,39 @@ class Vulnreport < Sinatra::Base
 				status = "Unverified"
 			end
 
+			lastLogin = u.lastLogin
+			lastLoginStr = ""
+
+			if(!lastLogin.nil?)
+				lastLoginStr = lastLogin.event_at.strftime('%-d %b %Y - %H:%M')
+				if(lastLogin.blobObj[:type] == 'sso')
+					lastLoginStr += " (SSO)"
+				else
+					lastLoginStr += " (direct)"
+				end
+			end
+
 			if(!u.active)
 				if(u.org == 0)
-					@inactive << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => "", :oid => 0, :email => u.email}
+					@inactive << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => "", :oid => 0, :email => u.email, :lastLogin => lastLoginStr}
 				else
-					@inactive << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email}
+					@inactive << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email, :lastLogin => lastLoginStr}
 				end
 			else
 				if(u.admin && u.org != 0)
-					@adminUsers << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email}
+					@adminUsers << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email, :lastLogin => lastLoginStr}
 				end
 
 				if(u.org != 0)
 					if(org.contractor)
-						@conUsers << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email}
+						@conUsers << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email, :lastLogin => lastLoginStr}
 					elsif(u.reportsOnly)
-						@roUsers << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email}
+						@roUsers << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email, :lastLogin => lastLoginStr}
 					else
-						@activeUsers << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email}
+						@activeUsers << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email, :lastLogin => lastLoginStr}
 					end
 				else
-					@unverified << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :email => u.email}
+					@unverified << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :email => u.email, :lastLogin => lastLoginStr}
 				end
 			end
 		end

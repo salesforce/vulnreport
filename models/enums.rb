@@ -123,6 +123,10 @@ module EVENT_TYPE
 	TEST_FAIL = 209
 	TEST_DELETE = 210
 
+	## User actions 30x ##
+	USER_LOGIN = 301
+	USER_LOGIN_FAILURE = 302
+
 	## Monitors - 90x ##
 	# Fill in here as needed for custom crons, alerts, etc.
 	# See documentation for more details

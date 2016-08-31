@@ -28,19 +28,19 @@
         <table class="table table-striped">
           <tr>
             <td style="width:10%"><b>Status</b></td>
-            <td style="width:30%"><b>Name</b></td>
-            <td style="width:10%"><b>Initials</b></td>
+            <td style="width:25%"><b>Name</b></td>
             <td style="width:20%"><b>Org</b></td>
-            <td style="width:30%"><b>Email</b></td>
+            <td style="width:25%"><b>Email</b></td>
+            <td style="width:20%"><b>Last Login</b></td>
           </tr>
 
           <% @adminUsers.each do |u| %>
           <tr>
             <td style="width:10%"><%=u[:status]%></td>
-            <td style="width:30%"><a href="/admin/users/<%=u[:uid]%>"><% if(u[:name].nil? || u[:name].empty?)%>UNSUB<%else%> <%=h(u[:name])%> <%end%></a></td>
-            <td style="width:10%"><%=h(u[:inits])%></td>
+            <td style="width:25%"><a href="/admin/users/<%=u[:uid]%>"><% if(u[:name].nil? || u[:name].empty?)%>UNSUB<%else%> <%=h(u[:name])%> <%end%></a></td>
             <td style="width:20%"><a href="/admin/orgs/<%=u[:oid]%>"><%=h(u[:org])%></a></td>
-            <td style="width:30%"><%=h(u[:email])%></td>
+            <td style="width:25%"><%=h(u[:email])%></td>
+            <td style="width:20%"><% if !u[:lastLogin].nil? %><%=u[:lastLogin]%><% end %></td>
           </tr>
           <% end %>
         </table>
@@ -59,19 +59,19 @@
         <table class="table table-striped">
           <tr>
             <td style="width:10%"><b>Status</b></td>
-            <td style="width:30%"><b>Name</b></td>
-            <td style="width:10%"><b>Initials</b></td>
+            <td style="width:25%"><b>Name</b></td>
             <td style="width:20%"><b>Org</b></td>
-            <td style="width:30%"><b>Email</b></td>
+            <td style="width:25%"><b>Email</b></td>
+            <td style="width:20%"><b>Last Login</b></td>
           </tr>
 
           <% @activeUsers.each do |u| %>
           <tr>
             <td style="width:10%"><%=u[:status]%></td>
-            <td style="width:30%"><a href="/admin/users/<%=u[:uid]%>"><% if(u[:name].nil? || u[:name].empty?)%>UNSUB<%else%> <%=h(u[:name])%> <%end%></a></td>
-            <td style="width:10%"><%=h(u[:inits])%></td>
+            <td style="width:25%"><a href="/admin/users/<%=u[:uid]%>"><% if(u[:name].nil? || u[:name].empty?)%>UNSUB<%else%> <%=h(u[:name])%> <%end%></a></td>
             <td style="width:20%"><a href="/admin/orgs/<%=u[:oid]%>"><%=h(u[:org])%></a></td>
-            <td style="width:30%"><%=h(u[:email])%></td>
+            <td style="width:25%"><%=h(u[:email])%></td>
+            <td style="width:20%"><% if !u[:lastLogin].nil? %><%=u[:lastLogin]%><% end %></td>
           </tr>
           <% end %>
         </table>
@@ -90,19 +90,19 @@
         <table class="table table-striped">
           <tr>
             <td style="width:10%"><b>Status</b></td>
-            <td style="width:30%"><b>Name</b></td>
-            <td style="width:10%"><b>Initials</b></td>
+            <td style="width:25%"><b>Name</b></td>
             <td style="width:20%"><b>Org</b></td>
-            <td style="width:30%"><b>Email</b></td>
+            <td style="width:25%"><b>Email</b></td>
+            <td style="width:20%"><b>Last Login</b></td>
           </tr>
 
           <% @conUsers.each do |u| %>
           <tr>
             <td style="width:10%"><%=u[:status]%></td>
-            <td style="width:30%"><a href="/admin/users/<%=u[:uid]%>"><% if(u[:name].nil? || u[:name].empty?)%>UNSUB<%else%> <%=h(u[:name])%> <%end%></a></td>
-            <td style="width:10%"><%=h(u[:inits])%></td>
+            <td style="width:25%"><a href="/admin/users/<%=u[:uid]%>"><% if(u[:name].nil? || u[:name].empty?)%>UNSUB<%else%> <%=h(u[:name])%> <%end%></a></td>
             <td style="width:20%"><a href="/admin/orgs/<%=u[:oid]%>"><%=h(u[:org])%></a></td>
-            <td style="width:30%"><%=h(u[:email])%></td>
+            <td style="width:25%"><%=h(u[:email])%></td>
+            <td style="width:20%"><% if !u[:lastLogin].nil? %><%=u[:lastLogin]%><% end %></td>
           </tr>
           <% end %>
         </table>
@@ -121,19 +121,19 @@
         <table class="table table-striped">
           <tr>
             <td style="width:10%"><b>Status</b></td>
-            <td style="width:30%"><b>Name</b></td>
-            <td style="width:10%"><b>Initials</b></td>
+            <td style="width:25%"><b>Name</b></td>
             <td style="width:20%"><b>Org</b></td>
-            <td style="width:30%"><b>Email</b></td>
+            <td style="width:25%"><b>Email</b></td>
+            <td style="width:20%"><b>Last Login</b></td>
           </tr>
 
           <% @roUsers.each do |u| %>
           <tr>
             <td style="width:10%"><%=u[:status]%></td>
-            <td style="width:30%"><a href="/admin/users/<%=u[:uid]%>"><% if(u[:name].nil? || u[:name].empty?)%>UNSUB<%else%> <%=h(u[:name])%> <%end%></a></td>
-            <td style="width:10%"><%=h(u[:inits])%></td>
+            <td style="width:25%"><a href="/admin/users/<%=u[:uid]%>"><% if(u[:name].nil? || u[:name].empty?)%>UNSUB<%else%> <%=h(u[:name])%> <%end%></a></td>
             <td style="width:20%"><a href="/admin/orgs/<%=u[:oid]%>"><%=h(u[:org])%></a></td>
-            <td style="width:30%"><%=h(u[:email])%></td>
+            <td style="width:25%"><%=h(u[:email])%></td>
+            <td style="width:20%"><% if !u[:lastLogin].nil? %><%=u[:lastLogin]%><% end %></td>
           </tr>
           <% end %>
         </table>
@@ -152,19 +152,19 @@
         <table class="table table-striped">
           <tr>
             <td style="width:10%"><b>Status</b></td>
-            <td style="width:30%"><b>Name</b></td>
-            <td style="width:10%"><b>Initials</b></td>
+            <td style="width:25%"><b>Name</b></td>
             <td style="width:20%"><b>Org</b></td>
-            <td style="width:30%"><b>Email</b></td>
+            <td style="width:25%"><b>Email</b></td>
+            <td style="width:20%"><b>Last Login</b></td>
           </tr>
 
           <% @unverified.each do |u| %>
           <tr>
             <td style="width:10%"><%=u[:status]%></td>
-            <td style="width:30%"><a href="/admin/users/<%=u[:uid]%>"><% if(u[:name].nil? || u[:name].empty?)%>UNSUB<%else%> <%=h(u[:name])%> <%end%></a></td>
-            <td style="width:10%"><%=h(u[:inits])%></td>
+            <td style="width:20%"><a href="/admin/users/<%=u[:uid]%>"><% if(u[:name].nil? || u[:name].empty?)%>UNSUB<%else%> <%=h(u[:name])%> <%end%></a></td>
             <td style="width:20%"><a href="/admin/orgs/<%=u[:oid]%>"><%=h(u[:org])%></a></td>
-            <td style="width:30%"><%=h(u[:email])%></td>
+            <td style="width:25%"><%=h(u[:email])%></td>
+            <td style="width:20%"><% if !u[:lastLogin].nil? %><%=u[:lastLogin]%><% end %></td>
           </tr>
           <% end %>
         </table>
@@ -183,19 +183,19 @@
         <table class="table table-striped">
           <tr>
             <td style="width:10%"><b>Status</b></td>
-            <td style="width:30%"><b>Name</b></td>
-            <td style="width:10%"><b>Initials</b></td>
+            <td style="width:25%"><b>Name</b></td>
             <td style="width:20%"><b>Org</b></td>
-            <td style="width:30%"><b>Email</b></td>
+            <td style="width:25%"><b>Email</b></td>
+            <td style="width:20%"><b>Last Login</b></td>
           </tr>
 
           <% @inactive.each do |u| %>
           <tr>
             <td style="width:10%"><%=u[:status]%></td>
-            <td style="width:30%"><a href="/admin/users/<%=u[:uid]%>"><% if(u[:name].nil? || u[:name].empty?)%>UNSUB<%else%> <%=h(u[:name])%> <%end%></a></td>
-            <td style="width:10%"><%=h(u[:inits])%></td>
+            <td style="width:25%"><a href="/admin/users/<%=u[:uid]%>"><% if(u[:name].nil? || u[:name].empty?)%>UNSUB<%else%> <%=h(u[:name])%> <%end%></a></td>
             <td style="width:20%"><a href="/admin/orgs/<%=u[:oid]%>"><%=h(u[:org])%></a></td>
-            <td style="width:30%"><%=h(u[:email])%></td>
+            <td style="width:25%"><%=h(u[:email])%></td>
+            <td style="width:20%"><% if !u[:lastLogin].nil? %><%=u[:lastLogin]%><% end %></td>
           </tr>
           <% end %>
         </table>

@@ -90,6 +90,8 @@ class AuditRecord
 		when EVENT_TYPE::TEST_FAIL_REQ_APPROVAL then "Test failed pending approval"
 		when EVENT_TYPE::TEST_FAIL then "<b>Test failed</b> and closed"
 		when EVENT_TYPE::TEST_DELETE then "Test deleted"
+		when EVENT_TYPE::USER_LOGIN then "User successfully logged in via #{blobData[:type]}"
+		when EVENT_TYPE::USER_LOGIN_FAILURE then "User login failed via #{blobData[:type]}"
 		else "UNK"
 		end
 	end

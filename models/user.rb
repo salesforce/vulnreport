@@ -95,6 +95,10 @@ class User
 		end
 	end
 
+	def lastLogin
+		return AuditRecord.first(:event_type => EVENT_TYPE::USER_LOGIN, :actor => self.id, :order => [:event_at.desc])
+	end
+
 	def self.activeUsers
 		return all(:active => true)
 	end
