@@ -482,13 +482,15 @@ module VulnreportAuth
 	# @param aid [Integer] ID of the Application to check against
 	# @return [Boolean] True if user can delete the Application, false otherwise
 	def canDeleteReview?(aid)
-		#If admin or in super org, yes
-		#Else no
+		#Able to delete if: admin, super org, app owner
 		u = User.get(session[:uid])
 		return false if !u.active
 		return true if u.admin
-
 		return false if !u.verified?
+
+		a = Application.get(aid)
+		return true if (aid = a.owner)
+
 		o = Organization.get(u.org)
 		return true if o.super
 
