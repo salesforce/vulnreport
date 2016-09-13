@@ -120,6 +120,34 @@ class Vulnreport < Sinatra::Base
 			@fromNotif = true
 		end
 
+		#Get vulnerabilities and subset if needed for pagination
+		lim = 100
+
+		if(params[:os].nil?)
+			offset = 0
+		else
+			offset = params[:os].to_i
+		end
+		@vulns_total = @test.vulnerabilities.length
+
+		@vulns_start = offset+1
+		@vulns_end = (offset+lim > @vulns_total) ? @vulns_total : (offset+lim)
+
+		@vulns_next = nil
+		if(offset+lim < @vulns_total)
+			@vulns_next = offset+lim
+		end
+
+		@vulns_last = nil
+		if(offset > 0)
+			@vulns_last = offset-lim
+			if(@vulns_last < 0)
+				@vulns_last = 0
+			end
+		end
+
+		@vulns = @test.vulnerabilities.sort{ |x,y| x.vuln_priority <=> y.vuln_priority }[offset, lim]
+
 		if(@app.recordType.isLinked && @app.isLinked?)
 			if(@app.isLinked?)
 				vrloInfo = @app.getVRLO.getTestAlerts(@app, @test, @session[:uid])

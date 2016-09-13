@@ -388,14 +388,27 @@
 
 <div class="row">
   <div class="col-lg-12">
-    <h4>Vulns on this Report</h4>
+    <h4>
+      Vulns on this Report <small>(<%=@vulns_total%>)</small>
+      <% if !@vulns_next.nil? || !@vulns_last.nil?%>
+        <span style="position:absolute;right:25px;"><small>
+          <% if !@vulns_last.nil? %>
+            <a href="?os=<%=@vulns_last%>" style="color:#999;"><i class="fa fa-chevron-left"></i></a>
+          <% end %>
+          <%=@vulns_start%> to <%=@vulns_end%> of <%=@vulns_total%>
+          <% if !@vulns_next.nil? %>
+            <a href="?os=<%=@vulns_next%>" style="color:#999;"><i class="fa fa-chevron-right"></i></a>
+          <% end %>
+        </small></span>
+      <% end %>
+    </h4>
     <hr style="margin-top:4px;margin-bottom:8px;" />
     <div id="vulnsList" style="margin-left:0px;">
-      <% if @test.vulnerabilities.count == 0 %>
+      <% if @vulns_total == 0 %>
         <span style="margin-left:20px;">No vulns attached to this test</span>
       <% else %>
         <ul>
-          <% @test.vulnerabilities.sort{ |x,y| x.vuln_priority <=> y.vuln_priority }.each do |v| %>
+          <% @vulns.each do |v| %>
             <% if v.starred %>
               <li class="starBullet" id="vuln_<%=v.id%>">
             <% else %>
@@ -411,6 +424,7 @@
               <% v.sections.each do |s| %>
                 <% if s.type == SECT_TYPE::URL || s.type == SECT_TYPE::FILE %>
                   <% nolocation = false %>
+                  <% break %>
                 <% end %>
               <% end %>
 
