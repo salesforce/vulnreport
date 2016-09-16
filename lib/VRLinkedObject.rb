@@ -61,7 +61,8 @@ class VRLinkedObject
 		#  :infoPanelHtml - HTML for the info panel and :alerts - Array of alert messages where each element is a hash of :color, :html,
 		#  :customMenuItems - Array of menu items where each element is a hash of :icon, :text, :href, :authMethods, :isDropdown, :dropdownOpts (Array of hashes - :href and :text)
 		def getLinkedObjectInfoPanel(app, uid, params, env)
-			raise "NotImplemented"
+			# Not Implemented: return empty
+			return {:success => true, :infoPanelHtml => nil, :alerts => [], :customMenuItems => []}
 		end
 
 		##
@@ -74,7 +75,8 @@ class VRLinkedObject
 		#  :alerts - Array of alert messages where each element is a hash of :color, :html,
 		#  :customMenuItems - Array of menu items where each element is a hash of :icon, :text, :href, :authMethods, :isDropdown, :dropdownOpts (Array of hashes - :href and :text)
 		def getTestAlerts(app, test, uid)
-			raise "NotImplemented"
+			#Not Implemented: return empty
+			return {:success => true, :alerts => [], :customMenuItems => []}
 		end
 
 		##
@@ -83,7 +85,8 @@ class VRLinkedObject
 		# @param uid [Integer] ID of the {User} who performed the action
 		# @return [Hash] - Hash of :success - Boolean and :alerts - Array of alert messages. Each element is a hash of :color, :html
 		def doCreateAppActions(app, uid)
-			raise "NotImplemented"
+			#Not Implemented: noop
+			return {:success => true}
 		end
 
 		##
@@ -91,8 +94,10 @@ class VRLinkedObject
 		# @param app [Application] The {Application} object being updated
 		# @param uid [Integer] ID of the {User} who performed the action
 		# @param newOwnerUid [Integer] ID of the {User} who is the new owner
+		# @return [Hash] - Hash of :success - Boolean
 		def doAppReassignedActions(app, uid, newOwnerUid)
-			raise "NotImplemented"
+			#Not Implemented: noop
+			return {:success => true}
 		end
 
 		##
@@ -102,7 +107,8 @@ class VRLinkedObject
 		# @param uid [Integer] ID of the {User} who performed the action
 		# @return [Hash] - Hash of :success - Boolean and :alerts - Array of alert messages. Each element is a hash of :color, :html
 		def doNewTestActions(app, test, uid)
-			raise "NotImplemented"
+			#Not Implemented: noop, return true with no alerts
+			return {:success => true}
 		end
 
 		##
@@ -112,7 +118,8 @@ class VRLinkedObject
 		# @param uid [Integer] ID of the {User} who performed the action
 		# @return [Hash] - Hash of :success - Boolean and :alerts - Array of alert messages. Each element is a hash of :color, :html
 		def doInProgressActions(app, test, uid)
-			raise "NotImplemented"
+			#Not Implemented: noop, return true with no alerts
+			return {:success => true}
 		end
 
 		##
@@ -122,7 +129,8 @@ class VRLinkedObject
 		# @param uid [Integer] ID of the {User} who performed the action
 		# @return [Hash] - Hash of :success - Boolean and :alerts - Array of alert messages. Each element is a hash of :color, :html
 		def doPassActions(app, test, uid)
-			raise "NotImplemented"
+			#Not Implemented: noop, return true with no alerts
+			return {:success => true}
 		end
 
 		##
@@ -132,7 +140,8 @@ class VRLinkedObject
 		# @param uid [Integer] ID of the {User} who performed the action
 		# @return [Hash] - Hash of :success - Boolean and :alerts - Array of alert messages. Each element is a hash of :color, :html
 		def doProvPassActions(app, test, uid)
-			raise "NotImplemented"
+			#Not Implemented: noop, return true with no alerts
+			return {:success => true}
 		end
 
 		##
@@ -142,7 +151,8 @@ class VRLinkedObject
 		# @param uid [Integer] ID of the {User} who performed the action
 		# @return [Hash] - Hash of :success - Boolean and :alerts - Array of alert messages. Each element is a hash of :color, :html
 		def doFailActions(app, test, uid)
-			raise "NotImplemented"
+			#Not Implemented: noop, return true with no alerts
+			return {:success => true}
 		end
 
 		##
@@ -151,19 +161,22 @@ class VRLinkedObject
 		# @param uid [Integer] ID of the {User} who performed the action
 		# @return [Hash] - Hash of :success - Boolean and :errstr if failed 
 		def doDeleteAppActions(app, uid)
-			raise "NotImplemented"
+			#Not Implemented: noop, return true with no alerts
+			return {:success => true}
 		end
 
 		##
 		# @return [String] The name or text representation of the object that this application is linked to.
 		def getLinkedObjectText(app)
-			raise "NotImplemented"
+			#Not Implemented: return empty string
+			return ""
 		end
 
 		##
 		# @return [String] The URL of the object that this application is linked to.
 		def getLinkedObjectURL(app)
-			raise "NotImplemented"
+			#Not Implemented: return empty string
+			return ""
 		end
 
 		##
@@ -173,7 +186,8 @@ class VRLinkedObject
 		# @return [Hash] Hash of :valid [Boolean] and :eid with the valid (possibly mutated) EID. If :valid is false
 		#  also contains :errstr.
 		def validateEntityID(eid, app)
-			raise "NotImplemented"
+			#Not Implemented: always true
+			return {:valid => true, :eid => eid}
 		end
 
 		##
@@ -182,7 +196,8 @@ class VRLinkedObject
 		# should be returned in the search results they can be via this method.
 		# @return [Array <Hash>] Array of results, each element is a hash with keys :text and :link
 		def doSearch(q)
-			raise "NotImplemented"
+			#Not Implemented: Return empty
+			return []
 		end
 	end
 
