@@ -628,7 +628,7 @@ class Vulnreport < Sinatra::Base
 					begin
 						vrloResult = vrlo.doAppReassignedActions(@app, @session[:uid], newOwner)
 					rescue Exception => e
-						Rollbar.error(e, "Unable to perform VRLO Create App Actions", {:vrlo_key => vrlo.vrlo_key, :aid => @app.id})
+						Rollbar.error(e, "Unable to perform VRLO Reassign App Actions", {:vrlo_key => vrlo.vrlo_key, :aid => @app.id})
 						vrloResult = {:success => false, :errstr => "Exception while performing Linked Object actions"}
 					end
 				end
