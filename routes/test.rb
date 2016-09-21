@@ -155,7 +155,11 @@ class Vulnreport < Sinatra::Base
 					@errstr = "Error generating linked object information: #{vrloInfo[:errstr]}"
 					return erb :error
 				else
-					@VRLOAlerts = vrloInfo[:alerts]
+					if(@VRLOAlerts.nil?)
+						@VRLOAlerts = vrloInfo[:alerts]
+					else
+						@VRLOAlerts.concat(vrloInfo[:alerts])
+					end
 					
 					@VRLOMenuItems = Array.new
 					menuItems = vrloInfo[:customMenuItems]
@@ -570,7 +574,7 @@ class Vulnreport < Sinatra::Base
 					end
 
 					if(!vrloResult[:alerts].nil?)
-						session[:vrloAlerts] = vrloResult[:vrloAlerts]
+						session[:vrloAlerts] = vrloResult[:alerts]
 					end
 				end
 			elsif status == "inprog"
@@ -651,7 +655,7 @@ class Vulnreport < Sinatra::Base
 					end
 
 					if(!vrloResult[:alerts].nil?)
-						session[:vrloAlerts] = vrloResult[:vrloAlerts]
+						session[:vrloAlerts] = vrloResult[:alerts]
 					end
 				end
 			end
@@ -916,7 +920,7 @@ class Vulnreport < Sinatra::Base
 			end
 
 			if(!vrloResult[:alerts].nil?)
-				session[:vrloAlerts] = vrloResult[:vrloAlerts]
+				session[:vrloAlerts] = vrloResult[:alerts]
 			end
 		end
 
