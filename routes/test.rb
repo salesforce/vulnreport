@@ -909,9 +909,9 @@ class Vulnreport < Sinatra::Base
 		if(@app.recordType.isLinked && @app.isLinked? && vrloActions)
 			vrlo = @app.getVRLO
 			begin
-				vrloResult = vrlo.doPassActions(@app, @test, @session[:uid])
+				vrloResult = vrlo.doProvPassActions(@app, @test, @session[:uid])
 			rescue Exception => e
-				Rollbar.error(e, "Unable to perform VRLO Pass Actions", {:vrlo_key => vrlo.vrlo_key, :aid => @app.id, :vrlo_eid => @app.linkId})
+				Rollbar.error(e, "Unable to perform VRLO Provisional Pass Actions", {:vrlo_key => vrlo.vrlo_key, :aid => @app.id, :vrlo_eid => @app.linkId})
 				vrloResult = {:success => false, :errstr => "Exception while performing Linked Object actions"}
 			end
 
