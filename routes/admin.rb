@@ -1178,7 +1178,7 @@ class Vulnreport < Sinatra::Base
 		defaultFile = File.open("exportTemplates/default.erb", "rb")
 		defaultContents = defaultFile.read
 
-		ef = ExportFormat.create(:name => name, :description => desc, :filename => filename, :erb => defaultContents)
+		ef = ExportFormat.create(:name => name, :description => desc, :erb => defaultContents)
 		redirect "/admin/exportFormats/#{ef.id}"
 	end
 
