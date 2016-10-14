@@ -1,0 +1,84 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+  $(function() {
+    $("#rt-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available RecordTypes</div>",
+                            selectionHeader: "<div class='msHeader'>Selected RecordTypes</div>",
+                          });
+  });
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>VulnTypes <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/vulntypes"><i class="fa fa-wrench"></i> VulnTypes</a></li>
+      <li class="active"><i class="fa fa-wrench"></i> Import</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :admin_types_nav_partial %>
+
+<div class="row">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-6">
+    <p>
+      Confirm which Vulntypes you'd like to import from the uploaded XML.
+    </p>
+  </div>
+</div>
+
+<form action="/admin/vulntypes/doImport" method="POST">
+  <%=csrf_tag%>
+  <% @vts.each_with_index do |vt, idx| %>
+    <div class="row" id="vt_<%=idx%>">
+      <div class="col-lg-1"></div>
+      <div class="col-lg-10">
+        <input type="checkbox" name="vt_confirms[]" id="vt_confirm_<%=idx%>" value="<%=idx%>" checked> <%=h(vt[:name])%>
+        <input type="hidden" name="vt_name_<%=idx%>" value="<%=h(vt[:name])%>" />
+        <input type="hidden" name="vt_label_<%=idx%>" value="<%=h(vt[:label])%>" />
+        <input type="hidden" name="vt_cwe_<%=idx%>" value="<%=h(vt[:cwe])%>" />
+        <input type="hidden" name="vt_priority_<%=idx%>" value="<%=h(vt[:priority])%>" />
+        <input type="hidden" name="vt_enabled_<%=idx%>" value="<%=h(vt[:enabled])%>" />
+        <input type="hidden" name="vt_html_<%=idx%>" value="<%=h(vt[:html])%>" />
+      </div>
+      <div class="col-lg-1"></div>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-10">
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">
+        App Record Types
+        <small style="font-size:6pt;">Select which Record Types imported Vulntypes should be available on</small>
+      </h4>
+
+      <div class="form-group">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-6">
+          <select multiple="multiple" id="rt-multiselect" name="rtms[]" rel="jqms">
+            <% @appRecordTypes.each do |rt| %>
+              <option value="<%=rt.id%>"><%=h(rt.name)%></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-1"></div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-4"></div>
+    <div class="col-lg-7">
+      <button type="submit" class="btn btn-success" style="margin:20px;">Import Vulntypes</button>
+    </div>
+    <div class="col-lg-1"></div>
+  </div>
+</form>
+
+<%= erb :footer_partial %>
