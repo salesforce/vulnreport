@@ -783,6 +783,141 @@ class Vulnreport < Sinatra::Base
 		redirect "/admin/vulntypes/"
 	end
 
+	get '/admin/vulntypes/export/?' do
+		vulnTypes = VulnType.all()
+
+		builder = Nokogiri::XML::Builder.new do |xml|
+			xml.vulntypes{
+				vulnTypes.each do |vt|
+					xml.vulntype{
+						xml.name vt.name
+						xml.label vt.label
+						xml.cwe vt.cwe_mapping
+						xml.html vt.html
+						xml.priority vt.priority
+						xml.enabledSections vt.enabledSections
+					}
+				end
+			}
+		end
+
+		attachment "vulntypes.xml"
+		return builder.to_xml
+	end
+
+	get '/admin/vulntypes/import/?' do
+		erb :admin_vt_import
+	end
+
+	post '/admin/vulntypes/import/?' do
+		data = params[:vt_import]
+		
+		filesize = (File.size(data[:tempfile]).to_f)/1024
+		if(filesize > 1024)
+			@errstr = "XML File too large - Max 1MB"
+			return erb :error
+		end
+
+		file = File.open(data[:tempfile], "rb")
+		doc = Nokogiri::XML(file)
+
+		@vts = Array.new
+		doc.xpath("//vulntype").each do |vt|
+			vtname = vt.at_xpath(".//name").children.first.text.to_s
+
+			vtlabel = vt.at_xpath(".//label").children
+			if(!vtlabel.nil? && vtlabel.size > 0)
+				vtlabel = vtlabel.first.text.to_s
+			else
+				vtlabel = nil
+			end
+
+			vtcwe = vt.at_xpath(".//cwe").children
+			if(!vtcwe.nil? && vtcwe.size > 0)
+				vtcwe = vtcwe.first.text.to_i
+			else
+				vtcwe = nil
+			end			
+			
+			vtpriority = vt.at_xpath(".//priority").children
+			if(!vtpriority.nil? && vtpriority.size > 0)
+				vtpriority = vtpriority.first.text.to_i
+			else
+				vtpriority = nil
+			end
+
+			vtenabled = vt.at_xpath(".//enabledSections").children.first.text.gsub("[","").gsub("]","").split(",").map{|s| s.to_i}
+
+			vthtml = vt.at_xpath(".//html").children
+			if(!vthtml.nil? && vthtml.size > 0)
+				vthtml = vthtml.first.text.to_s
+			else
+				vthtml = nil
+			end
+
+			newvt = {:name => vtname, :label =>vtlabel, :cwe => vtcwe, :priority => vtpriority, :enabled => vtenabled, :html => vthtml}
+			@vts << newvt
+		end
+
+		@appRecordTypes = RecordType.appRecordTypes()
+
+		erb :admin_vt_import_confirm
+	end
+
+	post '/admin/vulntypes/doImport/?' do
+		selected = params[:vt_confirms].map{|e| e.to_i}
+
+		newRts = Array.new
+		if(!params[:rtms].nil?)
+			params[:rtms].each do |rtid|
+				newRts << rtid.to_i
+			end
+		end
+
+		selected.each do |idx|
+			vtname = params["vt_name_#{idx}"].to_s
+			
+			vtlabel = params["vt_label_#{idx}"]
+			if(vtlabel.nil? || vtlabel.to_s.strip.empty?)
+				vtlabel = nil
+			else
+				vtlabel = vtlabel.to_s
+			end
+
+			vtcwe = params["vt_cwe_#{idx}"]
+			if(vtcwe.nil? || vtcwe.to_s.strip.empty?)
+				vtcwe = nil
+			else
+				vtcwe = vtcwe.to_i
+			end
+
+			vtpriority = params["vt_priority_#{idx}"]
+			if(vtpriority.nil? || vtpriority.to_s.strip.empty?)
+				vtpriority = nil
+			else
+				vtpriority = vtpriority.to_i
+			end
+
+			vtenabled = params["vt_enabled_#{idx}"]
+			if(vtenabled.nil? || vtenabled.to_s.strip.empty?)
+				vtenabled = []
+			else
+				vtenabled = vtenabled.to_s.gsub("[","").gsub("]","").split(",").map{|s| s.to_i}
+			end
+
+			vthtml = params["vt_html_#{idx}"]
+			if(vthtml.nil? || vthtml.to_s.strip.empty?)
+				vthtml = nil
+			else
+				vthtml = vthtml.to_s
+			end
+
+			vt = VulnType.create(:name => vtname, :label => vtlabel, :cwe_mapping => vtcwe, :priority => vtpriority, :html => vthtml, :enabled => true, :enabledRTs => newRts, :enabledSections => vtenabled)
+		end
+
+		redirect "/admin/vulntypes/"
+	end
+
 	get '/admin/vulntypes/:vtid/?' do
 		@vt = VulnType.get(params[:vtid])
 		if(@vt.nil?)
