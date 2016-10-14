@@ -1,0 +1,277 @@
+<?xml version="1.0"?>
+<vulntypes>
+  <vulntype>
+    <name>Infra - Network Access Control List Configuration</name>
+    <label>Network Access Control List Configuration</label>
+    <cwe/>
+    <html>&lt;p&gt;Network Access Control Lists provide a mechanism for restricting inbound and outbound traffic to specific known destinations.  Improperly configured ACLs allow unwanted access to restricted resources, circumventing network security controls. &lt;/p&gt;&#xD;
+&lt;a href="http://www.cisco.com/c/en/us/td/docs/ios/12_2/security/configuration/guide/fsecur_c/scfacls.html"&gt;More info at: http://www.cisco.com/c/en/us/td/docs/ios/12_2/security/configuration/guide/fsecur_c/scfacls.html&lt;/a&gt;</html>
+    <priority>1</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Access Control/Authorization</name>
+    <label>Access Control/Authorization</label>
+    <cwe/>
+    <html>&lt;p&gt;Access Control, also known as Authorization &#x2014; is mediating access to resources on the basis of identity and is generally policy-driven (although the policy may be implicit). It is the primary security service that concerns most software, with most of the other security services supporting it.  Overly permission functionality that does not properly adhere to the access control standards can lead to a number of risk exposures, including information leakage.&lt;/p&gt;&#xD;
+&lt;a href="https://www.owasp.org/index.php/Category:Access_Control"&gt;More info at: https://www.owasp.org/index.php/Category:Access_Control&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Account Privilege Level</name>
+    <label>Account Privilege Level</label>
+    <cwe/>
+    <html>&lt;p&gt;Administrator accounts are highly privileged accounts which should only be used in cases where they are necessary.  Standard user accounts should be used in all other cases.  Using an administrator account unnecessarily significantly increases the impact if this account is compromised.&lt;/p&gt;&#xD;
+&lt;a href="https://technet.microsoft.com/en-us/library/cc700835.aspx"&gt;More info at: https://technet.microsoft.com/en-us/library/cc700835.aspx&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Asset Management</name>
+    <label>Asset Management</label>
+    <cwe/>
+    <html>&lt;p&gt;Robust physical asset management allows an organization to monitor its assets and gain insight to risks based on their deployment.  Without this control, the likelihood of compromise and inability to appropriately respond is significantly increased.&lt;/p&gt;&#xD;
+&lt;a href="http://cdn.swcdn.net/creative/pdf/Whitepapers/IT_Asset_Management_%20Benefits_%20Best_Practices.pdf"&gt;More info at: http://cdn.swcdn.net/creative/pdf/Whitepapers/IT_Asset_Management_%20Benefits_%20Best_Practices.pdf&lt;/a&gt;</html>
+    <priority>3</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Auditing/Logging</name>
+    <label>Auditing/Logging</label>
+    <cwe/>
+    <html>&lt;p&gt;Without appropriate audit logging, an attacker's activities can go unnoticed, and evidence of whether or not the attack led to a breach can be inconclusive.  Logs are also useful for establishing baselines, identifying operational trends and supporting the organization&#x2019;s internal investigations, including audit and forensic analysis.  Regular log collection is critical to understanding the nature of security incidents during an active investigation and post mortem analysis.&lt;/p&gt;&#xD;
+&lt;a href="https://www.owasp.org/index.php/Logging_Cheat_Sheet"&gt;More info at: https://www.owasp.org/index.php/Logging_Cheat_Sheet&lt;/a&gt;&#xD;
+&lt;p&gt;&lt;a href=""http://csrc.nist.gov/publications/nistpubs/800-92/SP800-92.pdf""&gt;Logging best practices can be found at: http://csrc.nist.gov/publications/nistpubs/800-92/SP800-92.pdf&lt;/a&gt;&lt;/p&gt;</html>
+    <priority>1</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Configuration Management</name>
+    <label>Configuration Management</label>
+    <cwe/>
+    <html>&lt;p&gt;Centralized configuration management assures that all endpoints have been configured with the most recent baseline.  Endpoints should respond to baseline changes in a timely manner in order to adapt to the demands of the organization.  Configuration management can also assist in minimizing the scope and impact of a security incident.&lt;/p&gt;&#xD;
+&lt;a href="http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-128.pdf"&gt;More info at: http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-128.pdf&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Encryption Algorithm &amp; Key Strength</name>
+    <label>Encryption Algorithm &amp; Key Strength</label>
+    <cwe/>
+    <html>&lt;p&gt;Encryption is used to protect sensitive data at rest and in motion.  The key strength and cryptographic algorithm used determines the highest security it can offer.   Weak encryption keys or algorithms can be compromised, leading to disclosure of sensitive data.&lt;/p&gt;&#xD;
+&lt;a href="https://www.owasp.org/index.php/Guide_to_Cryptography"&gt;More info at: https://www.owasp.org/index.php/Guide_to_Cryptography&lt;/a&gt;</html>
+    <priority>1</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Failover/Availability</name>
+    <label>Failover/Availability</label>
+    <cwe/>
+    <html>&lt;p&gt;Critical systems must have a robust failover plan in order to respond to outage conditions.  System outage with no failover can result in lack of appropriate controls or denial of service or degredation of security controls.&lt;/p&gt;&#xD;
+&lt;a href="https://docs.oracle.com/cd/A91202_01/901_doc/rac.901/a89867/pshavdtl.htm"&gt;More info at: https://docs.oracle.com/cd/A91202_01/901_doc/rac.901/a89867/pshavdtl.htm&lt;/a&gt;</html>
+    <priority>3</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Incident Response</name>
+    <label>Incident Response</label>
+    <cwe/>
+    <html>&lt;p&gt;Despite security controls, security incidents are guaranteed to occur.  A clearly defined incident reporting policy is necessary to respond to these incidents.  Lack of reporting leads to incidents with no action, which increases the severity and impact of incidents.&lt;/p&gt;&#xD;
+&lt;a href="https://www.owasp.org/images/9/92/Top10ConsiderationsForIncidentResponse.pdf"&gt;More info at: https://www.owasp.org/images/9/92/Top10ConsiderationsForIncidentResponse.pdf&lt;/a&gt;</html>
+    <priority>1</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Information Disclosure</name>
+    <label>Information Disclosure</label>
+    <cwe/>
+    <html>&lt;p&gt;Revealing system or user data helps an adversary learn about the system and form a plan of attack. An information leak occurs when system data or debugging information leaves the system in an unintended manner.&lt;/p&gt;&#xD;
+&lt;a href="https://www.owasp.org/index.php/Information_Leakage"&gt;More info at: https://www.owasp.org/index.php/Information_Leakage&lt;/a&gt;</html>
+    <priority>3</priority>
+    <enabledSections>[0, 1, 2, 3, 5, 4, 6, 7]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Intrusion Detection</name>
+    <label>Intrusion Detection</label>
+    <cwe/>
+    <html>&lt;p&gt;Intrusion detection is a necessary control on endpoints and networks.  The ability to detect and respond to attacks is paramount in a secure environment.  Intrusion detection greatly decreases an attacker's ability to compromise hosts.&lt;/p&gt;&#xD;
+&lt;a href="https://www.owasp.org/index.php/Intrusion_Detection"&gt;More info at: https://www.owasp.org/index.php/Intrusion_Detection&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Network Segmentation</name>
+    <label>Network Segmentation</label>
+    <cwe/>
+    <html>&lt;p&gt;Network segregation define which network zones are allowed to interact and route traffic.  Misconfiguration of this segregation allows traffic from zones where it should be restricted.  This could lead to loss of data or access by unauthorized parties.&lt;/p&gt;&#xD;
+&lt;a href="http://www.asd.gov.au/publications/protect/network_segmentation_segregation.htm"&gt;More info at: http://www.asd.gov.au/publications/protect/network_segmentation_segregation.htm&lt;/a&gt;</html>
+    <priority>1</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Open Ports and Protocols</name>
+    <label>Open Ports and Protocols</label>
+    <cwe/>
+    <html>&lt;p&gt;Open ports and protocols increase the attack surface that threat actors can leverage to attack and compromise systems.  All unused ports and protocols should be closed or disabled.&lt;/p&gt;&#xD;
+&lt;a href="http://www.cisco.com/c/en/us/about/security-center/firewall-best-practices.html"&gt;More info at: http://www.cisco.com/c/en/us/about/security-center/firewall-best-practices.html&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Operating System Configuration</name>
+    <label>Operating System Configuration</label>
+    <cwe/>
+    <html>&lt;p&gt;Operating systems should be hardened in order to prevent common threats.  This decreases the likelihood of a security incident occurring.&lt;/p&gt;&#xD;
+&lt;a href="https://benchmarks.cisecurity.org/"&gt;More info and OS hardening benchmarks at: https://benchmarks.cisecurity.org/&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Password Policy</name>
+    <label>Password Policy</label>
+    <cwe/>
+    <html>&lt;p&gt;Passwords are the most common mechanism of user authentication in the world.  As a result, these credentials must be treated with the highest security scrutiny.  Passwords should be subject to the following controls:&#xD;
+&lt;ol&gt;&#xD;
+&lt;li&gt;Minimum length&lt;/li&gt; &#xD;
+&lt;li&gt;Complexity&lt;/li&gt; &#xD;
+&lt;li&gt;Expiration&lt;/li&gt; &#xD;
+&lt;li&gt;Reuse&lt;/li&gt;&lt;/ol&gt; &lt;/p&gt;&#xD;
+&lt;a href="https://technet.microsoft.com/en-us/library/cc784090(v=ws.10).aspx/"&gt;More info at: https://technet.microsoft.com/en-us/library/cc784090(v=ws.10).aspx/&lt;/a&gt;</html>
+    <priority>0</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Password Usage</name>
+    <label>Password Usage</label>
+    <cwe/>
+    <html>&lt;p&gt;Passwords are unique to individual users and should not be shared between several individuals.  This increases the risk of password compromise.  Secrets such as passwords or keys should never be stored in plain text in configuration or resource files. Doing so allows an attacker to utilize these secrets to gain access to unauthorized resources. &lt;/p&gt;&#xD;
+&lt;a href="https://technet.microsoft.com/en-us/library/cc784090(v=ws.10).aspx/"&gt;More info at: https://technet.microsoft.com/en-us/library/cc784090(v=ws.10).aspx/&lt;/a&gt;</html>
+    <priority>1</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Patch Management</name>
+    <label>Patch Management</label>
+    <cwe/>
+    <html>&lt;p&gt;Patches to systems ensure that these systems are protected against new threats and faults in application code.  Timely application of patches is critical for the security of the system.&lt;/p&gt;&#xD;
+&lt;a href="http://patchmanagement.org/pmessentials.asp"&gt;More info at: http://patchmanagement.org/pmessentials.asp&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Physical/Environmental Security</name>
+    <label>Physical/Environmental Security</label>
+    <cwe/>
+    <html>&lt;p&gt;Physical security is a critical component of any secure system.  Without proper physical security controls, attackers can access unauthorized resources physically, circumventing many technical security controls.&lt;/p&gt;&#xD;
+&lt;a href="http://www.sans.edu/research/security-laboratory/article/281"&gt;More info at: http://www.sans.edu/research/security-laboratory/article/281&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Policies and Procedures</name>
+    <label>Policies and Procedures</label>
+    <cwe/>
+    <html>&lt;p&gt;Well-defined policies and procedures support the operational security of a system.  Without these in place, myriad security shortcomings are likely to occur.  Without policy and procedure in place, the risk level of a system or organization is greatly increased.&lt;/p&gt;&#xD;
+&lt;a href="http://www.symantec.com/connect/articles/introduction-security-policies-part-one-overview-policies"&gt;More info at: http://www.symantec.com/connect/articles/introduction-security-policies-part-one-overview-policies&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Remote Code Execution</name>
+    <label>Remote Code Execution</label>
+    <cwe/>
+    <html>&lt;p&gt;Remote code execution vulnerabilities allow an attacker to run arbitrary code on a target system, leading to data exfiltration or compromise of the entire machine.&lt;/p&gt;&#xD;
+&lt;a href="https://blogs.microsoft.com/cybertrust/2014/06/24/how-vulnerabilities-are-exploited-the-root-causes-of-exploited-remote-code-execution-cves/"&gt;More info at: https://blogs.microsoft.com/cybertrust/2014/06/24/how-vulnerabilities-are-exploited-the-root-causes-of-exploited-remote-code-execution-cves/&lt;/a&gt;</html>
+    <priority>0</priority>
+    <enabledSections>[0, 1, 2, 3, 5, 4, 6, 7]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Endpoint Security Tools</name>
+    <label>Endpoint Security Tools</label>
+    <cwe/>
+    <html>&lt;p&gt;Endpoint Security software is a critical control for endpoint systems.  This control incorporates many security technologies such as A/V, application whitelisting, rootkit detection, memory attack mitigations, and many others.  These control ensure that endpoints are not compromised.&lt;/p&gt;&#xD;
+&lt;a href="https://www.sans.org/reading-room/whitepapers/analyst/curve-maturity-model-endpoint-security-36342"&gt;More info at: https://www.sans.org/reading-room/whitepapers/analyst/curve-maturity-model-endpoint-security-36342&lt;/a&gt;</html>
+    <priority>1</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Security Software Management</name>
+    <label>Security Software Management</label>
+    <cwe/>
+    <html>&lt;p&gt;Security software exists on endpoints in order to defend against threats and mitigate their impact.  These security tools often require detailed configuration in order to perform in the desired fashion.  Misconfigurations can lead to inefficient protections on endpoints&lt;/p&gt;&#xD;
+&lt;a href="https://www.sans.org/reading-room/whitepapers/analyst/curve-maturity-model-endpoint-security-36342"&gt;More info at: https://www.sans.org/reading-room/whitepapers/analyst/curve-maturity-model-endpoint-security-36342&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Session Management</name>
+    <label>Session Management</label>
+    <cwe/>
+    <html>&lt;p&gt;Once a user authenticates, their session should not be kept alive indefinitely.  Session expiration prevents an unauthorized user from utilizing a legitimate session created by an authorized user.&lt;/p&gt;&#xD;
+&lt;a href="https://www.owasp.org/index.php/Session_Management_Cheat_Sheet"&gt;More info at: https://www.owasp.org/index.php/Session_Management_Cheat_Sheet&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Two Factor Authentication</name>
+    <label>Two Factor Authentication</label>
+    <cwe/>
+    <html>&lt;p&gt;Authentication utilizing two factors greatly increases the security of any authentication system.  Two factor authentication prevents the unauthorized access to resources as well as limits the viability of stolen or compromised legitimate credentials.&lt;/p&gt;&#xD;
+&lt;a href="https://www.owasp.org/index.php/Guide_to_Authentication"&gt;More info at: https://www.owasp.org/index.php/Guide_to_Authentication&lt;/a&gt;</html>
+    <priority>1</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Unencrypted Sensitive Data</name>
+    <label>Unencrypted Sensitive Data</label>
+    <cwe/>
+    <html>&lt;p&gt;Insecure Transport protocols such as Telnet, FTP, and HTTP do not protect data in transit.  Similarly, unencrypted sensitive data on disk can be accessed and/or modified by unauthorized users.  As a result, the confidentiality, integrity, and availability of the data cannot be guaranteed.&lt;/p&gt;&#xD;
+&lt;a href="https://www.owasp.org/index.php/Guide_to_Cryptography"&gt;More info at: https://www.owasp.org/index.php/Guide_to_Cryptography&lt;/a&gt;</html>
+    <priority>1</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Unmanaged Endpoints on Secure Network</name>
+    <label>Unmanaged Endpoints on Secure Network</label>
+    <cwe/>
+    <html>&lt;p&gt;Secure networks should consist of only known authorized devices.  Unknown or unmanaged endpoints on this network pose a risk to all connected devices.  Unmanaged devices are not subject to the security controls in place on managed devices, and can therefore be leveraged by an attacker.&lt;/p&gt;&#xD;
+&lt;a href="https://technet.microsoft.com/en-us/library/cc875843.aspx"&gt;More info at: https://technet.microsoft.com/en-us/library/cc875843.aspx&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Vulnerable Application Software</name>
+    <label>Vulnerable Application Software</label>
+    <cwe/>
+    <html>&lt;p&gt;Software vulnerabilities create an avenue by which a threat actor can attack a system. In cases where these vulnerabilities are public and well understood, this vulnerable software should be patched or uninstalled.&lt;/p&gt;&#xD;
+&lt;a href="https://securityintelligence.com/nist-cybersecurity-framework-application-security-risk-management/"&gt;More info at: https://securityintelligence.com/nist-cybersecurity-framework-application-security-risk-management/&lt;/a&gt;</html>
+    <priority>3</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Infra - Wireless Network Configuration</name>
+    <label>Wireless Network Configuration</label>
+    <cwe/>
+    <html>&lt;p&gt;Wireless networks represent an avenue for an attacker to gain a foothold in the environment. Wireless access points must be properly secured in order to achieve parity with wired networks.&lt;/p&gt;&#xD;
+&lt;a href="https://www.juniper.net/us/en/local/pdf/whitepapers/2000420-en.pdf"&gt;More info at: https://www.juniper.net/us/en/local/pdf/whitepapers/2000420-en.pdf&lt;/a&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 4, 5, 6]</enabledSections>
+  </vulntype>
+  <vulntype>
+    <name>Sensitive information in URL</name>
+    <label>Sensitive information in URL</label>
+    <cwe/>
+    <html>&lt;p&gt;Sensitive information passed via GET method (HTTP GET Query String) to the web application may lead to data leakage and exposes the application in various ways.&lt;/p&gt;&#xD;
+&#xD;
+&lt;ul&gt;&#xD;
+&lt;li&gt; Full URL is often stored "as-is" on the server in clear text logs that may not be stored securely, can be seen by personnel and may be compromised by a 3rd party.&lt;/li&gt;&#xD;
+&lt;li&gt; Search engines index URLs inadvertently storing sensitive information.&lt;/li&gt;&#xD;
+&lt;li&gt; Storage of full URL paths on local browser history, browser cache, bookmarks and synchronized bookmarks between devices.&lt;/li&gt;&#xD;
+&lt;li&gt; URL info is sent to 3rd party web applications via the Referrer header.&lt;/li&gt;&lt;/ul&gt;&#xD;
+&#xD;
+&lt;p&gt;Long Term secrets like username/password, long lasting access tokens and API tokens must not be sent in URLs. &lt;/p&gt;</html>
+    <priority>2</priority>
+    <enabledSections>[0, 1, 2, 3, 5, 4, 6]</enabledSections>
+  </vulntype>
+</vulntypes>
