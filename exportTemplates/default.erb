@@ -6,7 +6,18 @@
 			body{
 				background-color: #e5e5e5;
 				color: #F0F1F2;
-				font-family: Arial, Helvetica, sans-serif; 
+				font-family: Arial, Helvetica, sans-serif;
+			}
+
+			@media print {
+				body{
+					background-color: #fff;
+					color: #000;
+				}
+
+				h1, h2, h3, h4, h5{
+					page-break-after: avoid; /* keep headers with bodies */
+				}
 			}
 
 			a:link, a:visited, a:active{
@@ -16,6 +27,12 @@
 
 			a:hover{
 				color: #a5cfe7;
+			}
+
+			@media print {
+				a:link, a:visited, a:active, a:hover{
+					color: #000;
+				}
 			}
 
 			.strongP{
@@ -29,6 +46,13 @@
 				width: 900px;
 				margin: 0 auto;
 				padding: 12px;
+			}
+
+			@media print {
+				.container{
+					background-color: #fff;
+					color: #000;
+				}
 			}
 
 			.header{
@@ -47,6 +71,12 @@
 				font-size: 22px;
 			}
 
+			@media print {
+				.header{
+					margin: 0;
+				}
+			}
+
 			.typeHeader{
 				width: 900px;
 				height: 30px;
@@ -62,6 +92,14 @@
 				font-size: 22px;
 				position:relative;
 				left: -12px;
+			}
+
+			@media print {
+				.typeHeader{
+					margin: 0;
+					page-break-after: avoid; /* keep headers with bodies */
+					page-break-before: always; /* force types onto new page */
+				}
 			}
 
 			.vulnDescrip{
@@ -92,6 +130,16 @@
 				font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
 			}
 
+			@media print {
+				/* keep headers with bodies */
+				.findingHeader, .sectHeader{
+					page-break-after: avoid;
+				}
+				.finding, .sectBody{
+					page-break-before: avoid;
+				}
+			}
+
 			.code{
 				font-family: Consolas, Arial, Sans-Serif;
 				font-size: 10pt;
@@ -116,6 +164,20 @@
 				word-wrap: break-word;       /* Internet Explorer 5.5+ */
 			}
 
+			@media print {
+				.code {
+					/* paper can't scroll: */
+					overflow-y: unset;
+					overflow-x: unset;
+					max-height: none;
+					/* same as 'pre': */
+					word-wrap: break-word;
+					/* try to keep it contiguous and with header: */
+					page-break-inside: avoid;
+					page-break-before: avoid;
+				}
+			}
+
 			.footer{
 				width: 900px;
 				margin: 0 auto;
@@ -126,6 +188,13 @@
 				font-family: Arial, Helvetica, sans-serif;
 				font-weight: 400;
 				text-align: center;
+			}
+
+			@media print {
+				.footer{
+					page-break-inside: avoid;
+					background-color: #e5e5e5;
+				}
 			}
 
 			hr{
@@ -151,6 +220,18 @@
 				font-weight: normal;
 				font-size: 10pt;
 				word-wrap: break-word;
+			}
+
+			@media print {
+				ol.vulns{
+					page-break-before: avoid; /* keep with opening text */
+				}
+				ol.toc > li{
+					page-break-inside: avoid; /* try to keep each TOC entry contig. */
+				}
+				ol.vulns > li{
+					page-break-before: avoid; /* keep with ol "header" */
+				}
 			}
 		</style>
 	</head>
@@ -201,7 +282,6 @@
 				<div class="typeHeader">
 					<a id='vuln<%=count%>'><%=h(v.type_str)%></a>
 				</div>
-				<div style='page-break-before:always;'></div>
 
 				<% if !v.type_html.nil? %>
 					<h3>Issue Description</h3>
