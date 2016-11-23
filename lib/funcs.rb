@@ -56,6 +56,34 @@ def logAudit(event, targetType, target, blob=nil, uid=session[:uid])
 end
 
 ##
+# Run a VRCron Job. This is done by invoking the cron() method on the {VRCron} subclass passed as cron.
+# This is mostly called from the scheduler instance setup in registerVRCron, but also by manual runs via the admin UI.
+# @param cron [VRCron] The subclass of {VRCron} to run
+# @param force [Boolean] Override enabled status and run job no matter what
+# @return [Object] the return from the VRCron job
+def runVRCron(cron, force=false)
+	begin
+		cronRunData = JSON.parse(settings.redis.get("vrcron_data_#{cron.to_s}"), {:symbolize_names => true})
+		if(force || cronRunData[:enabled])
+			retval = cron.cron()
+			cronRunData[:lastRun] = DateTime.now.to_s
+			cronRunData[:lastRet] = retval.to_s
+			cronRunData[:lastRunSuccess] = true
+			settings.redis.set("vrcron_data_#{cron.to_s}", cronRunData.to_json)
+			return retval
+		end
+	rescue => e
+		Rollbar.error(e, "#{cron.vrcron_name} Cron Job Failure")
+		cronRunData = JSON.parse(settings.redis.get("vrcron_data_#{cron.to_s}"), {:symbolize_names => true})
+		cronRunData[:lastRun] = DateTime.now.to_s
+		cronRunData[:lastRet] = e.to_s
+		cronRunData[:lastRunSuccess] = false
+		settings.redis.set("vrcron_data_#{cron.to_s}", cronRunData.to_json)
+		return nil
+	end
+end
+
+##
 # Register a cron job with the Vulnreport scheduler instance create the appropriate
 # Redis keys for Vulnreport cronjob admin/management and tracking functions.
 # @param cron [VRCron] The subclass of {VRCron} being registered as a VR cronjob
@@ -65,42 +93,58 @@ end
 def registerVRCron(cron, scheduler, enabled=true)
 	logputs "VRCron Registered: #{cron.vrcron_name}"
 
+	if(!settings.redis.exists("vrcron_data_#{cron.to_s}"))
+		crondata = {:registered => false, :enabled => enabled, :name => cron.vrcron_name, :lastRun => nil}
+	else
+		crondata = JSON.parse(settings.redis.get("vrcron_data_#{cron.to_s}"), {:symbolize_names => true})
+	end
+
 	if(cron.vrcron_type.nil? || cron.vrcron_schedule.nil?)
 		logputs "\tCron has no type or no schedule, SKIPPING REGISTRATION"
 		Rollbar.error("Cron registered with no type or schedule", {:CronName => cron.vrcron_name})
+		
+		crondata[:error] = "Cron registered with no type or schedule"
+		settings.redis.set("vrcron_data_#{cron.to_s}", crondata.to_json)
 		return false
 	elsif(!cron.respond_to?(:cron))
 		logputs "\tCron has no cron method, SKIPPING REGISTRATION"
 		Rollbar.error("Cron registered with no cron method", {:CronName => cron.vrcron_name})
+
+		crondata[:error] = "Cron registered with no cron method"
+		settings.redis.set("vrcron_data_#{cron.to_s}", crondata.to_json)
 		return false
 	else
 		logputs "\tType: #{cron.vrcron_type}, Schedule: #{cron.vrcron_schedule}"
+		crondata[:schedule_type] = cron.vrcron_type
+		crondata[:schedule] = cron.vrcron_schedule
 		
-		if(cron.vrcron_type == :every && enabled)
+		if(!enabled)
+			logputs "\tCron registered as not enabled"
+			crondata[:enabled] = false
+			settings.redis.set("vrcron_data_#{cron.to_s}", crondata.to_json)
+		end
+
+		if(cron.vrcron_type == :every)
 			scheduler.every(cron.vrcron_schedule) do
-				begin
-					cron.cron()
-				rescue => e
-					Rollbar.error(e, "#{cron.vrcron_name} Cron Job Failure")
-				end
+				runVRCron(cron)
 			end
 
+			crondata[:registered] = true
+			settings.redis.set("vrcron_data_#{cron.to_s}", crondata.to_json)
 			return true
-		elsif(cron.vrcron_type == :cron && enabled)
+		elsif(cron.vrcron_type == :cron)
 			scheduler.cron(cron.vrcron_schedule) do
-				begin
-					cron.cron()
-				rescue => e
-					Rollbar.error(e, "#{cron.vrcron_name} Cron Job Failure")
-				end
+				runVRCron(cron)
 			end
 
+			crondata[:registered] = true
+			settings.redis.set("vrcron_data_#{cron.to_s}", crondata.to_json)
 			return true
-		elsif(!enabled)
-			logputs "\tCron registered as not enabled, did not schedule"
 		else
 			logputs "\t\tInvalid type, SKIPPING REGISTRATION"
 			Rollbar.error("Cron registered invalid type", {:CronName => cron.vrcron_name, :CronType => cron.vrcron_type})
+			crondata[:error] = "Cron registered invalid type"
+			settings.redis.set("vrcron_data_#{cron.to_s}", crondata.to_json)
 			return false
 		end
 	end

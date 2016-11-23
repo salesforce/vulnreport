@@ -1,0 +1,125 @@
+<%= erb :header_partial %>
+
+<script type="text/javascript">
+    function enableJob(key){
+      $.post("/admin/settings/crons/enable/", 
+              { key: key, _csrf: "<%=csrf_token%>"},
+              function(){
+                $("#cron_status_"+key).removeClass('btn-danger');
+                $("#cron_status_"+key).addClass('btn-success');
+                $("#cron_status_"+key).attr('onclick', "disableJob('"+key+"')");
+                $("#cron_status_"+key).text('Enabled');
+                $("#cron_status_"+key).attr('title', "Disable Job").tooltip('fixTitle');
+              }
+            ).fail(function(){
+              alert("Error enabling job");
+            });
+    }
+
+    function disableJob(key){
+      $.post("/admin/settings/crons/disable/", 
+              { key: key, _csrf: "<%=csrf_token%>"},
+              function(){
+                $("#cron_status_"+key).removeClass('btn-success');
+                $("#cron_status_"+key).addClass('btn-danger');
+                $("#cron_status_"+key).attr('onclick', "enableJob('"+key+"')");
+                $("#cron_status_"+key).text('Disabled');
+                $("#cron_status_"+key).attr('title', "Enable Job").tooltip('fixTitle');
+              }
+            ).fail(function(){
+              alert("Error disabling job");
+            });
+    }
+
+    function runJob(key){
+      $.post("/admin/settings/crons/run/", 
+              { key: key, _csrf: "<%=csrf_token%>"},
+              function(){
+                $("#cron_run_"+key).removeClass('btn-warning');
+                $("#cron_run_"+key).addClass('btn-success');
+                $("#cron_run_"+key).attr('onClick', '');
+                $("#cron_run_"+key).text('Running...');
+              }
+            ).fail(function(){
+              alert("Error running job");
+            });
+    }
+</script>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>VR Cron <small>Settings</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li class="active"><i class="fa fa-fire"></i> Cache Settings</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :admin_vrsettings_nav_partial %>
+
+<div class="row" style="margin-top:-4px; margin-bottom:12px;">
+  <div class="col-lg-11">
+    VRCron jobs are implemented by extending the <code>VRCron</code> class. For more information, see <a href="http://vulnreport.io/documentation#interfaces" target="_blank">the documentation</a>. Below you can review which jobs are currently registered with Vulnreport and enable/disable them. Running jobs manually kicks off a background thread to run the job - you will have to refresh this page after the job has time to run to see any updates.
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-11">
+    <h4>Registered VRCron Jobs</h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+    <div style="margin-left:22px;"">
+      <table style="width:100%;">
+        <thead>
+          <tr>
+            <th style="width:25%"><b>Job Name</b></th>
+            <th style="width:15%"><b>Schedule</b></th>
+            <th style="width:10%"><b>Enabled?</b></th>
+            <th style="width:10%"><b></b></th>
+            <th style="width:15%"><b>Last Run</b></th>
+            <th style="width:25%"><b>Last Return</b></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @crons.each do |c| %>
+            <tr>
+              <td style="width:25%">
+                <%=c[:data][:name]%>
+              </td>
+              <td style="width:15%">
+                <%=c[:data][:schedule_type]%> <%=c[:data][:schedule]%>
+              </td>
+              <td style="width:10%">
+                <% if c[:data][:enabled] %>
+                  <button class="btn btn-success btn-sm" id="cron_status_<%=c[:key]%>" onclick="disableJob('<%=c[:key]%>')" rel="tooltip" title="Disable Job">Enabled</button>
+                <% else %>
+                  <button class="btn btn-danger btn-sm" id="cron_status_<%=c[:key]%>" onclick="enableJob('<%=c[:key]%>')" rel="tooltip" title="Enable Job">Disabled</button>
+                <% end %>
+              </td>
+              <td style="width:10%">
+                <button class="btn btn-warning btn-sm" id="cron_run_<%=c[:key]%>" onclick="runJob('<%=c[:key]%>')">Run Now</button>
+              </td>
+              <td style="width:15%">
+                <%=(c[:data][:lastRun].nil?) ? "never" : DateTime.parse(c[:data][:lastRun]).strftime('%m/%d/%Y %H:%M:%S')%>
+              </td>
+              <td style="width:25%">
+                <% if(c[:data][:lastRunSuccess]) %>
+                  <%=c[:data][:lastRet]%>
+                <% elsif(!c[:data][:lastRunSuccess] && !c[:data][:lastRun].nil?) %>
+                  <span style="color:#a94442;">ERROR: <%=c[:data][:lastRet]%></span>
+                <% elsif(c[:data][:lastRun].nil?) %>
+                  Not Run
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    
+  </div>
+  <div class="col-lg-1"></div>
+</div>
+
+<%= erb :footer_partial %>

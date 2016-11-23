@@ -3,6 +3,7 @@
 		<ul class="nav nav-tabs">
 			<li role="presentation" <% if request.path_info == "/admin/settings" %>class="active"<% end %>><a href="/admin/settings"><i class="fa fa-gear"></i> VR Settings</a></li>
 			<li role="presentation" <% if request.path_info == "/admin/settings/mail" %>class="active"<% end %>><a href="/admin/settings/mail"><i class="fa fa-envelope"></i> VR Mail Settings</a></li>
+			<li role="presentation" <% if request.path_info == "/admin/settings/crons" %>class="active"<% end %>><a href="/admin/settings/crons"><i class="fa fa-hourglass-half"></i> VR Cron Settings</a></li>
 			<li role="presentation" <% if request.path_info == "/admin/settings/cache" %>class="active"<% end %>><a href="/admin/settings/cache"><i class="fa fa-fire"></i> Cache Settings</a></li>
 		</ul>
 	</div>

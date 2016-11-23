@@ -95,6 +95,66 @@ class Vulnreport < Sinatra::Base
 		redirect "/admin/settings/mail"
 	end
 
+	post '/admin/settings/crons/enable/?' do
+		key = params[:key].to_s.strip
+		crondata = settings.redis.get("vrcron_data_#{key.to_s}")
+		
+		return 404 if(crondata.nil?)
+			
+		crondata = JSON.parse(crondata, {:symbolize_names => true})
+		crondata[:enabled] = true
+		if(settings.redis.set("vrcron_data_#{key.to_s}", crondata.to_json))
+			return 200
+		else
+			return 500
+		end
+	end
+
+	post '/admin/settings/crons/disable/?' do
+		key = params[:key].to_s.strip
+		crondata = settings.redis.get("vrcron_data_#{key.to_s}")
+		
+		return 404 if(crondata.nil?)
+			
+		crondata = JSON.parse(crondata, {:symbolize_names => true})
+		crondata[:enabled] = false
+		if(settings.redis.set("vrcron_data_#{key.to_s}", crondata.to_json))
+			return 200
+		else
+			return 500
+		end
+	end
+
+	post '/admin/settings/crons/run/?' do
+		key = params[:key].to_s.strip
+		
+		cron = nil
+		VRCron.each do |c|
+			if(key == c.to_s)
+				cron = c
+			end
+		end
+		
+		return 404 if(cron.nil?)
+
+		Thread.new do
+			runVRCron(cron, true)
+		end
+
+		return 200
+	end
+
+	get '/admin/settings/crons/?' do
+		@crons = Array.new
+
+		VRCron.each do |cron|
+			crondata = JSON.parse(settings.redis.get("vrcron_data_#{cron.to_s}"), {:symbolize_names => true})
+			@crons << {:key => cron.to_s, :data => crondata}
+		end
+
+		erb :admin_vr_cron_settings
+	end
+
 	get '/admin/settings/?' do
 		@vr_name = getSetting('VR_INS_NAME')
 		@vr_root = getSetting('VR_ROOT')
