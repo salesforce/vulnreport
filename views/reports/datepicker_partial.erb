@@ -135,6 +135,7 @@
 									<% if totalIsOption %>
 										<option value="0" <% if @reviewer.id == 0%> selected <% end %>>Total</option>
 									<% end %>
+									<% @reviewers.sort_by!{|r| r[:name].downcase} %>
 									<% @reviewers.each do |r| %>
 										<option value="<%=r[:id]%>" <% if @reviewer.id == r[:id]%> selected <% end %>><%=h(r[:name])%></option>
 									<% end %>
