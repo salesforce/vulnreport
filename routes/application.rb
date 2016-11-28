@@ -413,20 +413,6 @@ class Vulnreport < Sinatra::Base
 		erb :app_audit
 	end
 
-	get '/reviews/:aid/raw/?' do
-		only_admins!
-
-		@app = Application.get(params[:aid])
-		if(@app.nil?)
-			@errstr = "Application not found"
-			return erb :error 
-		end
-
-		halt 401, (erb :unauth) if(!canViewReview?(@app.id))
-
-		erb :app_raw
-	end
-
 	get '/reviews/:aid/permCheck/?' do
 		only_admins!
 

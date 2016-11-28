@@ -230,11 +230,7 @@
       <li><a href="/reviews/all"><i class="fa fa-folder"></i> Reviews</a></li>
       <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
       <li class="active" <% if !@test.ext_eid.nil? %>rel="tooltip" title="Ext EID: <%=h(@test.ext_eid)%>"<% end %>>
-        <% if admin? %>
-          <a href="/tests/<%=@test.id%>/raw" style="color:inherit;"><i class="fa fa-edit"></i> <%=h(@test.name)%></a>
-        <% else %>
-          <i class="fa fa-edit"></i> <%=h(@test.name)%>
-        <% end %>
+        <i class="fa fa-edit"></i> <%=h(@test.name)%>
       </li>
       <span style="color:#999; position:absolute;right:25px;">
         <span style="margin-left:30px;"><i><%=@test.created_at.strftime("%-m/%-d/%Y, %l:%M%p")%></i></span>

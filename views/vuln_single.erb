@@ -236,7 +236,7 @@
       <li><a href="/reviews/<%=@app.id%>"><i class="fa fa-folder-open"></i> <%=h(@app.name)%></a></li>
       <li><a href="/tests/<%=@test.id%>"><i class="fa fa-edit"></i> <%=h(@test.name)%></a></li>
       <li class="active">
-        <a href="/tests/<%=@test.id%>/<%=@vuln.id%>/raw" style="color:inherit;"><i class="fa fa-exclamation"></i> <%=h(@vuln.type_str)%></a>
+        <i class="fa fa-exclamation"></i> <%=h(@vuln.type_str)%>
         <i id="vulnStar" class="fa <% if @vuln.starred %>fa-star<%else%>fa-star-o<%end%>" style="cursor:pointer; margin-left:1px;" onclick="starVuln(<%=@vuln.id%>)"></i>
       </li>
     </ol>
