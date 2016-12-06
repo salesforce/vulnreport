@@ -17,6 +17,7 @@
   <div class="col-lg-12">
   	<h4>Reviewer Stats for <%=h(@reviewer.name)%></h4>
   	<b>Tests Completed: </b><%=@totalTests%><br />
+    <b>Unique Apps: </b><%=@activeReviews.size + @pastReviews.size%><br />
   	<b>Vulns Logged: </b><%=@totalVulns%>
   </div>
 </div>
