@@ -287,6 +287,20 @@
         </form>
       </div>
        &nbsp;|&nbsp; 
+      <div class="btn-group">
+        <a data-toggle="dropdown" href="#" id="sourceDD">Source: <%=h(@vuln.source_short_string)%> <i class="fa fa-angle-down" style="color:#000;"></i></a>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="sourceDD">
+          <li style="margin-left:10px; margin-right:10px;">
+            <a href="/tests/<%=@test.id%>/<%=@vuln.id%>/source/0" <%if @vuln.vulnSource == 0%>style="font-weight:bold;"<%end%>>Manual Testing</a>
+          </li>
+          <% @vsOptions.each do |vs| %>
+            <li style="margin-left:10px; margin-right:10px;">
+              <a href="/tests/<%=@test.id%>/<%=@vuln.id%>/source/<%=vs.id%>" <%if @vuln.vulnSource == vs.id%>style="font-weight:bold;"<%end%>><%=h(vs.name)%></a>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+       &nbsp;|&nbsp; 
       <a href="/tests/<%=@test.id%>/<%=@vuln.id%>/edit"><i class="fa fa-pencil"></i> Edit</a>
        &nbsp;|&nbsp; 
       <a href="#" data-toggle="modal" data-target="#commentModal">

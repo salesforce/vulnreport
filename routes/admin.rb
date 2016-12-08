@@ -805,6 +805,7 @@ class Vulnreport < Sinatra::Base
 
 	get '/admin/vulntypes/new/?' do
 		@appRecordTypes = RecordType.appRecordTypes()
+		@vsOptions = VulnSource.all(:enabled => true)
 
 		erb :admin_vt_new
 	end
@@ -822,6 +823,7 @@ class Vulnreport < Sinatra::Base
 			newCwe = nil
 		end
 		newPri = params[:vtPri].to_i
+		newDefaultSource = params[:vtDefaultSource].to_i
 		newHtml = params[:html].strip
 		
 		newRts = Array.new
@@ -838,7 +840,7 @@ class Vulnreport < Sinatra::Base
 			end
 		end
 
-		vt = VulnType.create(:name => newName, :label => newLabel, :cwe_mapping => newCwe, :priority => newPri, :html => newHtml, :enabled => newEnabled, :enabledRTs => newRts, :enabledSections => newSecs)
+		vt = VulnType.create(:name => newName, :label => newLabel, :cwe_mapping => newCwe, :priority => newPri, :html => newHtml, :enabled => newEnabled, :enabledRTs => newRts, :enabledSections => newSecs, :defaultSource => newDefaultSource)
 		
 		redirect "/admin/vulntypes/"
 	end
@@ -991,6 +993,7 @@ class Vulnreport < Sinatra::Base
 		end
 
 		@appRecordTypes = RecordType.appRecordTypes()
+		@vsOptions = VulnSource.all(:enabled => true)
 
 		erb :admin_vt_single
 	end
@@ -1029,6 +1032,9 @@ class Vulnreport < Sinatra::Base
 			newPriority = newPriority.to_i
 		end
 		@vt.priority = newPriority
+
+		newDefaultSource = params[:vtDefaultSource].to_i
+		@vt.defaultSource = newDefaultSource
 
 		newHtml = params[:html].strip
 		@vt.html = newHtml unless newHtml.nil?
@@ -1762,6 +1768,119 @@ class Vulnreport < Sinatra::Base
 			flag.destroy
 
 			redirect "/admin/flags"
+		end
+	end
+
+	get '/admin/vulnSources/?' do
+		@sources = VulnSource.all()
+
+		erb :admin_vs
+	end
+
+	get '/admin/vulnSources/new/?' do
+		erb :admin_vs_new
+	end
+
+	post '/admin/vulnSources/new/?' do
+		name = params[:name].to_s
+		shortname = params[:shortname].to_s.strip
+		desc = params[:desc].to_s
+		enabled = (!params[:isEnabled].nil?)
+
+		if(name.strip.empty?)
+			redirect "/admin/vulnSources/new"
+		end
+
+		if(!VulnSource.first(:name => name).nil?)
+			@errstr = "Vuln Source with that name already exists"
+			return erb :error
+		end
+
+		vs = VulnSource.create(:name => name, :shortname => shortname, :description => desc, :enabled => enabled)
+
+		redirect "/admin/vulnSources/#{vs.id}"
+	end
+
+	get '/admin/vulnSources/:vsid/?' do
+		vsid = params[:vsid].to_i
+
+		@vs = VulnSource.get(vsid)
+		if(@vs.nil?)
+			@errstr = "Unable to find Vuln Source"
+			return erb :error
+		end
+
+		erb :admin_vs_single
+	end
+
+	post '/admin/vulnSources/:vsid/?' do
+		vsid = params[:vsid].to_i
+
+		vs = VulnSource.get(vsid)
+		if(vs.nil?)
+			@errstr = "Unable to find Vuln Source"
+			return erb :error
+		end
+
+		name = params[:name].to_s
+		shortname = params[:shortname].to_s.strip
+		desc = params[:desc].to_s
+		enabled = (!params[:isEnabled].nil?)
+
+		curVs = VulnSource.first(:name => name)
+		if(!curVs.nil? && curVs.id != vsid)
+			@errstr = "Vuln Source with that name already exists"
+			return erb :error
+		end
+
+		vs.name = name unless name.empty?
+		vs.shortname = shortname unless shortname.empty?
+		vs.description = desc
+		vs.enabled = enabled
+
+		vs.save
+
+		redirect "/admin/vulnSources/#{vs.id}"
+	end
+
+	get '/admin/vulnSources/:vsid/delete/?' do
+		vsid = params[:vsid].to_i
+
+		@vs = VulnSource.get(vsid)
+		if(@vs.nil?)
+			@errstr = "Unable to find Vuln Source"
+			return erb :error
+		end
+
+		erb :admin_vs_delete_conf
+	end
+
+	post '/admin/vulnSources/:vsid/delete/?' do
+		vsid = params[:vsid].to_i
+
+		vs = VulnSource.get(vsid)
+		if(vs.nil?)
+			@errstr = "Unable to find Vuln Source"
+			return erb :error
+		end
+
+		confirm = false
+		if(params[:confirm].downcase == "confirm")
+			confirm = true
+		end
+
+		if(!confirm)
+			redirect "/admin/vulnSources/#{vs.id}"
+			return
+		else
+			Vulnerability.all(:vulnSource => vs.id).each do |v|
+				v.vulnSource = v.vtobj.defaultSource
+				v.save
+			end
+
+			vs.destroy
+
+			redirect "/admin/vulnSources"
 		end
 	end
 

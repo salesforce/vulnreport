@@ -246,7 +246,10 @@ class Vulnreport < Sinatra::Base
 			redirect "/tests/#{@test.id}" if params[:customType].strip.nil? || params[:customType].strip.empty?
 			v = @test.vulnerabilities.new(:vulntype => 0, :custom => params[:customType])
 		else
-			v = @test.vulnerabilities.new(:vulntype => type)
+			vulnType = VulnType.get(type)
+			if(!vulnType.nil?)
+				v = @test.vulnerabilities.new(:vulntype => type, :vulnSource => vulnType.defaultSource)
+			end
 		end
 
 		@test.save
@@ -282,7 +285,6 @@ class Vulnreport < Sinatra::Base
 		
 		doc = Nokogiri::XML(xmlFile)
 
-		reportedpaths = []
 		doc.root.xpath("//Vuln").each do |v|
 			type = v.at_xpath(".//Type")
 			typeCode = type.children.first.text.to_i
@@ -290,7 +292,14 @@ class Vulnreport < Sinatra::Base
 				customType = v.at_xpath(".//CustomTypeName").children.first.text
 				thisVuln = @test.vulnerabilities.create(:vulntype => 0, :custom => customType)
 			else
-				thisVuln = @test.vulnerabilities.create(:vulntype => type)
+				vulnType = VulnType.get(typeCode)
+				if(vulnType.nil?)
+					typeCode = 0
+					vulnSource = 0
+				else
+					vulnSource = vulnType.defaultSource
+				end
+				thisVuln = @test.vulnerabilities.create(:vulntype => typeCode, :vulnSource => vulnSource)
 			end
 
 			v.element_children.each do |c|
@@ -1039,6 +1048,8 @@ class Vulnreport < Sinatra::Base
 		@app = @test.application
 		halt 401, (erb :unauth) if(!canViewReview?(@app.id))
 
+		@vsOptions = VulnSource.all(:enabled => true)
+
 		@comments = Comment.commentsForVuln(@vuln.id, @session[:uid], @session[:org])
 		@unreadComments = 0
 		@comments.each do |c|
@@ -1086,6 +1097,24 @@ class Vulnreport < Sinatra::Base
 		@vuln.save
 
 		redirect "/tests/#{@test.id}/#{@vuln.id}"
+	end
+
+	get '/tests/:tid/:vid/source/:vsid/?' do
+		@vuln = Vulnerability.get(params[:vid])
+		if(@vuln.nil?)
+			@errstr = "Vuln not found"
+			return erb :error 
+		end
+		@test = @vuln.test
+		halt 401, (erb :unauth) if(!canViewReview?(@test.application.id))
+
+		vsid = params[:vsid].to_i
+		if(vsid == 0 || !VulnSource.get(vsid).nil?)
+			@vuln.vulnSource = vsid
+			@vuln.save
+		end
+
+		redirect "/tests/#{params[:tid]}/#{params[:vid]}"
 	end
 
 	post '/tests/:tid/:vid/create/?' do

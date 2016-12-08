@@ -1,0 +1,37 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vuln Sources <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/vulnSources"><i class="fa fa-plug"></i> Vuln Sources</a></li>
+      <li><a href="/admin/vulnSources/<%=@vs.id%>"><i class="fa fa-plug"></i> <%=h(@vs.name)%></a></li>
+      <li class="active"><i class="fa fa-times"></i> Delete Source</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+
+<div class="row" style="margin-top:0px;">
+  <div class="col-lg-12">
+    <h4 style="color:#B40404;"><i class="fa fa-exclamation"></i> Confirm Deletion</h4>
+    <hr style="margin-top:4px;margin-bottom:8px;" />
+  </div>
+</div>
+
+<div class="row" style="margin-top:0px;">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-6" style="text-align:left;">
+    <form method="POST" action="/admin/vulnSources/<%=@vs.id%>/delete">
+    <%= csrf_tag %>
+    <p>This vulnerability source will be <b>permanently deleted</b>.</p>
+    <p>All vulnerability associations with it will be reset to the Vulntype default.</p>
+
+    <button type="submit" class="btn btn-success" name="confirm" value="confirm">Confirm</button>
+    <button type="submit" class="btn btn-danger" name="confirm" value="cancel">Cancel</button>
+  </div>
+  <div class="col-lg-7"></div>
+</div>
+
+<%= erb :footer_partial %>

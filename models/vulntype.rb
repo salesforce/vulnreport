@@ -20,6 +20,7 @@ class VulnType
 
 	property :enabledRTs,		CommaSeparatedList			#@return [Text] Comma-separated list of IDs of {RecordType}s that use this VulnType
 	property :enabledSections,	CommaSeparatedList			#@return [Integer] IDs of Sections enabled on this VulnType. From SECT_TYPE enum.
+	property :defaultSource, 	Integer, :default => 0 		#@return [Integer] ID of the default {VulnSource} for this type. Default 0 (manual testing)
 
 	##
 	# Get functional VulnType label. Returns label if one exists, otherwise name.

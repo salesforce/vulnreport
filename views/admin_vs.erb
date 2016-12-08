@@ -1,0 +1,63 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vuln Sources <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li class="active"><i class="fa fa-plug"></i> Vuln Sources</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :admin_types_nav_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <span style="font-size:12pt;"><i class="fa fa-plug"></i> Vuln Sources</span>
+        <span style="position:absolute;right:25px;">
+          <a href="/admin/vulnSources/new" style="color:#FFF;"><i class="fa fa-plus"></i> New Vuln Source</a>
+        </span>
+      </div>
+      <div class="panel-body" style="padding-top:0px;">
+        <table class="table table-striped" style="margin-bottom:0px;">
+          <thead>
+            <tr>
+              <th style="width:6%; text-align:center;"><b>Enabled</b></th>
+              <th style="width:24%"><b>Name</b></th>
+              <th style="width:16%"><b>Short Name</b></th>
+              <th style="width:44%"><b>Description</b></th>
+              <th style="width:10%"></th>
+            </tr>
+          </thead>
+
+          <td style="width:6%; text-align:center;">
+            <i class="fa fa-check" style="color:#009933;"></i>
+          </td>
+          <td style="width:24%">Manual Testing</td>
+          <td style="width:16%">Manual</td>
+          <td style="width:44%"><i>Default Vuln Source</i> - you may override with a default per Vulntype or sources on individual vulnerabilities</td>
+          <td style="width:10%"></td>
+
+          <% if !@sources.nil? %>
+            <% @sources.each do |vs| %>
+              <tr id="vs_<%=vs.id%>">
+                <td style="width:6%; text-align:center;">
+                  <% if vs.enabled %><i class="fa fa-check" style="color:#009933;"></i><% else %><i class="fa fa-times" style="color:#B40404;"></i><% end %>
+                </td>
+                <td style="width:24%"><a href="/admin/vulnSources/<%=vs.id%>"><%=h(vs.name)%></a></td>
+                <td style="width:16%"><%=h(vs.shortname)%></td>
+                <td style="width:44%"><%=h(vs.description)%></td>
+                <td style="width:10%"><a href="/admin/vulnSources/<%=vs.id%>/delete"><button type="button" class="btn btn-danger">DELETE Vuln Source</button></a></td>
+              </tr>
+            <% end %>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

@@ -3,6 +3,7 @@
 		<ul class="nav nav-tabs">
 			<li role="presentation" <% if request.path_info.start_with?("/admin/vulntypes") %>class="active"<% end %>><a href="/admin/vulntypes"><i class="fa fa-wrench"></i> Vulntypes</a></li>
 			<li role="presentation" <% if request.path_info == "/admin/customVTs" %>class="active"<% end %>><a href="/admin/customVTs"><i class="fa fa-asterisk"></i> Custom Vulntypes</a></li>
+			<li role="presentation" <% if request.path_info == "/admin/vulnSources" %>class="active"<% end %>><a href="/admin/vulnSources"><i class="fa fa-plug"></i> Vuln Sources</a></li>
 			<li role="presentation" <% if request.path_info == "/admin/recordTypes" %>class="active"<% end %>><a href="/admin/recordTypes"><i class="fa fa-cubes"></i> Record Types</a></li>
 			<li role="presentation" <% if request.path_info == "/admin/flags" %>class="active"<% end %>><a href="/admin/flags"><i class="fa fa-flag"></i> App Flags</a></li>
 			<li role="presentation" <% if request.path_info == "/admin/dashConfigs" %>class="active"<% end %>><a href="/admin/dashConfigs"><i class="fa fa-dashboard"></i> Dash Configs</a></li>

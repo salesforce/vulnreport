@@ -1,0 +1,62 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vuln Sources  <small>Administration</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/admin/settings"><i class="fa fa-cog"></i> Vulnreport Settings</a></li>
+      <li><a href="/admin/vulnSources"><i class="fa fa-plug"></i> Vuln Sources</a></li>
+      <li class="active"><i class="fa fa-plug"></i> <%=h(@vs.name)%></li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<div class="row">
+  <div class="col-lg-12">
+    <form class="form-horizontal" role="form" method="POST" action="/admin/vulnSources/<%=@vs.id%>">
+      <%= csrf_tag %>
+      <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Name: </label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control" id="name" name="name" placeholder="Name" value="<%=h(@vs.name)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="shortname" class="col-sm-2 control-label">Short Name: </label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control" id="shortname" name="shortname" placeholder="Short Name" value="<%=h(@vs.shortname)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="desc" class="col-sm-2 control-label">Description: </label>
+        <div class="col-sm-8">
+          <input type="text" class="form-control" id="desc" name="desc" placeholder="Description" value="<%=h(@vs.description)%>">
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="isActive" class="col-sm-2 control-label">Enabled:</label>
+        <div class="col-sm-2">
+          <input type="checkbox" name="isEnabled" rel="switch" data-size="small" data-on-text="Yes" data-on-color="success" data-off-text="No" data-off-color="danger" <% if @vs.enabled %>checked<% end %>>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-3" style="text-align:center;">
+          <button type="submit" class="btn btn-primary" id="save" name="save" value="save">Save Vuln Source</button>
+        </div>
+        <div class="col-sm-4"></div>
+      </div>
+      
+    </form>
+  </div>
+</div>
+
+
+<%= erb :footer_partial %>
