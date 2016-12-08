@@ -21,12 +21,11 @@
           <thead>
             <tr>
               <th style="width:1%"><i class="fa fa-sort-down"></i></th>
-              <th style="width:10%"><b>Found</b> <i class="fa fa-sort"></i></th>
-              <th style="width:30%"><b>Vulnerability</b> <i class="fa fa-sort"></i></th>
-              <th style="width:23%"><b>Application</b> <i class="fa fa-sort"></i></th>
-              <th style="width:12%"><b>Test</b> <i class="fa fa-sort"></i></th>
-              <th style="width:12%"><b>Cycle</b> <i class="fa fa-sort"></i></th>
-              <th style="width:12%"><b>62org SRID</b> <i class="fa fa-sort"></i></th>
+              <th style="width:17%"><b>Found At</b> <i class="fa fa-sort"></i></th>
+              <th style="width:24%"><b>Vulnerability</b> <i class="fa fa-sort"></i></th>
+              <th style="width:28%"><b>Application</b> <i class="fa fa-sort"></i></th>
+              <th style="width:18%"><b>Test</b> <i class="fa fa-sort"></i></th>
+              <th style="width:12%"><b>Linked?</b> <i class="fa fa-sort"></i></th>
             </tr>
           </thead>
 
@@ -34,28 +33,23 @@
             <% @vulns.each do |v| %>
               <tr>
                 <td style="width:1%"></td>
-                <td style="width:10%">
-                  <%=v.created_at.strftime('%m/%d/%y')%>
+                <td style="width:17%">
+                  <%=v.created_at.strftime("%-m/%-d/%y at %l:%M:%S %p")%>
                 </td>
-                <td style="width:30%">
+                <td style="width:24%">
                   <a href="/tests/<%=v.test.id%>/<%=v.id%>"><%=v.type_str%></a>
                 </td>
-                <td style="width:23%">
+                <td style="width:28%">
                   <a href="/reviews/<%=v.test.application.id%>"><%=v.test.application.name%></a>
                 </td>
-                <td style="width:12%">
+                <td style="width:18%">
                   <a href="/tests/<%=v.test.id%>"><%=v.test.name%></a>
                 </td>
-                <td style="width:12%">
-                  <% if v.test.isReReview %>
-                    Re-Review
-                  <% else %>
-                    Initial
-                  <% end %>
-                </td>
-                <td style="width:12%">
+                <td style="width:12%;">
                   <% if v.test.application.isLinked? %>
-                    <a href="<%=v.test.application.linkedObjectURL%>" target="_blank"><%=v.test.application.linkedObjectText%></a>
+                    <a href="<%=a.linkedObjectURL%>" target="_blank"><%=v.test.application.linkedObjectText%></a>
+                  <% else %>
+                    -
                   <% end %>
                 </td>
               </tr>
