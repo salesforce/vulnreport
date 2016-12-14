@@ -1257,6 +1257,16 @@ class Vulnreport < Sinatra::Base
 			@selectedRecordTypes = @allowedRecordTypes if(@selectedRecordTypes.size == 0)
 		end
 
+		#Check for an EID match
+		eidLink = Link.first(:toType => LINK_TYPE::VRLO, :toId => @q, :fromType => LINK_TYPE::APPLICATION)
+		if(!eidLink.nil?)
+			#Only do EID redirection if user can see app. Otherwise info leak.
+			if(canViewReview?(eidLink.fromId))
+				#Redirect to application
+				redirect "/reviews/#{eidLink.fromId}"
+			end
+		end
+
 		@reviewResults = Array.new
 		@testResults = Array.new
 
