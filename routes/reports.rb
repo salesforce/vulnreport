@@ -926,6 +926,56 @@ class Vulnreport < Sinatra::Base
 		redirect "/reports/vulns/VulnsByType/default/all/all"
 	end
 
+	###################
+	# Vulns By Source #
+	###################
+
+	get '/reports/vulns/vulnsBySource/:period/:flags/:rt/?' do
+		@formsub = "/reports/vulns/vulnsBySource"
+
+		@startdate, @enddate, @periodString = parsePeriod(params[:period].downcase)
+		@selectedFlags, @appTypeString = parseFlags(params[:flags])
+		@selectedRecordTypes = parseRt(params[:rt])
+
+		colors = [[151,187,205],[200,200,200],[0,0,255],[0,128,0],[0,255,255],[128,0,0],[255,0,0],[190,190,0],[255,0,255],[128,128,0],[128,128,128]]
+		coloridx = 0
+
+		@data = Hash.new
+		Vulnerability.allWithFlags(@selectedFlags, :created_at => (@startdate..@enddate), :verified => true, :falsepos => false, Vulnerability.test.application.record_type => @selectedRecordTypes).each do |v|
+			if(@data[v.vulnSource].nil?)
+				if(v.vulnSource == 0)
+					thisLabel = "Manual Testing"
+				else
+					thisLabel = v.source_string
+				end
+
+				thisColor = colors[coloridx]
+				coloridx += 1
+				coloridx = 0 if(coloridx > colors.size)
+
+				@data[v.vulnSource] = {:label => thisLabel, :count => 1, :color => "rgba(#{thisColor[0]},#{thisColor[1]},#{thisColor[2]},1)"}
+			else
+				@data[v.vulnSource][:count] += 1
+			end
+		end
+
+		@totalVulns = @data.keys.inject(0){|sum, id| sum + @data[id][:count]}
+
+		erb :"reports/vulnsBySource"
+	end
+
+	post '/reports/vulns/vulnsBySource/?' do
+		datestring = (params[:alldata]) ? "all" : form_datestring(params[:startdate], params[:enddate])		
+		flags = form_flagstring(params[:appFlags], params[:flagSelectAll])
+		rtStr = form_rtstring(params[:recordTypes], params[:rtSelectAll])
+
+		redirect "/reports/vulns/vulnsBySource/#{datestring}/#{flags}/#{rtStr}"
+	end
+
+	get '/reports/vulns/vulnsBySource/?' do
+		redirect "/reports/vulns/vulnsBySource/default/all/all"
+	end
+
 	#############################
 	# Vulnerabilities Over Time #
 	#############################
@@ -1922,6 +1972,72 @@ class Vulnreport < Sinatra::Base
 	get '/reports/alloc/thisMonth/?' do
 		d = Date.today.at_beginning_of_month
 		redirect "/reports/alloc/#{d.month}/#{d.year}"
+	end
+
+	#########################
+	# Allocation Date Range #
+	#########################
+
+	get '/reports/alloc/forRange/:period/:interval/?' do
+		@formsub = "/reports/alloc/forRange"
+		@intervals = ["Total"]
+
+		@int, @intString = parseInterval(params[:interval].downcase, @intervals, "total")
+		@startdate, @enddate, @periodString = parsePeriod(params[:period].downcase, nil, Date.today.prev_month.end_of_month.to_datetime.end_of_day)
+		@selectedFlags, @appTypeString = parseFlags(params[:flags])
+		@selectedRecordTypes = parseRt(params[:rt], [1,4])
+
+		@data = Hash.new
+
+		curDate = Date.new(@startdate.year, @startdate.month, @startdate.day)
+		while(curDate < @enddate)
+			MonthlyAllocation.all(:month => curDate.month, :year => curDate.year).each do |ma|
+				u = User.get(ma.uid)
+				next if(u.nil?)
+
+				allocApps = (((u.allocCoeff.to_f)/12.0)*((ma.allocation.to_f)/100.0)).round
+
+				if(@data[ma.uid].nil?)					
+					@data[ma.uid] = {:name => u.name, :allocApps => allocApps, :uniqueApps => 0, :numTests => 0}
+				else
+					@data[ma.uid][:allocApps] += allocApps
+				end
+			end
+
+			curDate = curDate >> 1
+		end
+
+		@data.keys.each do |uid|
+			testsThisReviewer = 0
+			appsThisReviewer = Array.new
+			Test.all(:reviewer => uid, :complete => true, :closed_at => (@startdate..@enddate)).each do |t|
+				testsThisReviewer += 1
+				if(!appsThisReviewer.include?(t.application_id))
+					appsThisReviewer << t.application_id
+				end
+			end
+
+			@data[uid][:uniqueApps] += appsThisReviewer.size
+			@data[uid][:numTests] += testsThisReviewer
+
+			if(@data[uid][:allocApps] == 0 && @data[uid][:uniqueApps] == 0 && @data[uid][:numTests] == 0)
+				@data.delete(uid)
+			end
+		end
+
+		erb :"reports/allocForRange"
+	end
+
+	post '/reports/alloc/forRange/?' do
+		datestring = (params[:alldata]) ? "all" : form_datestring(params[:startdate], params[:enddate])
+		int = params[:interval]		
+		redirect "/reports/alloc/forRange/#{datestring}/#{int}"
+	end
+
+	get '/reports/alloc/forRange/?' do
+		startdate = Date.today.beginning_of_month.strftime('%m-%d-%Y')
+		enddate = Date.today.end_of_month.strftime('%m-%d-%Y')
+		redirect "/reports/alloc/forRange/#{startdate}...#{enddate}/total"
 	end
 
 	##########################

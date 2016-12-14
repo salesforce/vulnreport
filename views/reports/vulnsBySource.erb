@@ -1,0 +1,76 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Reports</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li><a href="/reports"><i class="fa fa-bar-chart-o"></i> Reports</a></li>
+      <li class="active"><i class="fa fa-bar-chart-o"></i> Vulnerabilities - Count By Source</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :"reports/datepicker_partial" %>
+
+<div class="row" style="margin-top:-10px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	<h4>Date Range Totals</h4>
+  	<b>Total Vulns: </b><%=@totalVulns%>&nbsp;&nbsp;&nbsp;&nbsp;
+  </div>
+</div>
+
+<div class="row" style="margin-top:-8px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	<canvas id='graph' width="1100px;" height="300px"></canvas>
+  </div>
+</div>
+
+<script type="text/javascript">
+	var data = [
+				<% @data.keys.each do |idx| %>
+					{
+		                value : <%=@data[idx][:count]%>,
+		                color : "<%=@data[idx][:color]%>",
+		                label : "<%=@data[idx][:label]%>",
+		                labelFontSize : '16'
+	            	},
+            	<% end %>
+            	];
+	
+	var options = {
+		animationSteps: 100,
+		animationEasing: 'easeInOutQuart'
+	};
+
+	var ctx = $('#graph').get(0).getContext('2d');
+	var trend = new Chart(ctx).Pie(data, options);
+</script>
+
+<div class="row" style="margin-top:-8px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	<% if @data.keys.size > 0 %>
+	  	<table class="table table-striped tablesorter" style="table-layout:fixed;width:100%;margin-top:20px;">
+			<thead>
+				<tr>
+					<th style="width:75%"><b>Vuln Source</b> <i class="fa fa-sort"></i></th>
+					<th style="width:25%"><b>Count</b> <i class="fa fa-sort"></i></th>
+				</tr>
+			</thead>
+
+			<tbody>
+			<% @data.keys.each do |idx| %>
+				<tr>
+					<td style="width:75%"><%=@data[idx][:label]%></td>
+					<td style="width:25%"><%=@data[idx][:count]%></td>
+				</tr>
+			<% end %>
+			</tbody>
+	    </table>
+	<% else %>
+		<br /><br />Report returned no results
+	<% end %>
+  </div>
+</div>
+
+<%= erb :footer_partial %>

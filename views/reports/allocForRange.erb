@@ -1,0 +1,52 @@
+<%= erb :header_partial %>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Reports</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li><a href="/reports"><i class="fa fa-bar-chart-o"></i> Reports</a></li>
+      <li class="active"><i class="fa fa-bar-chart-o"></i> Monthly Allocation - Allocation v Actual For Date Range</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+<%= erb :"reports/datepicker_partial", :locals => {:disableFlags => true, :disableRTSelect => true} %>
+
+<div class="row" style="margin-top:-8px; margin-bottom:10px;">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-10">
+
+  	<% if @data.keys.size > 0 %>
+	  	<table class="table table-striped tablesorter" style="table-layout:fixed;width:100%;margin-top:16px;margin-bottom:0px;">
+			<thead><tr>
+				<th style="width:28%"><b>Reviewer</b> <i class="fa fa-sort"></i></th>
+        <th style="width:24%"><b>Total Allocation (Apps)</b> <i class="fa fa-sort"></i></th>
+        <th style="width:24%"><b>Unique Apps</b> <i class="fa fa-sort"></i></th>
+        <th style="width:24%"><b>Total Tests</b> <i class="fa fa-sort"></i></th>
+			</tr></thead>
+
+			<% @data.keys.each do |uid| %>
+				<tr>
+					<td style="width:28%"><%=@data[uid][:name]%></td>
+					<td style="width:24%"><%=@data[uid][:allocApps]%></td>
+          <td style="width:24%"><%=@data[uid][:uniqueApps]%></td>
+          <td style="width:24%"><%=@data[uid][:numTests]%></td>
+				</tr>
+			<% end %>
+    </table>
+    <table class="table table-striped" style="table-layout:fixed;width:100%;margin-top:0px;">
+      <tr>
+        <td style="width:28%;border-top:1px solid #888;"><b><i>TOTAL</i></b></td>
+          <td style="width:24%;border-top:1px solid #888;"><b><i><%=@data.keys.inject(0){|sum, uid| sum + @data[uid][:allocApps]}%></i></b></td>
+          <td style="width:24%;border-top:1px solid #888;"><b><i><%=@data.keys.inject(0){|sum, uid| sum + @data[uid][:uniqueApps]}%></i></b></td>
+          <td style="width:24%;border-top:1px solid #888;"><b><i><%=@data.keys.inject(0){|sum, uid| sum + @data[uid][:numTests]}%></i></b></td>
+        </tr>
+	    </table>
+	<% else %>
+		Report returned no results
+	<% end %>
+  </div>
+</div>
+
+<%= erb :footer_partial %>
