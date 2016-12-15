@@ -81,9 +81,9 @@
         <label for="vtDefaultSource" class="col-sm-2 control-label">Default Vuln Source: </label>
         <div class="col-sm-4">
           <select class="form-control" id="vtDefaultSource" name="vtDefaultSource">
-            <option value="0" <% if @vt.defaultSource == 0 %>selected<%end%>>Manual Testing</option>
+            <option value="0" selected>Manual Testing</option>
             <% @vsOptions.each do |vs| %>
-              <option value="<%=vs.id%>" <% if @vt.defaultSource == vs.id %>selected<%end%>><%=h(vs.name)%></option>
+              <option value="<%=vs.id%>"><%=h(vs.name)%></option>
             <% end %>
           </select>
         </div>
