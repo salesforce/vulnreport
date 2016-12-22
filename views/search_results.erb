@@ -27,7 +27,7 @@
   <form role="form" action="/search" method="GET">
     <div class="col-lg-8" style="text-align:center; padding-right:0px;">
       <div class="form-group input-group" style="text-align:center;">
-        <input type="text" class="form-control" placeholder="Search Query" id="searchInput" name="searchInput" value="<%=@q%>">
+        <input type="text" class="form-control" placeholder="Search Query" id="searchInput" name="searchInput" value="<%=h(@q)%>">
         <span class="input-group-btn">
           <button class="btn btn-default" type="submit">
             <i class="fa fa-search"></i>
