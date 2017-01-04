@@ -367,6 +367,13 @@ class Vulnreport < Sinatra::Base
 		@conCounts = Array.new
 		@approvalCounts = Array.new
 		@matches = Array.new
+
+		dr_internalDays = 0
+		dr_conDays = 0
+		dr_conApproveDays = 0
+		dr_internalNumTests = 0
+		dr_conNumTests = 0
+
 		if(@int == "month")
 			date = Date.new(@startdate.year, @startdate.month, 1)
 			while date < @enddate do
@@ -389,6 +396,12 @@ class Vulnreport < Sinatra::Base
 						totalTests += 1					
 					end
 				end
+				dr_internalDays += totalDays
+				dr_conDays += conTotalDays
+				dr_conApproveDays += totalDaysToApprove
+				dr_internalNumTests += totalTests
+				dr_conNumTests += conTotalTests
+
 				@counts << ((totalTests == 0) ? 0.0 : (totalDays.to_f/totalTests.to_f).round(2))
 				@conCounts << ((conTotalTests == 0) ? 0.0 : (conTotalDays.to_f/conTotalTests.to_f).round(2))
 				@approvalCounts << ((conTotalTests == 0) ? 0.0 : (totalDaysToApprove.to_f/conTotalTests.to_f).round(2))
@@ -418,6 +431,12 @@ class Vulnreport < Sinatra::Base
 						totalTests += 1					
 					end
 				end
+				dr_internalDays += totalDays
+				dr_conDays += conTotalDays
+				dr_conApproveDays += totalDaysToApprove
+				dr_internalNumTests += totalTests
+				dr_conNumTests += conTotalTests
+
 				@counts << ((totalTests == 0) ? 0.0 : (totalDays.to_f/totalTests.to_f).round(2))
 				@conCounts << ((conTotalTests == 0) ? 0.0 : (conTotalDays.to_f/conTotalTests.to_f).round(2))
 				@approvalCounts << ((conTotalTests == 0) ? 0.0 : (totalDaysToApprove.to_f/conTotalTests.to_f).round(2))
@@ -449,6 +468,12 @@ class Vulnreport < Sinatra::Base
 						totalTests += 1					
 					end
 				end
+				dr_internalDays += totalDays
+				dr_conDays += conTotalDays
+				dr_conApproveDays += totalDaysToApprove
+				dr_internalNumTests += totalTests
+				dr_conNumTests += conTotalTests
+
 				@counts << ((totalTests == 0) ? 0.0 : (totalDays.to_f/totalTests.to_f).round(2))
 				@conCounts << ((conTotalTests == 0) ? 0.0 : (conTotalDays.to_f/conTotalTests.to_f).round(2))
 				@approvalCounts << ((conTotalTests == 0) ? 0.0 : (totalDaysToApprove.to_f/conTotalTests.to_f).round(2))
@@ -458,6 +483,10 @@ class Vulnreport < Sinatra::Base
 				last = @enddate.to_date if @enddate < last
 			end
 		end
+
+		@dr_internalAvgDays = ((dr_internalNumTests == 0) ? 0.0 : (dr_internalDays.to_f/dr_internalNumTests.to_f).round(2))
+		@dr_conAvgDays = ((dr_conNumTests == 0) ? 0.0 : (dr_conDays.to_f/dr_conNumTests.to_f).round(2))
+		@dr_approvalAvgDays = ((dr_conNumTests == 0) ? 0.0 : (dr_conApproveDays.to_f/dr_conNumTests.to_f).round(2))
 
 		erb :"reports/testTimes"
 	end

@@ -13,9 +13,18 @@
 
 <%= erb :"reports/datepicker_partial" %>
 
-<div class="row" style="margin-top:-8px; margin-bottom:10px;">
+<div class="row" style="margin-top:-8px; margin-bottom:20px;">
   <div class="col-lg-12">
   	This report shows data about the time from the start of a test to its completion (and approval flow if needed) for tests started in a given period of time. Tests are included in this report only if the <b>close time</b> was within the date range. To see time that a review spent in the Queue before test completion, please run the <a href="/reports/tests/timeInQueue">Total Time in Queue</a> report.
+  </div>
+</div>
+
+<div class="row" style="margin-top:-10px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	<h4>Date Range Totals</h4>
+  	<b>Internal Avg (days): </b><%=@dr_internalAvgDays%>&nbsp;&nbsp;&nbsp;&nbsp;
+  	<b>Contractor Avg (days): </b><%=@dr_conAvgDays%>&nbsp;&nbsp;&nbsp;&nbsp;
+  	<b>Approval Avg (days): </b><%=@dr_approvalAvgDays%>&nbsp;&nbsp;&nbsp;&nbsp;
   </div>
 </div>
 
