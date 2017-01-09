@@ -90,6 +90,21 @@ class Vulnreport < Sinatra::Base
 		end
 
 		@vulnTypes = VulnType.getByRecordType(@app.record_type).sort{ |x,y| x.getLabel <=> y.getLabel}
+		appFlagIds = @app.flags.map{|f| f.id}
+		@vulnTypes.delete_if do |vt|
+			if(!vt.requiredFlags.nil? && !vt.requiredFlags.empty?)
+				delVt = true
+				vt.requiredFlags.each do |fid|
+					if(appFlagIds.include?(fid))
+						delVt = false
+					end
+				end
+
+				if(delVt)
+					true
+				end
+			end
+		end
 
 		if(!@session[:errmsg].nil? && !@session[:errmsg].empty?)
 			@error = @session[:errmsg]
@@ -1034,6 +1049,21 @@ class Vulnreport < Sinatra::Base
 
 		@app = @test.application
 		@vulnTypes = VulnType.getByRecordType(@app.record_type).sort{ |x,y| x.getLabel <=> y.getLabel}
+		appFlagIds = @app.flags.map{|f| f.id}
+		@vulnTypes.delete_if do |vt|
+			if(!vt.requiredFlags.nil? && !vt.requiredFlags.empty?)
+				delVt = true
+				vt.requiredFlags.each do |fid|
+					if(appFlagIds.include?(fid))
+						delVt = false
+					end
+				end
+
+				if(delVt)
+					true
+				end
+			end
+		end
 
 		erb :test_preview_vts
 	end

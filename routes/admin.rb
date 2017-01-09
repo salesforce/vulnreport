@@ -806,6 +806,7 @@ class Vulnreport < Sinatra::Base
 	get '/admin/vulntypes/new/?' do
 		@appRecordTypes = RecordType.appRecordTypes()
 		@vsOptions = VulnSource.all(:enabled => true)
+		@flagOptions = Flag.all()
 
 		erb :admin_vt_new
 	end
@@ -840,7 +841,14 @@ class Vulnreport < Sinatra::Base
 			end
 		end
 
-		vt = VulnType.create(:name => newName, :label => newLabel, :cwe_mapping => newCwe, :priority => newPri, :html => newHtml, :enabled => newEnabled, :enabledRTs => newRts, :enabledSections => newSecs, :defaultSource => newDefaultSource)
+		newFlags = Array.new
+		if(!params[:flagms].nil?)
+			params[:flagms].each do |fid|
+				newFlags << fid.to_i
+			end
+		end
+
+		vt = VulnType.create(:name => newName, :label => newLabel, :cwe_mapping => newCwe, :priority => newPri, :html => newHtml, :enabled => newEnabled, :enabledRTs => newRts, :enabledSections => newSecs, :requiredFlags => newFlags, :defaultSource => newDefaultSource)
 		
 		redirect "/admin/vulntypes/"
 	end
@@ -994,6 +1002,7 @@ class Vulnreport < Sinatra::Base
 
 		@appRecordTypes = RecordType.appRecordTypes()
 		@vsOptions = VulnSource.all(:enabled => true)
+		@flagOptions = Flag.all()
 
 		erb :admin_vt_single
 	end
@@ -1057,6 +1066,15 @@ class Vulnreport < Sinatra::Base
 
 		@vt.enabledSections = newSecs
 
+		newFlags = Array.new
+		if(!params[:flagms].nil?)
+			params[:flagms].each do |fid|
+				newFlags << fid.to_i
+			end
+		end
+
+		@vt.requiredFlags = newFlags
+
 		@vt.save
 
 		@enabled = ""
@@ -1115,6 +1133,8 @@ class Vulnreport < Sinatra::Base
 
 		@vtName = v.custom
 		@appRecordTypes = RecordType.appRecordTypes()
+		@vsOptions = VulnSource.all(:enabled => true)
+		@flagOptions = Flag.all()
 
 		erb :admin_vt_new_from_cvt
 	end
@@ -1129,6 +1149,7 @@ class Vulnreport < Sinatra::Base
 		end
 
 		newName = params[:vtName].strip
+		newDefaultSource = params[:vtDefaultSource].to_i
 		newHtml = params[:html].strip
 		newLabel = params[:vtLabel].strip
 		newCwe = params[:cwe].strip.to_i
@@ -1151,7 +1172,14 @@ class Vulnreport < Sinatra::Base
 			end
 		end
 
-		vt = VulnType.create(:name => newName, :label => newLabel, :cwe_mapping => newCwe, :priority => newPri, :html => newHtml, :enabled => newEnabled, :enabledRTs => newRts, :enabledSections => newSecs)
+		newFlags = Array.new
+		if(!params[:flagms].nil?)
+			params[:flagms].each do |fid|
+				newFlags << fid.to_i
+			end
+		end
+
+		vt = VulnType.create(:name => newName, :label => newLabel, :cwe_mapping => newCwe, :priority => newPri, :html => newHtml, :enabled => newEnabled, :enabledRTs => newRts, :enabledSections => newSecs, :requiredFlags => newFlags, :defaultSource => newDefaultSource)
 		vt.save
 
 		Vulnerability.all(:vulntype => 0, :custom => origCVText).each do |v|

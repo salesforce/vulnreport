@@ -11,6 +11,11 @@
                             selectableHeader: "<div class='msHeader'>Available Sections</div>",
                             selectionHeader: "<div class='msHeader'>Sections on VulnType</div>",
                           });
+
+    $("#flag-multiselect").multiSelect({
+                            selectableHeader: "<div class='msHeader'>Available Flags</div>",
+                            selectionHeader: "<div class='msHeader'>Flags Required (OR relationship)</div>",
+                          });
   });
 </script>
 
@@ -133,6 +138,23 @@
             <option value="<%=SECT_TYPE::OUTPUT%>" selected>Output / Response</option>
             <option value="<%=SECT_TYPE::NOTES%>" selected>Notes</option>
             <option value="<%=SECT_TYPE::PAYLOAD%>" selected>Payload File</option>
+          </select>
+        </div>
+      </div>
+
+      <hr />
+      <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">
+        App Flags Required
+        <small style="font-size:6pt;">Select which Flags are required for this VulnType to be available. No selections makes it available on all Tests of the right Record Type.</small>
+      </h4>
+
+      <div class="form-group">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-6">
+          <select multiple="multiple" id="flag-multiselect" name="flagms[]" rel="jqms">
+            <% @flagOptions.each do |f| %>
+              <option value="<%=f.id%>"><%=h(f.name)%></option>
+            <% end %>
           </select>
         </div>
       </div>
