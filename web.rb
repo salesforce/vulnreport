@@ -973,6 +973,7 @@ class Vulnreport < Sinatra::Base
 
 	get '/usersettings' do
 		@user = User.get(session[:uid])
+		@pageTitle = "User Settings"
 
 		userAlloc = MonthlyAllocation.allocationForUser(@user.id)
 		if(userAlloc.nil?)
@@ -1013,6 +1014,7 @@ class Vulnreport < Sinatra::Base
 			@alloc = userAlloc.allocation
 			@dashConfigs = DashConfig.all(:active => true)
 
+			@pageTitle = "User Settings"
 			if(@user.save)
 				session[:name] = newName unless newName.nil?
 				session[:firstname] = newName.split(" ").first unless newName.nil?
@@ -1030,12 +1032,14 @@ class Vulnreport < Sinatra::Base
 
 	get '/usersettings/auth/?' do
 		@user = User.get(session[:uid])
+		@pageTitle = "User Settings"
 
 		erb :usersettings_auth
 	end
 
 	post '/usersettings/auth/?' do
 		@user = User.get(session[:uid])
+		@pageTitle = "User Settings"
 
 		if(getSetting('AUTH_SSO_ENABLED') == 'true')
 			#Nothing to do here since user can't update
@@ -1075,6 +1079,7 @@ class Vulnreport < Sinatra::Base
 	end
 
 	get '/userdash/?' do
+		@pageTitle = "User Dashboard"
 		month = params['m'].to_i
 		year = params['y'].to_i
 

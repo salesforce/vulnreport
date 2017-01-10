@@ -98,7 +98,7 @@
         <label for="userOrg" class="col-sm-2 control-label">Org: </label>
         <div class="col-sm-4">
           <select class="form-control" id="userOrg" name="userOrg">
-            <option value="0">--Unverified User--</option>
+            <option value="0">-- Unverified User --</option>
             <optgroup label="Active Orgs">
               <% @orgs.each do |o| %>
                 <% if !o.contractor %>
@@ -124,6 +124,20 @@
           <select class="form-control" id="userGeo" name="userGeo">
             <% GEO.constants.each do |g| %>
               <option value="<%=GEO.const_get(g)%>" <% if @user.defaultGeo == GEO.const_get(g) %>selected<% end %>><%=geoToString(GEO.const_get(g))%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="userMgr" class="col-sm-2 control-label">Manager: </label>
+        <div class="col-sm-4">
+          <select class="form-control" id="userMgr" name="userMgr">
+            <option value="0" <% if @user.manager_id.nil? || @user.manager_id == 0 %>selected<% end %>>-- No Manager --</option>
+            <% @managerOptions.each do |u| %>
+              <% next if u.id == @user.id %>
+              <option value="<%=u.id%>" <% if @user.manager_id == u.id %>selected<% end %>><%=h(u.name)%></option>
             <% end %>
           </select>
         </div>
@@ -240,7 +254,7 @@
         </div>
       </div>
 
-      <div id="approverSettings" <% if !@user.requiresApproval? %>style="display:none;"<% end %>>
+      <div id="approverSettings" <% if !@user.requireApproval %>style="display:none;"<% end %>>
         <hr />
         <h4 style="margin-top:-20px; margin-left:40px; margin-bottom:20px; color:#999;">Approvers <small style="font-size:6pt;">Users/Orgs who can approve user's tests</small></h4>
 

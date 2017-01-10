@@ -252,6 +252,7 @@ class Vulnreport < Sinatra::Base
 
 	get '/admin/users/new/?' do
 		@orgs = Organization.all()
+		@managerOptions = User.activeSorted()
 
 		erb :admin_user_new
 	end
@@ -282,6 +283,16 @@ class Vulnreport < Sinatra::Base
 			newOrg = 0
 		end
 
+		newGeo = params[:userGeo].to_i
+		if(newGeo <= 0)
+			newGeo = GEO::USA
+		end
+
+		newManager = params[:userMgr].to_i
+		if(User.get(newManager).nil?)
+			newManager = 0
+		end
+
 		newSSOUser = nil
 		newSSOUser = nil
 		newUsername = nil
@@ -295,7 +306,7 @@ class Vulnreport < Sinatra::Base
 			newSSOUID = params[:sso_id].strip
 
 			if(newSSOUser.nil? || newSSOUser == "" || newSSOUID.nil? || newSSOUID == "")
-				errstr = "SSO Information must be entered"
+				@errstr = "SSO Information must be entered"
 				return erb :error
 			end
 		end
@@ -305,10 +316,10 @@ class Vulnreport < Sinatra::Base
 			newPassword = params[:login_password].strip
 		end
 
-		@user = User.create(:username => newUsername, :password => newPassword, :sso_user => newSSOUser, :sso_id => newSSOUID, :email => newEmail, :name => newName, :initials => newInits, :org => newOrg, :admin => newAdmin, :reportsOnly => newReportsOnly)
+		@user = User.create(:username => newUsername, :password => newPassword, :sso_user => newSSOUser, :sso_id => newSSOUID, :email => newEmail, :name => newName, :initials => newInits, :org => newOrg, :defaultGeo => newGeo, :manager_id => newManager, :admin => newAdmin, :reportsOnly => newReportsOnly)
 
 		if(!@user.saved?)
-			errstr = "Error saving user"
+			@errstr = "Error saving user"
 			return erb :error
 		end
 
@@ -324,6 +335,7 @@ class Vulnreport < Sinatra::Base
 		
 		@orgs = Organization.all()
 		@logins = AuditRecord.all(:event_type => [EVENT_TYPE::USER_LOGIN, EVENT_TYPE::USER_LOGIN_FAILURE], :actor => @user.id, :order => [:event_at.desc], :limit => 10)
+		@managerOptions = User.activeSorted()
 
 		erb :admin_user_single
 	end
@@ -387,32 +399,6 @@ class Vulnreport < Sinatra::Base
 		newConPasser = (!params[:isConPasser].nil? && !newReportsOnly)
 		@user.canPassToCon = newConPasser
 
-		newRequireApproval = (!params[:isApprovalRequired].nil?)
-		@user.requireApproval = newRequireApproval
-
-		if(newRequireApproval)
-			newApproverUsers = Array.new
-			if(!params[:approver_users].nil?)
-				params[:approver_users].each do |uid|
-					newApproverUsers << uid.to_i
-				end
-			end
-			newApproverUsers = nil if(newApproverUsers.size == 0)
-			@user.approver_users = newApproverUsers
-
-			newApproverOrgs = Array.new
-			if(!params[:approver_orgs].nil?)
-				params[:approver_orgs].each do |oid|
-					newApproverOrgs << oid.to_i
-				end
-			end
-			newApproverOrgs = nil if(newApproverOrgs.size == 0)
-			@user.approver_orgs = newApproverOrgs
-		else
-			@user.approver_users = nil
-			@user.approver_orgs = nil
-		end
-
 		newName = params[:userName].strip
 		@user.name = newName unless newName.nil?
 
@@ -434,6 +420,44 @@ class Vulnreport < Sinatra::Base
 
 		newGeo = params[:userGeo].to_i
 		@user.defaultGeo = newGeo unless newGeo == 0
+
+		newManager = params[:userMgr].to_i
+		if(User.get(newManager).nil?)
+			newManager = 0
+		end
+		@user.manager_id = newManager
+
+		newRequireApproval = (!params[:isApprovalRequired].nil?)
+		@user.requireApproval = newRequireApproval
+
+		if(newRequireApproval)
+			newApproverUsers = Array.new
+			if(!params[:approver_users].nil?)
+				params[:approver_users].each do |uid|
+					newApproverUsers << uid.to_i
+				end
+			end
+
+			#If no approvers selected automatically add manager, if one exists
+			if(newApproverUsers.size == 0 && !newManager.nil? && newManager > 0)
+				newApproverUsers << newManager
+			end
+
+			newApproverUsers = nil if(newApproverUsers.size == 0)
+			@user.approver_users = newApproverUsers
+
+			newApproverOrgs = Array.new
+			if(!params[:approver_orgs].nil?)
+				params[:approver_orgs].each do |oid|
+					newApproverOrgs << oid.to_i
+				end
+			end
+			newApproverOrgs = nil if(newApproverOrgs.size == 0)
+			@user.approver_orgs = newApproverOrgs
+		else
+			@user.approver_users = nil
+			@user.approver_orgs = nil
+		end
 
 		if(getSetting('AUTH_SSO_ENABLED') == 'true')
 			newSSOUser = params[:sso_user].strip
@@ -518,34 +542,31 @@ class Vulnreport < Sinatra::Base
 
 			if(!lastLogin.nil?)
 				lastLoginStr = lastLogin.event_at.strftime('%-d %b %Y - %H:%M')
-				if(lastLogin.blobObj[:type] == 'sso')
-					lastLoginStr += " (SSO)"
-				else
-					lastLoginStr += " (direct)"
-				end
+			end
+
+			if(u.org == 0)
+				thisUserHash = {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => "", :oid => 0, :mgr => u.manager, :email => u.email, :lastLogin => lastLoginStr}
+			else
+				thisUserHash = {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :mgr => u.manager, :email => u.email, :lastLogin => lastLoginStr}
 			end
 
 			if(!u.active)
-				if(u.org == 0)
-					@inactive << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => "", :oid => 0, :email => u.email, :lastLogin => lastLoginStr}
-				else
-					@inactive << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email, :lastLogin => lastLoginStr}
-				end
+				@inactive << thisUserHash
 			else
 				if(u.admin && u.org != 0)
-					@adminUsers << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email, :lastLogin => lastLoginStr}
+					@adminUsers << thisUserHash
 				end
 
 				if(u.org != 0)
 					if(org.contractor)
-						@conUsers << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email, :lastLogin => lastLoginStr}
+						@conUsers << thisUserHash
 					elsif(u.reportsOnly)
-						@roUsers << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email, :lastLogin => lastLoginStr}
+						@roUsers << thisUserHash
 					else
-						@activeUsers << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => org.name, :oid => org.id, :email => u.email, :lastLogin => lastLoginStr}
+						@activeUsers << thisUserHash
 					end
 				else
-					@unverified << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :email => u.email, :lastLogin => lastLoginStr}
+					@unverified << thisUserHash
 				end
 			end
 		end
@@ -605,7 +626,14 @@ class Vulnreport < Sinatra::Base
 				status = "Unverified"
 			end
 
-			@users << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :org => @org.name, :oid => @org.id, :email => u.email}
+			lastLogin = u.lastLogin
+			lastLoginStr = ""
+
+			if(!lastLogin.nil?)
+				lastLoginStr = lastLogin.event_at.strftime('%-d %b %Y - %H:%M')
+			end
+
+			@users << {:uid => u.id, :name => u.name, :inits => u.initials, :status => status, :mgr => u.manager, :email => u.email, :lastLogin => lastLoginStr}
 		end
 
 		@appRecordTypes = RecordType.allAppRecordTypes()

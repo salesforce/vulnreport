@@ -113,6 +113,13 @@
       </div>
 
       <div class="form-group">
+        <label for="userMgr" class="col-sm-2 control-label">Manager: </label>
+        <div class="col-sm-6">
+          <input type="text" class="form-control" id="userMgr" name="userMgr" placeholder="No Manager" value="<%=(@user.manager.nil? ? "No Manager" : h(@user.manager.name))%>" disabled>
+        </div>
+      </div>
+
+      <div class="form-group">
         <label for="user_ext_eid" class="col-sm-2 control-label">External EID: </label>
         <div class="col-sm-6">
           <input type="text" class="form-control" id="user_ext_eid" name="user_ext_eid" placeholder="External EID (optional)" value="<%=h(@user.extEID)%>">

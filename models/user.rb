@@ -26,6 +26,7 @@ class User
 	property :dashOverride,		Integer, :default => -1			#@return [Integer] ID of {DashConfig} User has chosen to override default dash for org with. -1 if no override.
 	property :useAllocation,	Boolean, :default => false 		#@return [Boolean] True if this user uses the {MonthlyAllocation} system
 	property :allocCoeff,		Integer, :default => 200 		#@return [Integer] The coefficient for allocation calculation. The number represents the total number of reviews the User would complete if tasked 100% for a year.
+	property :manager_id,		Integer							#@return [Integer] The ID of the {User} marked as this user's manager. Nil if no manager.
 	
 	property :admin,			Boolean, :default => false		#@return [Boolean] Perm bit. True if is a Vulnreport admin
 	property :reportsOnly,		Boolean, :default => false		#@return [Boolean] Perm bit. If true, only allowed to view reports, nothing else. OVERRIDES other perms.
@@ -67,6 +68,11 @@ class User
 		return false if(self.org == 0)
 		o = Organization.get(self.org)
 		return o.contractor
+	end
+
+	def manager
+		return nil if(self.manager_id.nil? || self.manager_id <= 0)
+		return User.get(self.manager_id)
 	end
 
 	def requiresApproval?

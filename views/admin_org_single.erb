@@ -164,19 +164,19 @@
         </div>
         <div class="panel-body">
           <table class="table table-striped">
-            <tr>
-              <td style="width:10%"><b>Status</b></td>
-              <td style="width:30%"><b>Name</b></td>
-              <td style="width:10%"><b>Initials</b></td>
-              <td style="width:30%"><b>Email</b></td>
-            </tr>
+            <thead>
+              <th style="width:15%"><b>Status</b></th>
+              <th style="width:30%"><b>Name</b></th>
+              <th style="width:30%"><b>Manager</b></th>
+              <th style="width:25%"><b>Last Login</b></th>
+            </thead>
 
             <% @users.each do |u| %>
             <tr>
-              <td style="width:10%"><%=u[:status]%></td>
-              <td style="width:40%"><a href="/admin/users/<%=u[:uid]%>"><%=h(u[:name])%></a></td>
-              <td style="width:10%"><%=h(u[:inits])%></td>
-              <td style="width:40%"><%=h(u[:email])%></td>
+              <td style="width:15%"><%=u[:status]%></td>
+              <td style="width:30%"><a href="/admin/users/<%=u[:uid]%>"><%=h(u[:name])%></a></td>
+              <td style="width:30%"><% if !u[:mgr].nil? %><a href="/admin/users/<%=u[:mgr].id%>"><%=h(u[:mgr].name)%></a><% end %></td>
+              <td style="width:25%"><%=h(u[:lastLogin])%></td>
             </tr>
             <% end %>
           </table>

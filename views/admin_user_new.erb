@@ -56,7 +56,7 @@
         <label for="userOrg" class="col-sm-2 control-label">Org: </label>
         <div class="col-sm-4">
           <select class="form-control" id="userOrg" name="userOrg">
-            <option value="0">--Unverified User--</option>
+            <option value="0">-- Unverified User --</option>
             <optgroup label="Active Orgs">
               <% @orgs.each do |o| %>
                 <% if !o.contractor %>
@@ -71,6 +71,31 @@
                 <% end %>
               <% end %>
             </optgroup>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="userGeo" class="col-sm-2 control-label">Default Geo: </label>
+        <div class="col-sm-4">
+          <select class="form-control" id="userGeo" name="userGeo">
+            <% GEO.constants.each do |g| %>
+              <option value="<%=GEO.const_get(g)%>" <% if GEO::USA == GEO.const_get(g) %>selected<% end %>><%=geoToString(GEO.const_get(g))%></option>
+            <% end %>
+          </select>
+        </div>
+        <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="userMgr" class="col-sm-2 control-label">Manager: </label>
+        <div class="col-sm-4">
+          <select class="form-control" id="userMgr" name="userMgr">
+            <option value="0">-- No Manager --</option>
+            <% @managerOptions.each do |u| %>
+              <option value="<%=u.id%>"><%=h(u.name)%></option>
+            <% end %>
           </select>
         </div>
         <div class="col-sm-1" style="text-align:left; margin-left:-20px; padding-top:5px;"></div>
