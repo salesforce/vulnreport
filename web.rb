@@ -273,6 +273,8 @@ class Vulnreport < Sinatra::Base
 			return erb :unverified
 		end
 
+		@allocModalOn = (getSetting('ALLOC_WARN_MODAL') == 'true')
+
 		# Dash components
 		# => @panels is array of hashes, each hash being panel components (title, records, hasbulkptc, zerotext, fetch_time). Rendered top-down in order
 		# => @statblocks is an array of 4 hashes (block_#), each hash being stat block info (icon, value, color). Rendered left-right in order

@@ -399,7 +399,10 @@ class Vulnreport < Sinatra::Base
 		@user.useAllocation = newAllocationUser
 
 		newAllocCoeff = params[:allocCoeff].to_i
-		newAllocCoeff = 12 if(newAllocCoeff <= 0)
+		if(newAllocCoeff <= 0)
+			newAllocCoeff = getSetting('ALLOC_DEFAULT')
+			newAllocCoeff = newAllocCoeff.nil? ? User.allocCoeff.default : newAllocCoeff.to_i
+		end
 		@user.allocCoeff = newAllocCoeff
 
 		newAdmin = (!params[:isAdmin].nil? && !newReportsOnly)

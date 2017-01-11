@@ -9,7 +9,7 @@
       window.location = "/showdash/" + $(e).val();
     }
 
-    $(function() {
+    $(document).ready(function(){
       $(".tablesorter_dash").tablesorter( {sortList: [[0,0]]} );
     });
 
@@ -84,13 +84,63 @@
 <% end %>
 
 <% if (@user.useAllocation && !@user.allocation.nil? && @user.allocation.wasAutoSet && !contractor?) %>
-<div class="alert alert-warning">
-  Your monthly allocation for <%=Date.today.strftime('%B')%> has been auto-set to <b><%=@user.allocation.allocation%>%</b>. Please <a class="alert-link" href="/confirmAlloc"><u>confirm this</u></a> or <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> now.
-</div>
+  <div class="alert alert-warning">
+    Your monthly allocation for <%=Date.today.strftime('%B')%> has been auto-set to <b><%=@user.allocation.allocation%>%</b>. Please <a class="alert-link" href="/confirmAlloc"><u>confirm this</u></a> or <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> now.
+  </div>
+
+  <% if @allocModalOn %>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#allocModal').modal('show');
+      });
+    </script>
+  <% end %>
 <% elsif (@user.useAllocation && @user.allocation.nil? && !contractor?) %>
-<div class="alert alert-warning">
-  You have not yet <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> for <%=Date.today.strftime('%B')%>. Please do so now!
-</div>
+  <div class="alert alert-warning">
+    You have not yet <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> for <%=Date.today.strftime('%B')%>. Please do so now!
+  </div>
+
+  <% if @allocModalOn %>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('#allocModal').modal('show');
+      });
+    </script>
+  <% end %>
+<% end %>
+
+<% if @allocModalOn && ((@user.useAllocation && !@user.allocation.nil? && @user.allocation.wasAutoSet && !contractor?) || (@user.useAllocation && @user.allocation.nil? && !contractor?)) %>
+  <div class="row">
+    <div class="col-lg-12">
+      <!-- Allocation Warning Modal -->
+      <div class="modal fade" id="allocModal" tabindex="-1" role="dialog" aria-labelledby="allocModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="margin-top:100px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="allocModalLabel">Allocation Warning</h4>
+            </div>
+            <div class="modal-body" style="padding-top:10px; padding-bottom:0px; max-height:300px; overflow-y: scroll;">
+              <div style="margin-bottom:10px;">
+                <% if (@user.useAllocation && !@user.allocation.nil? && @user.allocation.wasAutoSet && !contractor?) %>
+                  <p>Your monthly allocation for <%=Date.today.strftime('%B')%> has been auto-set to <b><%=@user.allocation.allocation%>%</b>.</p>
+                  <p>Please confirm this or set your monthly allocation now.</p>
+                <% elsif (@user.useAllocation && @user.allocation.nil? && !contractor?) %>
+                  <p>You have not yet set your monthly allocation for <%=Date.today.strftime('%B')%>. Please do so now!</p>
+                <% end %>
+              </div>
+            </div>
+            <div class="modal-footer" style="margin-top:0px; padding:10px;">
+              <% if (!@user.allocation.nil? && @user.allocation.wasAutoSet) %>
+                <a href="/confirmAlloc"><button type="button" class="btn btn-success">Confirm <%=@user.allocation.allocation%>% Allocation</button></a>
+              <% end %>
+              <a href="/usersettings"><button type="button" class="btn btn-info">My Settings</button></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 <% end %>
 
 <% if @dashError %>
