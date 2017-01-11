@@ -75,6 +75,10 @@ class User
 		return User.get(self.manager_id)
 	end
 
+	def isManager?
+		return (User.count(:manager_id => self.id) > 0)
+	end
+
 	def requiresApproval?
 		if(self.requireApproval)
 			return true
