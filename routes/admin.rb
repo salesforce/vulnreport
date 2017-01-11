@@ -161,6 +161,11 @@ class Vulnreport < Sinatra::Base
 		@vr_footer = getSetting('VR_FOOTER')
 		@sshotMaxSize = getSetting('SSHOT_MAX_SIZE_KB')
 		@payloadMaxSize = getSetting('PAYLOAD_MAX_SIZE_KB')
+		@defaultAlloc = getSetting('ALLOC_DEFAULT')
+		if(@defaultAlloc.nil?)
+			@defaultAlloc = User.allocCoeff.default
+		end
+		@allocModalOn = (getSetting('ALLOC_WARN_MODAL') == 'true')
 		@pdf_on = (getSetting('PDF_EXPORT_ON') == 'true')
 
 		@sso_auth = (getSetting('AUTH_SSO_ENABLED') == 'true')
@@ -188,6 +193,8 @@ class Vulnreport < Sinatra::Base
 		vr_footer = params[:vr_footer].strip
 		sshotMaxSize = params[:sshotMaxSize].strip.to_i
 		payloadMaxSize = params[:payloadMaxSize].strip.to_i
+		defaultAlloc = params[:defaultAlloc].strip.to_i
+		allocModalOn = (!params[:allocModalOn].nil?)
 		pdf_on = (!params[:pdf_on].nil?)
 
 		sso_auth = (!params[:sso_auth].nil?)
@@ -232,6 +239,8 @@ class Vulnreport < Sinatra::Base
 
 		setSetting('SSHOT_MAX_SIZE_KB', sshotMaxSize.to_s)
 		setSetting('PAYLOAD_MAX_SIZE_KB', payloadMaxSize.to_s)
+		setSetting('ALLOC_DEFAULT', defaultAlloc.to_s)
+		setSetting('ALLOC_WARN_MODAL', allocModalOn)
 		setSetting('PDF_EXPORT_ON', pdf_on)
 
 		setSetting('AUTH_SSO_ENABLED', sso_auth)
@@ -316,7 +325,10 @@ class Vulnreport < Sinatra::Base
 			newPassword = params[:login_password].strip
 		end
 
-		@user = User.create(:username => newUsername, :password => newPassword, :sso_user => newSSOUser, :sso_id => newSSOUID, :email => newEmail, :name => newName, :initials => newInits, :org => newOrg, :defaultGeo => newGeo, :manager_id => newManager, :admin => newAdmin, :reportsOnly => newReportsOnly)
+		alloc = getSetting('ALLOC_DEFAULT')
+		alloc = (alloc.nil?) ? User.allocCoeff.default : alloc.to_i
+
+		@user = User.create(:username => newUsername, :password => newPassword, :sso_user => newSSOUser, :sso_id => newSSOUID, :email => newEmail, :name => newName, :initials => newInits, :org => newOrg, :defaultGeo => newGeo, :manager_id => newManager, :admin => newAdmin, :reportsOnly => newReportsOnly, :allocCoeff => alloc)
 
 		if(!@user.saved?)
 			@errstr = "Error saving user"

@@ -43,6 +43,8 @@ else
 						"VR_FOOTER" => '',
 						"SSHOT_MAX_SIZE_KB" => '2048',
 						"PAYLOAD_MAX_SIZE_KB" => '1024',
+						"ALLOC_DEFAULT" => '200',
+						"ALLOC_WARN_MODAL" => 'false',
 						"PDF_EXPORT_ON" => 'false'
 					   }
 
