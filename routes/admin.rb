@@ -397,6 +397,9 @@ class Vulnreport < Sinatra::Base
 
 		newAllocationUser = (!params[:isAllocationUser].nil? && !newReportsOnly)
 		@user.useAllocation = newAllocationUser
+		if(!newAllocationUser && !@user.allocation.nil?)
+			@user.allocation.destroy
+		end
 
 		newAllocCoeff = params[:allocCoeff].to_i
 		if(newAllocCoeff <= 0)

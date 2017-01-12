@@ -83,10 +83,16 @@
 </div>
 <% end %>
 
-<% if (@user.useAllocation && !@user.allocation.nil? && @user.allocation.wasAutoSet && !contractor?) %>
-  <div class="alert alert-warning">
-    Your monthly allocation for <%=Date.today.strftime('%B')%> has been auto-set to <b><%=@user.allocation.allocation%>%</b>. Please <a class="alert-link" href="/confirmAlloc"><u>confirm this</u></a> or <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> now.
-  </div>
+<% if (@user.useAllocation && !@user.allocation.nil? && (@user.allocation.wasAutoSet || @user.allocation.wasMgrSet) && !contractor?) %>
+  <% if @user.allocation.wasAutoSet %>
+    <div class="alert alert-warning">
+      Your monthly allocation for <%=Date.today.strftime('%B')%> has been auto-set to <b><%=@user.allocation.allocation%>%</b>. Please <a class="alert-link" href="/confirmAlloc"><u>confirm this</u></a> or <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> now.
+    </div>
+  <% elsif @user.allocation.wasMgrSet %>
+    <div class="alert alert-warning">
+      Your monthly allocation for <%=Date.today.strftime('%B')%> has been set by your manager (<%=h(@user.manager.name)%>) to <b><%=@user.allocation.allocation%>%</b>. Please <a class="alert-link" href="/confirmAlloc"><u>confirm this</u></a> or <a class="alert-link" href="/usersettings"><u>set your monthly allocation</u></a> now.
+    </div>
+  <% end %>
 
   <% if @allocModalOn %>
     <script type="text/javascript">
@@ -109,7 +115,7 @@
   <% end %>
 <% end %>
 
-<% if @allocModalOn && ((@user.useAllocation && !@user.allocation.nil? && @user.allocation.wasAutoSet && !contractor?) || (@user.useAllocation && @user.allocation.nil? && !contractor?)) %>
+<% if @allocModalOn && ((@user.useAllocation && !@user.allocation.nil? && (@user.allocation.wasAutoSet || @user.allocation.wasMgrSet) && !contractor?) || (@user.useAllocation && @user.allocation.nil? && !contractor?)) %>
   <div class="row">
     <div class="col-lg-12">
       <!-- Allocation Warning Modal -->
@@ -125,13 +131,16 @@
                 <% if (@user.useAllocation && !@user.allocation.nil? && @user.allocation.wasAutoSet && !contractor?) %>
                   <p>Your monthly allocation for <%=Date.today.strftime('%B')%> has been auto-set to <b><%=@user.allocation.allocation%>%</b>.</p>
                   <p>Please confirm this or set your monthly allocation now.</p>
+                <% elsif (@user.useAllocation && !@user.allocation.nil? && @user.allocation.wasMgrSet && !contractor?) %>
+                  <p>Your monthly allocation for <%=Date.today.strftime('%B')%> has been set by your manager (<%=h(@user.manager.name)%>) to <b><%=@user.allocation.allocation%>%</b>.</p>
+                  <p>Please confirm this or set your monthly allocation now.</p>
                 <% elsif (@user.useAllocation && @user.allocation.nil? && !contractor?) %>
                   <p>You have not yet set your monthly allocation for <%=Date.today.strftime('%B')%>. Please do so now!</p>
                 <% end %>
               </div>
             </div>
             <div class="modal-footer" style="margin-top:0px; padding:10px;">
-              <% if (!@user.allocation.nil? && @user.allocation.wasAutoSet) %>
+              <% if (!@user.allocation.nil? && (@user.allocation.wasAutoSet || @user.allocation.wasMgrSet)) %>
                 <a href="/confirmAlloc"><button type="button" class="btn btn-success">Confirm <%=@user.allocation.allocation%>% Allocation</button></a>
               <% end %>
               <a href="/usersettings"><button type="button" class="btn btn-info">My Settings</button></a>

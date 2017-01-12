@@ -60,6 +60,9 @@
         <ul class="dropdown-menu">
           <li><a href="/usersettings"><i class="fa fa-gear"></i> Settings</a></li>
           <li><a href="/userdash"><i class="fa fa-bar-chart"></i> User Dash</a></li>
+          <% if isManager? %>
+            <li><a href="/userDirectsDash"><i class="fa fa-group"></i> My Directs</a></li>
+          <% end %>
           <li><a href="/help"><i class="fa fa-question"></i> Documentation</a></li>
           <li class="divider"></li>
           <li><a href="/logout"><i class="fa fa-power-off"></i> Log Out</a></li>

@@ -1200,6 +1200,92 @@ class Vulnreport < Sinatra::Base
 		erb :userdash
 	end
 
+	get "/userDirectsDash/?" do
+		@directs = User.all(:manager_id => @session[:uid])
+
+		if(!isManager? || @directs.nil?)
+			@errstr = "No direct reports"
+			return erb :error
+		end
+
+		@data = Hash.new
+		@directs.each do |u|
+			@data[u.id] = Hash.new
+			monthStartDate = Date.today.at_beginning_of_month
+			monthEndDate = monthStartDate >> 1
+			fyStartDate = Date.new((fy(Date.today).to_i)-1, 2, 1)
+			fyEndDate = Date.new((fy(Date.today).to_i), 1, 31)
+
+			testsThisReviewer = 0
+			appsThisReviewer = Array.new
+			Test.all(:reviewer => u.id, :complete => true, :closed_at => (monthStartDate..monthEndDate)).each do |t|
+				testsThisReviewer += 1
+				if(!appsThisReviewer.include?(t.application_id))
+					appsThisReviewer << t.application_id
+				end
+			end
+
+			@data[u.id][:uniqueAppsMonth] = appsThisReviewer.size
+			@data[u.id][:numTestsMonth] = testsThisReviewer
+
+			testsThisReviewer = 0
+			appsThisReviewer = Array.new
+			Test.all(:reviewer => u.id, :complete => true, :closed_at => (fyStartDate..fyEndDate)).each do |t|
+				testsThisReviewer += 1
+				if(!appsThisReviewer.include?(t.application_id))
+					appsThisReviewer << t.application_id
+				end
+			end
+
+			@data[u.id][:uniqueAppsFY] = appsThisReviewer.size
+			@data[u.id][:numTestsFY] = testsThisReviewer
+		end
+
+		erb :user_directs_dash
+	end
+
+	post "/userDirectsDash/?" do
+		@directs = User.all(:manager_id => @session[:uid])
+
+		if(!isManager? || @directs.nil?)
+			@errstr = "No direct reports"
+			return erb :error
+		end
+
+		@directs.each do |u|
+			newUseAlloc = (!params[:"useAlloc_#{u.id}"].nil?)
+			newAllocCoeff = params[:"allocCoeff_#{u.id}"].to_i
+			if(newAllocCoeff <= 0)
+				newAllocCoeff = getSetting('ALLOC_DEFAULT')
+				newAllocCoeff = newAllocCoeff.nil? ? User.allocCoeff.default : newAllocCoeff.to_i
+			end
+			newAllocPct = params[:"curAlloc_#{u.id}"].to_i
+
+			u.useAllocation = newUseAlloc
+			if(!newUseAlloc && !u.allocation.nil?)
+				ma = MonthlyAllocation.allocationForUser(u.id)
+				ma.destroy
+			end
+
+			u.allocCoeff = newAllocCoeff
+			u.save
+
+			if(u.useAllocation && !u.allocation.nil?)
+				ma = MonthlyAllocation.allocationForUser(u.id)
+				ma.allocation = newAllocPct
+				ma.wasMgrSet = true
+				ma.wasAutoSet = false
+				ma.save
+			elsif(u.useAllocation && u.allocation.nil? && !params[:"curAlloc_#{u.id}"].nil?)
+				ma = MonthlyAllocation.setAllocationForUser(u.id, newAllocPct)
+				ma.wasMgrSet = true
+				ma.save
+			end
+		end
+
+		redirect "/userDirectsDash"
+	end
+
 	###
 	# Endpoint to prefetch typeahead data for Bloodhound (used for search bar).
 	# Prefetch returns the most recent 250 {Application}s (by creation date). For matches
@@ -1312,6 +1398,7 @@ class Vulnreport < Sinatra::Base
 	get '/confirmAlloc' do
 		a = MonthlyAllocation.allocationForUser(session[:uid])
 		a.update(:wasAutoSet => false)
+		a.update(:wasMgrSet => false)
 		redirect "/"
 	end
 

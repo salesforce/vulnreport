@@ -18,6 +18,7 @@ class MonthlyAllocation
 	property :year,			Integer 						#@return [Integer] Year this Allocation is for (4 digit year)
 	property :allocation,	Integer 						#@return [Integer] Allocation percentage (0-100)
 	property :wasAutoSet,	Boolean, :default => false 		#@return [Boolean] True if this allocation was auto-set at beginning of month
+	property :wasMgrSet,	Boolean, :default => false 		#@return [Boolean] True if this allocation was set/modified by manager and should be confirmed by user
 	property :created_at, 	DateTime 						#@return [DateTime] Date/Time MonthlyAllocation created (DM Handled)
 	property :updated_at, 	DateTime 						#@return [DateTime] Date/Time MonthlyAllocation last updated (DM Handled)
 

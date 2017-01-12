@@ -1938,7 +1938,7 @@ class Vulnreport < Sinatra::Base
 	########################
 
 	get '/reports/alloc/:month/:year/?' do
-		@users = User.all(:useAllocation => true)
+		@users = User.all(:useAllocation => true, :active => true)
 		@totalReviewsAllocated = 0
 		@totalReviewsActual = 0
 		@totalTestsActual = 0

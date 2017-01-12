@@ -594,6 +594,14 @@ module VulnreportAuth
 	end
 
 	##
+	# Check if the logged in user is a manager
+	# @return [Boolean] True if user is a manager, false otherwise
+	def isManager?()
+		u = User.get(session[:uid])
+		return u.isManager?
+	end
+
+	##
 	# Check if the logged in user is the direct manager of the given {User}
 	# @param targetUid [Integer] ID of the {User} to check management of
 	# @param uid [Integer] ID of the {User} to check perm for

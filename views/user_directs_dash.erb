@@ -1,0 +1,88 @@
+<%= erb :header_partial %>
+
+<style>
+  .graphs {
+      background:transparent !important;
+      box-shadow:none !important;
+  }
+  table .progress {
+      margin-bottom: 0;
+  }
+  .progress-bar-small {
+      border-radius:4px !important;
+  }
+</style>
+
+<div class="row">
+  <div class="col-lg-12">
+    <h1>Vulnreport <small>Direct Reports Dashboard</small></h1>
+    <ol class="breadcrumb">
+      <li><a href="/"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li class="active"><i class="fa fa-group"></i> My Directs Dashboard</li>
+    </ol>
+  </div>
+</div><!-- /.row -->
+
+
+
+<div class="row">
+  <div class="col-lg-12">
+      <p>The following users are configured as your direct reports. Note that there may be additional users in your management chain as non-direct reports which is not reflected here. You may update any of your direct reports' allocations (% they are tasked to complete security reviews) or allocation coefficients (the number of reviews they would complete annually if tasked 100% to reviews). Any updates to allocations made by a manager must be confirmed by the user next time they log in.</p>
+      <p>A yellow warning allocation percentage indicates that the user has not confirmed an automatically set allocation for this month. A red error allocation percentage indicates the user has not set any allocation despite being marked as using allocation.</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-10">
+    <form action="/userDirectsDash" method="POST">
+      <%=csrf_tag%>
+      <table class="table table-striped">
+        <thead>
+          <th style="width:25%"><b>Name</b></th>
+          <th style="width:15%"><b>Use Allocation</b></th>
+          <th style="width:15%"><b>Alloc. Coeff.</b></th>
+          <th style="width:15%"><b>Allocation %</b></th>
+          <th style="width:15%"><b>This Month</b></th>
+          <th style="width:15%"><b>FYTD</b></th>
+        </thead>
+
+        <% @directs.each do |u| %>
+        <tr>
+          <td style="width:25%"><%=h(u[:name])%></td>
+          <td style="width:15%">
+            <input type="checkbox" name="useAlloc_<%=u.id%>" rel="switch" data-size="small" data-on-text="Yes" data-on-color="info" data-off-color="default" data-off-text="No" <% if u.useAllocation %> checked<% end %>>
+          </td>
+          <td style="width:15%">
+            <div class="input-group" style="width:85%;">
+              <input type="text" class="form-control input-sm" name="allocCoeff_<%=u.id%>" value="<%=u.allocCoeff%>">
+              <div class="input-group-addon input-sm">Reviews</div>
+            </div>
+          </td>
+          <td style="width:15%">
+            <% if u.allocation.nil? && u.useAllocation %>
+              <div class="input-group has-error" style="width:65%;" rel="tooltip" title="Not Set by User">
+                <input type="text" class="form-control input-sm" name="curAlloc_<%=u.id%>" placeholder="None Set">
+                <div class="input-group-addon input-sm">%</div>
+              </div>
+            <% elsif u.allocation.nil? && !u.useAllocation %>
+              <small><i>No Allocation</i></small>
+            <% else %>
+              <div class="input-group<% if u.allocation.wasAutoSet || u.allocation.wasMgrSet %> has-warning<%end%>" style="width:65%;" <% if u.allocation.wasAutoSet || u.allocation.wasMgrSet %>rel="tooltip" title="Auto Set / Not User Confirmed"<% end %>>
+                <input type="text" class="form-control input-sm" name="curAlloc_<%=u.id%>" value="<%=u.allocation.allocation%>">
+                <div class="input-group-addon input-sm">%</div>
+              </div>
+            <% end %>
+          </td>
+          <td style="width:15%"><%=@data[u.id][:uniqueAppsMonth]%> revs / <%=@data[u.id][:numTestsMonth]%> tests</td>
+          <td style="width:15%"><%=@data[u.id][:uniqueAppsFY]%> revs / <%=@data[u.id][:numTestsFY]%> tests</td>
+        </tr>
+        <% end %>
+      </table>
+      <center><button type="submit" class="btn btn-success" name="mgrAllocSave">Save Allocation Updates</button></center>
+    </form>
+  </div>
+  <div class="col-lg-1"></div>
+</div>
+
+<%= erb :footer_partial %>
