@@ -290,7 +290,7 @@ class Vulnreport < Sinatra::Base
 			while date < @enddate do
 				count = 0
 				@labels << date.strftime('%B, %Y')
-				Test.allWithFlags(@selectedFlags, :pending_at.not => nil, :complete => true, :closed_at => (date..date >> 1)).each do |t|
+				Test.allWithFlags(@selectedFlags, :pending_at.not => nil, :complete => true, :closed_at => (date.to_datetime.beginning_of_day..(date.end_of_month.to_datetime.end_of_day))).each do |t|
 					if(t.pending_pass != t.pass)
 						count += 1
 						@matches << t
@@ -535,7 +535,7 @@ class Vulnreport < Sinatra::Base
 				maxtest = nil
 				min = 0.0
 				mintest = nil
-				Test.allWithFlags(@selectedFlags, :complete => true, :closed_at => (date..(date >> 1).to_datetime.end_of_day), Test.application.record_type => @selectedRecordTypes).each do |t|
+				Test.allWithFlags(@selectedFlags, :complete => true, :closed_at => (date.to_datetime.beginning_of_day..(date.end_of_month.to_datetime.end_of_day)), Test.application.record_type => @selectedRecordTypes).each do |t|
 					testTimeDays = (t.closed_at - t.created_at).to_f
 
 					if(testTimeDays > max)
