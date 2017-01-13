@@ -2007,14 +2007,14 @@ class Vulnreport < Sinatra::Base
 	# Allocation Date Range #
 	#########################
 
-	get '/reports/alloc/forRange/:period/:interval/?' do
+	get '/reports/alloc/forRange/:period/:interval/:rt/?' do
 		@formsub = "/reports/alloc/forRange"
 		@intervals = ["Total"]
 
 		@int, @intString = parseInterval(params[:interval].downcase, @intervals, "total")
 		@startdate, @enddate, @periodString = parsePeriod(params[:period].downcase, nil, Date.today.prev_month.end_of_month.to_datetime.end_of_day)
 		@selectedFlags, @appTypeString = parseFlags(params[:flags])
-		@selectedRecordTypes = parseRt(params[:rt], [1,4])
+		@selectedRecordTypes = parseRt(params[:rt])
 
 		@data = Hash.new
 
@@ -2039,7 +2039,7 @@ class Vulnreport < Sinatra::Base
 		@data.keys.each do |uid|
 			testsThisReviewer = 0
 			appsThisReviewer = Array.new
-			Test.all(:reviewer => uid, :complete => true, :closed_at => (@startdate..@enddate)).each do |t|
+			Test.all(:reviewer => uid, :complete => true, :closed_at => (@startdate..@enddate), Test.application.record_type => @selectedRecordTypes).each do |t|
 				testsThisReviewer += 1
 				if(!appsThisReviewer.include?(t.application_id))
 					appsThisReviewer << t.application_id
@@ -2059,14 +2059,15 @@ class Vulnreport < Sinatra::Base
 
 	post '/reports/alloc/forRange/?' do
 		datestring = (params[:alldata]) ? "all" : form_datestring(params[:startdate], params[:enddate])
-		int = params[:interval]		
-		redirect "/reports/alloc/forRange/#{datestring}/#{int}"
+		int = params[:interval]
+		rtStr = form_rtstring(params[:recordTypes], params[:rtSelectAll])
+		redirect "/reports/alloc/forRange/#{datestring}/#{int}/#{rtStr}"
 	end
 
 	get '/reports/alloc/forRange/?' do
 		startdate = Date.today.beginning_of_month.strftime('%m-%d-%Y')
 		enddate = Date.today.end_of_month.strftime('%m-%d-%Y')
-		redirect "/reports/alloc/forRange/#{startdate}...#{enddate}/total"
+		redirect "/reports/alloc/forRange/#{startdate}...#{enddate}/total/all"
 	end
 
 	##########################
