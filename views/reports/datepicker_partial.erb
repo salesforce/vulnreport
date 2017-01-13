@@ -5,8 +5,8 @@
 <% showOrgOpt ||= false %>
 <% showVulnTypeOpts ||= false %>
 <% totalIsOption ||= false %>
-<% appRecordTypes ||= getAllowedRTObjsForUser(@session[:uid]) %>
-<% appFlags ||= Flag.all(:active => true) %>
+<% appRecordTypes ||= getAllowedRTObjsForUser(@session[:uid]).sort{|a, b| a.name <=> b.name} %>
+<% appFlags ||= Flag.all(:active => true).sort{|a, b| a.name <=> b.name} %>
 
 <style>
 	.datepickerOptContainer{
