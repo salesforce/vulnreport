@@ -143,7 +143,7 @@ class Vulnreport < Sinatra::Base
 						session[:geo] = GEO::USA
 						newUserRedir = true
 
-						logAudit(EVENT_TYPE::USER_LOGIN, LINK_TYPE::USER, user.id, {:type => 'sso', :ip => loginIp, :ua => request.user_agent}, user.id)
+						logAudit(EVENT_TYPE::USER_LOGIN, LINK_TYPE::USER, newuser.id, {:type => 'sso', :ip => loginIp, :ua => request.user_agent}, newuser.id)
 					else
 						Rollbar.error("Error creating new user from SSO", {:errors => newuser.errors.inspect, :sso_user => response.name_id})
 						session[:login_error] = "There was an error creating your Vulnreport account. Please contact your Vulnreport admin."
