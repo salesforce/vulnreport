@@ -30,10 +30,9 @@
 	var data = {
 		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
 		datasets : [{
-			name: 'Vuln Counts',
-			strokeColor : 'rgba(151,187,205,1)',
-			fillColor : 'rgba(151,187,205,0.8)',
-			pointStrokeColor: '#FFF',
+			label: 'Vuln Counts',
+			borderColor : 'rgba(151,187,205,1)',
+			backgroundColor : 'rgba(151,187,205,0.8)',
 			data : [<%=@counts.join(',')%>]
 		 }]
 	};
@@ -43,17 +42,23 @@
 	var steps = Math.min(max, maxSteps);
 	
 	var options = {
-		scaleGridLineColor : 'rgba(0,0,0,.15)',
-		scaleLineColor : 'rgba(0,0,0,.25)',
-		datasetStrokeWidth : 3,
-		scaleOverride: true,
-	    scaleSteps: steps,
-	    scaleStepWidth: Math.ceil(max / steps),
-	    scaleStartValue: 0
+		scales: {
+			yAxes: [{
+				ticks: {
+					beginAtZero: true,
+					maxTicksLimit: steps,
+					stepSize: Math.ceil(max / steps)
+				}
+			}]
+		}
 	};
 
 	var ctx = $('#graph').get(0).getContext('2d');
-	var trend = new Chart(ctx).Bar(data, options);
+	var trend = new Chart(ctx, {
+		type: 'bar',
+		data: data,
+		options: options
+	});
 </script>
 
 <div class="row" style="margin-top:-8px; margin-bottom:10px;">

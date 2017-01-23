@@ -1,4 +1,74 @@
-<%= erb :header_partial %>
+<div class="row" style="margin-top:10px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	<h4>Date Range Totals</h4>
+  	<b>Total Apps Tested: </b><%=@totalApps%>&nbsp;&nbsp;&nbsp;&nbsp;
+  	<b>Total Security Tests: </b><%=@totalTests%>&nbsp;&nbsp;&nbsp;&nbsp;
+  	<b>Passes: </b><%=@totalPasses%>&nbsp;&nbsp;&nbsp;&nbsp;
+  	<b>Fails: </b><%=@totalFails%>
+  </div>
+</div>
+
+<div class="row" style="margin-top:10px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	<h4>Test Resolutions over Time</h4>
+  	<canvas id='graph' width="1100px;" height="450px"></canvas>
+  </div>
+</div>
+
+<script type="text/javascript">
+	var data = {
+		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
+		datasets : [{
+			label: 'Passed Tests',
+			backgroundColor : 'rgba(151,187,205,1)',
+			borderColor : 'rgba(151,187,205,1)',
+			pointBackgroundColor : 'rgba(151,187,205,1)',
+			pointBorderColor: '#FFF',
+			fill: false,
+			lineTension: 0,
+			data : [<%=@passCounts.join(',')%>]
+		 },
+		 {
+			label: 'Failed Tests',
+			backgroundColor : 'rgba(247,70,74,1)',
+			borderColor : 'rgba(247,70,74,1)',
+			pointBackgroundColor : 'rgba(247,70,74,1)',
+			pointBorderColor: '#FFF',
+			fill: false,
+			lineTension: 0,
+			data : [<%=@failCounts.join(',')%>]
+		 },
+		 {
+			label: 'Total Unique Apps',
+			backgroundColor : 'rgba(253,180,92,1)',
+			borderColor : 'rgba(253,180,92,1)',
+			pointBackgroundColor : 'rgba(253,180,92,1)',
+			pointBorderColor: '#FFF',
+			fill: false,
+			lineTension: 0,
+			data : [<%=@appCounts.join(',')%>]
+		 }]
+	};
+
+	var options = {
+		scales: {
+			yAxes: [{
+				ticks: {
+					beginAtZero: true
+				}
+			}]
+		}
+	};
+
+	var ctx = $('#graph').get(0).getContext('2d');
+	var chart = new Chart(ctx, {
+		type: 'line',
+		data: data,
+		options: options
+	});
+</script>
+
+<%= erb :footer_partial %><%= erb :header_partial %>
 
 <div class="row">
   <div class="col-lg-12">
@@ -13,18 +83,20 @@
 
 <%= erb :"reports/datepicker_partial" %>
 
-<div class="row" style="margin-top:-8px; margin-bottom:10px;">
+<div class="row" style="margin-top:10px; margin-bottom:10px;">
   <div class="col-lg-12">
-  	<h4>Test Resolutions over Time</h4>
-  	<canvas id='graph' width="1100px;" height="450px"></canvas>
+  	<h4>Date Range Totals</h4>
+  	<b>Total Apps Tested: </b><%=@totalApps%>&nbsp;&nbsp;&nbsp;&nbsp;
+  	<b>Total Security Tests: </b><%=@totalTests%>&nbsp;&nbsp;&nbsp;&nbsp;
+  	<b>Passes: </b><%=@totalPasses%>&nbsp;&nbsp;&nbsp;&nbsp;
+  	<b>Fails: </b><%=@totalFails%>
   </div>
 </div>
 
-<div class="row" style="margin-top:0px; margin-bottom:10px;">
-  <div class="col-lg-12" style="text-align:center;">
-  	<span style="color:rgba(151,187,205,1);">Test Passes</span>
-  	<span style="color:#F7464A; margin-left:24px;">Test Fails</span>
-  	<span style="color:rgba(253,180,92,1);margin-left:24px;">Total Unique Apps</span>
+<div class="row" style="margin-top:10px; margin-bottom:10px;">
+  <div class="col-lg-12">
+  	<h4>Test Resolutions over Time</h4>
+  	<canvas id='graph' width="1100px;" height="450px"></canvas>
   </div>
 </div>
 
@@ -32,56 +104,53 @@
 	var data = {
 		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
 		datasets : [{
-			name: 'Passed Tests',
-			strokeColor : 'rgba(151,187,205,1)',
-			pointColor : 'rgba(151,187,205,1)',
-			pointStrokeColor: '#FFF',
+			label: 'Passed Tests',
+			backgroundColor : 'rgba(151,187,205,1)',
+			borderColor : 'rgba(151,187,205,1)',
+			pointBackgroundColor : 'rgba(151,187,205,1)',
+			pointBorderColor: '#FFF',
+			fill: false,
+			lineTension: 0,
 			data : [<%=@passCounts.join(',')%>]
 		 },
 		 {
-			name: 'Failed Tests',
-			strokeColor : 'rgba(247,70,74,1)',
-			pointColor : 'rgba(247,70,74,1)',
-			pointStrokeColor: '#FFF',
+			label: 'Failed Tests',
+			backgroundColor : 'rgba(247,70,74,1)',
+			borderColor : 'rgba(247,70,74,1)',
+			pointBackgroundColor : 'rgba(247,70,74,1)',
+			pointBorderColor: '#FFF',
+			fill: false,
+			lineTension: 0,
 			data : [<%=@failCounts.join(',')%>]
 		 },
 		 {
-			name: 'Total Unique Apps',
-			strokeColor : 'rgba(253,180,92,1)',
-			pointColor : 'rgba(253,180,92,1)',
-			pointStrokeColor: '#FFF',
+			label: 'Total Unique Apps',
+			backgroundColor : 'rgba(253,180,92,1)',
+			borderColor : 'rgba(253,180,92,1)',
+			pointBackgroundColor : 'rgba(253,180,92,1)',
+			pointBorderColor: '#FFF',
+			fill: false,
+			lineTension: 0,
 			data : [<%=@appCounts.join(',')%>]
 		 }]
 	};
 
-	var max = Math.max(<%=@passCounts.max%>,<%=@failCounts.max%>,<%=@appCounts.max%>);
-	var maxSteps = 25;
-	var steps = Math.min(max, maxSteps);
-	
 	var options = {
-		scaleGridLineColor : 'rgba(0,0,0,.15)',
-		scaleLineColor : 'rgba(0,0,0,.35)',
-		bezierCurve : false,
-		datasetFill : false,
-		datasetStrokeWidth : 3,
-		scaleOverride: true,
-	    scaleSteps: steps,
-	    scaleStepWidth: Math.ceil(max / steps),
-	    scaleStartValue: 0
-	};	
+		scales: {
+			yAxes: [{
+				ticks: {
+					beginAtZero: true
+				}
+			}]
+		}
+	};
 
 	var ctx = $('#graph').get(0).getContext('2d');
-	var chart = new Chart(ctx).Line(data, options);
+	var chart = new Chart(ctx, {
+		type: 'line',
+		data: data,
+		options: options
+	});
 </script>
-
-<div class="row" style="margin-top:10px; margin-bottom:10px;">
-  <div class="col-lg-12">
-  	<h4>Date Range Totals</h4>
-  	<b>Total Apps Tested: </b><%=@totalApps%><br />
-  	<b>Total Security Tests: </b><%=@totalTests%><br />
-  	&nbsp;&nbsp;&nbsp;<b>Passes: </b><%=@totalPasses%><br />
-  	&nbsp;&nbsp;&nbsp;<b>Fails: </b><%=@totalFails%>
-  </div>
-</div>
 
 <%= erb :footer_partial %>

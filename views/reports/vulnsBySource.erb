@@ -27,24 +27,26 @@
 </div>
 
 <script type="text/javascript">
-	var data = [
-				<% @data.keys.each do |idx| %>
-					{
-		                value : <%=@data[idx][:count]%>,
-		                color : "<%=@data[idx][:color]%>",
-		                label : "<%=@data[idx][:label]%>",
-		                labelFontSize : '16'
-	            	},
-            	<% end %>
-            	];
-	
+	var data = {
+		labels : [<%=@data.keys.map{|idx| "\"#{@data[idx][:label]}\""}.join(",") %>],
+		datasets : [
+		 {
+			data: [<%=@data.keys.map{|idx| @data[idx][:count]}.join(",") %>],
+			backgroundColor: [<%=@data.keys.map{|idx| "'#{@data[idx][:color]}'"}.join(",") %>]
+		 }]
+	};
+
 	var options = {
 		animationSteps: 100,
 		animationEasing: 'easeInOutQuart'
 	};
 
 	var ctx = $('#graph').get(0).getContext('2d');
-	var trend = new Chart(ctx).Pie(data, options);
+	var chart = new Chart(ctx, {
+		type: 'pie',
+		data: data,
+		options: options
+	});
 </script>
 
 <div class="row" style="margin-top:-8px; margin-bottom:10px;">

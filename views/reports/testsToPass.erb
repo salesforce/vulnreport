@@ -64,40 +64,42 @@
 		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
 		datasets : [
 		 {
-			name: 'Target',
-			strokeColor : 'rgba(181,0,0,.35)',
-			pointColor : 'rgba(181,0,0,0)',
-			pointStrokeColor: 'rgba(181,0,0,0)',
-			data : [<%=target.join(',')%>]
-		 },{
-			name: 'Tests to Pass',
-			strokeColor : 'rgba(151,187,205,1)',
-			pointColor : 'rgba(151,187,205,1)',
-			pointStrokeColor: '#FFF',
+			label: 'Tests to Pass',
+			backgroundColor : 'rgba(151,187,205,1)',
+			borderColor : 'rgba(151,187,205,1)',
+			pointBackgroundColor : 'rgba(151,187,205,1)',
+			pointBorderColor: '#FFF',
+			fill: false,
+			lineTension: 0,
 			data : [<%=@counts.join(',')%>]
-		 }]
+		 },{
+			label: 'Target',
+			backgroundColor : 'rgba(181,0,0,.35)',
+			borderColor : 'rgba(181,0,0,.35)',
+			pointBackgroundColor : 'rgba(181,0,0,0)',
+			pointBorderColor: 'rgba(181,0,0,0)',
+			fill: false,
+			lineTension: 0,
+			data : [<%=target.join(',')%>]
+		 },]
 	};
-
-	var max = Math.ceil(<%=@counts.max%>);
-	var maxSteps = 10;
-	var steps = Math.min(max+2, maxSteps);
-	//var steps = maxSteps;
 
 	var options = {
-		scaleGridLineColor : 'rgba(0,0,0,.15)',
-		scaleLineColor : 'rgba(0,0,0,.35)',
-		bezierCurve : false,
-		datasetFill : false,
-		datasetStrokeWidth : 3,
-		scaleOverride: true,
-	    scaleSteps: steps,
-	    scaleStepWidth: Math.ceil(max / steps),
-	    scaleStartValue: 0
-	};
-	
+		scales: {
+			yAxes: [{
+				ticks: {
+					beginAtZero: true
+				}
+			}]
+		}
+	};	
 
 	var ctx = $('#graph').get(0).getContext('2d');
-	var chart = new Chart(ctx).Line(data, options);
+	var chart = new Chart(ctx, {
+		type: 'line',
+		data: data,
+		options: options
+	});
 </script>
 
 <%= erb :footer_partial %>

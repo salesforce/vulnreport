@@ -37,42 +37,46 @@
 </div>
 
 <script type="text/javascript">
-	var data = {
-		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
-		datasets : [{
-      name: 'Allocation',
-      strokeColor : 'rgba(151,187,205,1)',
-      pointColor : 'rgba(151,187,205,1)',
-      pointStrokeColor: '#FFF',
+  var data = {
+    labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
+    datasets : [{
+      label: 'Allocation',
+      backgroundColor : 'rgba(151,187,205,1)',
+      borderColor : 'rgba(151,187,205,1)',
+      pointBackgroundColor : 'rgba(151,187,205,1)',
+      pointBorderColor: '#FFF',
+      fill: false,
+      lineTension: 0,
       data : [<%=@data_alloc.join(',')%>]
      },
      {
-      name: 'Actual',
-      strokeColor : 'rgba(247,70,74,1)',
-      pointColor : 'rgba(247,70,74,1)',
-      pointStrokeColor: '#FFF',
+      label: 'Actual',
+      backgroundColor : 'rgba(247,70,74,1)',
+      borderColor : 'rgba(247,70,74,1)',
+      pointBackgroundColor : 'rgba(247,70,74,1)',
+      pointBorderColor: '#FFF',
+      fill: false,
+      lineTension: 0,
       data : [<%=@data_actual.join(',')%>]
      }]
-	};
-	
-	var max = <%=[@data_alloc.max, @data_actual.max].max%>
-  var maxSteps = 25;
-  var steps = Math.min(max, maxSteps);
-	
-	var options = {
-    scaleGridLineColor : 'rgba(0,0,0,.15)',
-    scaleLineColor : 'rgba(0,0,0,.35)',
-    bezierCurve : false,
-    datasetFill : false,
-    datasetStrokeWidth : 3,
-    scaleOverride: true,
-    scaleSteps: steps,
-    scaleStepWidth: Math.ceil(max / steps),
-    scaleStartValue: 0
+  };
+  
+  var options = {
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    }
   };
 
-	var ctx = $('#graph').get(0).getContext('2d');
-	var testGraph = new Chart(ctx).Line(data, options);
+  var ctx = $('#graph').get(0).getContext('2d');
+  var chart = new Chart(ctx, {
+    type: 'line',
+    data: data,
+    options: options
+  });
 </script>
 
 <%= erb :footer_partial %>

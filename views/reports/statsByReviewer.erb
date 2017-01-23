@@ -16,8 +16,8 @@
 <div class="row" style="margin-top:-8px; margin-bottom:10px;">
   <div class="col-lg-12">
   	<h4>Reviewer Stats for <%=h(@reviewer.name)%></h4>
-  	<b>Tests Completed: </b><%=@totalTests%><br />
-    <b>Unique Apps: </b><%=@activeReviews.size + @pastReviews.size%><br />
+  	<b>Tests Completed: </b><%=@totalTests%>&nbsp;&nbsp;&nbsp;&nbsp;
+    <b>Unique Apps: </b><%=@activeReviews.size + @pastReviews.size%>&nbsp;&nbsp;&nbsp;&nbsp;
   	<b>Vulns Logged: </b><%=@totalVulns%>
   </div>
 </div>
@@ -38,76 +38,77 @@
 </div>
 
 <script type="text/javascript">
-	var testData = {
-		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
-		datasets : [{
-		 	name: 'Sum Tests Completed',
-			fillColor: 'rgba(230,230,230,0.75)',
-			pointColor: 'rgba(230,230,230,0.0)',
-			strokeColor: 'rgba(230,230,230,0.0)',
-			data : [<%=@testSum.join(',')%>]
-		 },{
-			name: 'Tests Completed',
-			strokeColor : 'rgba(151,187,205,1)',
-			pointColor : 'rgba(151,187,205,1)',
-			fillColor: 'rgba(151,187,205,0.0)',
-			pointStrokeColor: '#FFF',
-			data : [<%=@testCounts.join(',')%>]
-		 }]
-	};
+  var testData = {
+    labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
+    datasets : [{
+      label: 'Tests Completed',
+      backgroundColor : 'rgba(151,187,205,1)',
+      borderColor : 'rgba(151,187,205,1)',
+      pointBackgroundColor : 'rgba(151,187,205,1)',
+      pointBorderColor: '#FFF',
+      fill: false,
+      lineTension: 0,
+      data : [<%=@testCounts.join(',')%>]
+     },
+     {
+      label: 'Sum Tests Completed',
+      backgroundColor: 'rgba(230,230,230,0.75)',
+      borderColor: 'rgba(230,230,230,0.75)',
+      pointBackgroundColor: 'rgba(230,230,230,0.0)',
+      pointBorderColor: 'rgba(230,230,230,0.0)',
+      fill: true,
+      lineTension: 0,
+      data : [<%=@testSum.join(',')%>]
+     }]
+  };
 
-	var vulnData = {
-		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
-		datasets : [{
-		 	name: 'Sum Vulnerabilities Logged',
-			fillColor: 'rgba(230,230,230,0.75)',
-			pointColor: 'rgba(230,230,230,0.0)',
-			strokeColor: 'rgba(230,230,230,0.0)',
-			data : [<%=@vulnSum.join(',')%>]
-		 },{
-			name: 'Vulnerabilities Logged',
-			strokeColor : 'rgba(151,187,205,1)',
-			pointColor : 'rgba(151,187,205,1)',
-			fillColor: 'rgba(151,187,205,0.0)',
-			pointStrokeColor: '#FFF',
-			data : [<%=@vulnCounts.join(',')%>]
-		 }]
-	};
-	
-	var testMax = Math.ceil(<%=@testSum.max%>*1.15);
-	var vulnMax = Math.ceil(<%=@vulnSum.max%>*1.15);
-	var maxSteps = 20;
-	var testSteps = Math.min(testMax, maxSteps);
-	var vulnSteps = Math.min(vulnMax, maxSteps);
-	
-	var testOptions = {
-		scaleGridLineColor : 'rgba(0,0,0,.15)',
-		scaleLineColor : 'rgba(0,0,0,.35)',
-		bezierCurve : false,
-		datasetFill : true,
-		datasetStrokeWidth : 3,
-		scaleOverride: true,
-	  scaleSteps: testSteps,
-	  scaleStepWidth: Math.ceil(testMax / testSteps),
-	  scaleStartValue: 0
-	};
+  var vulnData = {
+    labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
+    datasets : [{
+      label: 'Vulnerabilities Logged',
+      backgroundColor : 'rgba(151,187,205,1)',
+      borderColor : 'rgba(151,187,205,1)',
+      pointBackgroundColor : 'rgba(151,187,205,1)',
+      pointBorderColor: '#FFF',
+      fill: false,
+      lineTension: 0,
+      data : [<%=@vulnCounts.join(',')%>]
+     },{
+      label: 'Sum Vulnerabilities Logged',
+      backgroundColor: 'rgba(230,230,230,0.75)',
+      borderColor: 'rgba(230,230,230,0.75)',
+      pointBackgroundColor: 'rgba(230,230,230,0.0)',
+      pointBorderColor: 'rgba(230,230,230,0.0)',
+      fill: true,
+      lineTension: 0,
+      data : [<%=@vulnSum.join(',')%>]
+     }]
+  };
 
-	var vulnOptions = {
-		scaleGridLineColor : 'rgba(0,0,0,.15)',
-		scaleLineColor : 'rgba(0,0,0,.35)',
-		bezierCurve : false,
-		datasetFill : true,
-		datasetStrokeWidth : 3,
-		scaleOverride: true,
-	  scaleSteps: vulnSteps,
-	  scaleStepWidth: Math.ceil(vulnMax / vulnSteps),
-	  scaleStartValue: 0
-	};
+  var options = {
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    }
+  };
 
-	var testCtx = $('#testGraph').get(0).getContext('2d');
-	var vulnCtx = $('#vulnGraph').get(0).getContext('2d');
-	var testGraph = new Chart(testCtx).Line(testData, testOptions);
-	var vulnGraph = new Chart(vulnCtx).Line(vulnData, vulnOptions);
+  var testCtx = $('#testGraph').get(0).getContext('2d');
+  var vulnCtx = $('#vulnGraph').get(0).getContext('2d');
+
+  var testChart = new Chart(testCtx, {
+    type: 'line',
+    data: testData,
+    options: options
+  });
+
+  var testChart = new Chart(vulnCtx, {
+    type: 'line',
+    data: vulnData,
+    options: options
+  });
 </script>
 
 <div class="row" style="margin-top:26px;">

@@ -47,25 +47,33 @@
 	var data = {
 		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
 		datasets : [{
-			name: 'Time to Pickup',
-			strokeColor : 'rgba(151,187,205,1)',
-			pointColor : 'rgba(151,187,205,1)',
-			pointStrokeColor: '#FFF',
+			label: 'Time to Pickup',
+			backgroundColor : 'rgba(151,187,205,1)',
+			borderColor : 'rgba(151,187,205,1)',
+			pointBackgroundColor : 'rgba(151,187,205,1)',
+			pointBorderColor: '#FFF',
+			fill: false,
+			lineTension: 0,
 			data : [<%=@counts.join(',')%>]
 		 }]
 	};
 
 	var options = {
-		scaleGridLineColor : 'rgba(0,0,0,.15)',
-		scaleLineColor : 'rgba(0,0,0,.35)',
-		bezierCurve : false,
-		datasetFill : false,
-		datasetStrokeWidth : 3,
+		scales: {
+			yAxes: [{
+				ticks: {
+					beginAtZero: true,
+				}
+			}]
+		}
 	};
-	
 
 	var ctx = $('#graph').get(0).getContext('2d');
-	var chart = new Chart(ctx).Line(data, options);
+	var chart = new Chart(ctx, {
+		type: 'line',
+		data: data,
+		options: options
+	});
 </script>
 
 <%= erb :footer_partial %>

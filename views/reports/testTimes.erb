@@ -28,31 +28,17 @@
   </div>
 </div>
 
-<div class="row" style="margin-top:20px; margin-bottom:10px;">
+<div class="row" style="margin-top:20px; margin-bottom:20px;">
   <div class="col-lg-12">
   	<h4>Test Times (Days)</h4>
   	<canvas id='TestTimes' width="1100px;" height="400px"></canvas>
   </div>
 </div>
 
-<div class="row" style="margin-top:0px; margin-bottom:10px;">
-  <div class="col-lg-12" style="text-align:center;">
-  	<span style="color:rgba(151,187,205,1);">Internal Test Times (Days)</span>
-  	<span style="color:#F7464A; margin-left:24px;">Contractor Total Test Times (Test + Approval) (Days)</span>
-  </div>
-</div>
-
-<div class="row" style="margin-top:20px; margin-bottom:10px;">
+<div class="row" style="margin-top:20px; margin-bottom:20px;">
   <div class="col-lg-12">
   	<h4>Contractor Test and Approval Times (Days)</h4>
   	<canvas id='ApprovalTimes' width="1100px;" height="400px"></canvas>
-  </div>
-</div>
-
-<div class="row" style="margin-top:0px; margin-bottom:10px;">
-  <div class="col-lg-12" style="text-align:center;">
-  	<span style="color:#F7464A; margin-left:24px;">Contractor Test Times (Days)</span>
-  	<span style="color:#FDB45C; margin-left:24px;">Approval Times (Days)</span>
   </div>
 </div>
 
@@ -60,17 +46,23 @@
 	var testData = {
 		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
 		datasets : [{
-			name: 'Internal Test Times',
-			strokeColor : 'rgba(151,187,205,1)',
-			pointColor : 'rgba(151,187,205,1)',
-			pointStrokeColor: '#FFF',
+			label: 'Internal Test Times',
+			borderColor : 'rgba(151,187,205,1)',
+			backgroundColor: 'rgba(151,187,205,1)',
+			pointBackgroundColor : 'rgba(151,187,205,1)',
+			pointBorderColor: '#FFF',
+			fill: false,
+			lineTension: 0,
 			data : [<%=@counts.join(',')%>]
 		 },
 		 {
-			name: 'Contractor Total Test Times',
-			strokeColor : 'rgba(247,70,74,1)',
-			pointColor : 'rgba(247,70,74,1)',
-			pointStrokeColor: '#FFF',
+			label: 'Contractor Total Test Times',
+			borderColor : 'rgba(247,70,74,1)',
+			backgroundColor : 'rgba(247,70,74,1)',
+			pointBackgroundColor : 'rgba(247,70,74,1)',
+			pointBorderColor: '#FFF',
+			fill: false,
+			lineTension: 0,
 			data : [<%=@conCounts.map.with_index{|x,i| x + @approvalCounts[i]}.join(',')%>]
 		 }]
 	};
@@ -78,34 +70,52 @@
 	var approvalData = {
 		labels : [<%=("\"" + @labels.join("\",\"") + "\"")%>],
 		datasets : [{
-			name: 'Contractor Test Times',
-			strokeColor : 'rgba(247,70,74,1)',
-			pointColor : 'rgba(247,70,74,1)',
-			pointStrokeColor: '#FFF',
+			label: 'Contractor Test Times',
+			borderColor : 'rgba(247,70,74,1)',
+			backgroundColor : 'rgba(247,70,74,1)',
+			pointBackgroundColor : 'rgba(247,70,74,1)',
+			pointBorderColor: '#FFF',
+			fill: false,
+			lineTension: 0,
 			data : [<%=@conCounts.join(',')%>]
 		 },
 		 {
-			name: 'Approval Times',
-			strokeColor : 'rgba(253,180,92,1)',
-			pointColor : 'rgba(253,180,92,1)',
-			pointStrokeColor: '#FFF',
+			label: 'Approval Times',
+			borderColor : 'rgba(253,180,92,1)',
+			backgroundColor : 'rgba(253,180,92,1)',
+			pointBackgroundColor : 'rgba(253,180,92,1)',
+			pointBorderColor: '#FFF',
+			fill: false,
+			lineTension: 0,
 			data : [<%=@approvalCounts.join(',')%>]
 		 }]
 	};
 
 	var options = {
-		scaleGridLineColor : 'rgba(0,0,0,.15)',
-		scaleLineColor : 'rgba(0,0,0,.35)',
-		bezierCurve : false,
-		datasetFill : false,
-		datasetStrokeWidth : 3,
+		scales: {
+			yAxes: [{
+				ticks: {
+					beginAtZero: true,
+				}
+			}]
+		}
 	};
 	
 
 	var testCtx = $('#TestTimes').get(0).getContext('2d');
 	var approvalCtx = $('#ApprovalTimes').get(0).getContext('2d');
-	var testChart = new Chart(testCtx).Line(testData, options);
-	var approvalChart = new Chart(approvalCtx).Line(approvalData, options);
+
+	var testChart = new Chart(testCtx, {
+		type: 'line',
+		data: testData,
+		options: options
+	});
+
+	var approvalChart = new Chart(approvalCtx, {
+		type: 'line',
+		data: approvalData,
+		options: options
+	});
 </script>
 
 <%= erb :footer_partial %>
