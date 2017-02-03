@@ -1967,11 +1967,13 @@ class Vulnreport < Sinatra::Base
 		@users.each do |u|
 			a = MonthlyAllocation.allocationForUser(u.id, month=@startDate.month, year=@startDate.year)
 			if a.nil?
+				allocCoeff = 0
 				a = 0
 				allocNil = true
 				autoSet = false
 			else
 				autoSet = a.wasAutoSet
+				allocCoeff = a.coeff
 				a = a.allocation
 				allocNil = false
 			end
@@ -1988,7 +1990,8 @@ class Vulnreport < Sinatra::Base
 				end
 			end
 
-			@data[u.id] = {:allocNil => allocNil, :auto => autoSet, :allocPct => allocPct, :allocApps => allocApps, :apps => appsThisReviewer, :numTests => testsThisReviewer}
+
+			@data[u.id] = {:allocNil => allocNil, :auto => autoSet, :allocPct => allocPct, :allocCoeff => allocCoeff, :allocApps => allocApps, :apps => appsThisReviewer, :numTests => testsThisReviewer}
 			@totalReviewsActual += appsThisReviewer.length
 			@totalTestsActual += testsThisReviewer
 		end
@@ -2024,7 +2027,7 @@ class Vulnreport < Sinatra::Base
 				u = User.get(ma.uid)
 				next if(u.nil?)
 
-				allocApps = (((u.allocCoeff.to_f)/12.0)*((ma.allocation.to_f)/100.0)).round
+				allocApps = (((ma.coeff.to_f)/12.0)*((ma.allocation.to_f)/100.0)).round
 
 				if(@data[ma.uid].nil?)					
 					@data[ma.uid] = {:name => u.name, :allocApps => allocApps, :uniqueApps => 0, :numTests => 0}
@@ -2074,19 +2077,21 @@ class Vulnreport < Sinatra::Base
 	# Historical Allocation  #
 	##########################
 
+	##########################
+	# Historical Allocation  #
+	##########################
+
 	get '/reports/alloc/userHistorical/:period/:interval/?' do
 		@formsub = "/reports/alloc/userHistorical"
-		@intervals = ["Month", "Quarter", "Year"]
+		@intervals = ["Month", "Quarter"]
 		
 		@int, @intString = parseInterval(params[:interval].downcase, @intervals)
 		@startdate, @enddate, @periodString = parsePeriod(params[:period].downcase)
 		
-		@datasets_pct = Hash.new
 		@datasets_rev = Hash.new
 		@datasets_rev["All"] = Array.new
 
 		User.all(:useAllocation => true).each do |u|
-			@datasets_pct[u.name] = Array.new
 			@datasets_rev[u.name] = Array.new
 		end
 
@@ -2101,14 +2106,15 @@ class Vulnreport < Sinatra::Base
 				User.all(:useAllocation => true).each do |u|
 					alloc = MonthlyAllocation.allocationForUser(u.id, date.month, date.year)
 					if(alloc.nil?)
-						alloc = 0 
+						coeff = 0
+						alloc = 0
 					else
+						coeff = alloc.coeff
 						alloc = alloc.allocation
 					end
 
-					@datasets_pct[u.name] << alloc
-					@datasets_rev[u.name] << (((u.allocCoeff.to_f)/12.0)*(alloc.to_f/100.0)).round
-					allcount += (((u.allocCoeff.to_f)/12.0)*(alloc.to_f/100.0))
+					@datasets_rev[u.name] << (((coeff.to_f)/12.0)*(alloc.to_f/100.0)).round
+					allcount += (((coeff.to_f)/12.0)*(alloc.to_f/100.0))
 				end
 
 				@datasets_rev["All"] << allcount.round
@@ -2126,62 +2132,24 @@ class Vulnreport < Sinatra::Base
 					alloc = 0
 					curDate = first
 					while(curDate.month <= last.month)
-						thisAlloc = MonthlyAllocation.allocationForUser(u.id, date.month, date.year)
+						thisAlloc = MonthlyAllocation.allocationForUser(u.id, curDate.month, curDate.year)
 						if(thisAlloc.nil?)
 							alloc += 0 
 						else
-							alloc += thisAlloc
+							alloc += (((thisAlloc.coeff.to_f)/12.0)*(thisAlloc.allocation.to_f/100.0)).round
 						end
 
-						curDate >> 1
+						curDate = curDate >> 1
 					end
 
-					alloc = (alloc/3).round(1)
-
-					@datasets_pct[u.name] << alloc
-					@datasets_rev[u.name] << (((u.allocCoeff.to_f)/12.0)*(alloc.to_f/100.0)).round
-					allcount += (((u.allocCoeff.to_f)/12.0)*(alloc.to_f/100.0))
+					@datasets_rev[u.name] << alloc
+					allcount += alloc
 				end
 
-				@datasets_rev["All"] << allcount.round
+				@datasets_rev["All"] << allcount
 				
 				first = startOfQuarter(first >> 3)
 				last = (endOfQuarter(first) > @enddate) ? @enddate : endOfQuarter(first)
-			end
-		elsif(@int == "year")
-			first = @startdate.to_date
-			last = Date.new(first.year, 12, 31)
-			last = @enddate if @enddate < last
-			while first < @enddate do
-				@labels << first.strftime('%Y')
-				allcount = 0
-				
-				User.all(:useAllocation => true).each do |u|
-					alloc = 0
-					curDate = first
-					while(curDate.month <= last.month)
-						thisAlloc = MonthlyAllocation.allocationForUser(u.id, date.month, date.year)
-						if(thisAlloc.nil?)
-							alloc += 0 
-						else
-							alloc += thisAlloc
-						end
-
-						curDate >> 1
-					end
-
-					alloc = (alloc/3).round(1)
-
-					@datasets_pct[u.name] << alloc
-					@datasets_rev[u.name] << (((u.allocCoeff.to_f)/12.0)*(alloc.to_f/100.0)).round
-					allcount += (((u.allocCoeff.to_f)/12.0)*(alloc.to_f/100.0))
-				end
-
-				@datasets_rev["All"] << allcount.round
-				
-				first = Date.new((first.year+1), 1, 1)
-				last = Date.new(first.year, 12, 31)
-				last = @enddate.to_date if @enddate < last
 			end
 		end
 
@@ -2256,11 +2224,13 @@ class Vulnreport < Sinatra::Base
 					@users.each do |u|
 						a = MonthlyAllocation.allocationForUser(u.id, date.month, date.year)
 						if a.nil?
+							coeff = 0
 							a = 0
 						else
+							coeff = a.coeff
 							a = a.allocation
 						end
-						totalReviewsAllocated += (((u.allocCoeff.to_f)/12.0)*(a.to_f/100.0)).round
+						totalReviewsAllocated += (((coeff.to_f)/12.0)*(a.to_f/100.0)).round
 
 						testsThisReviewer = 0
 						appsThisReviewer = Array.new
@@ -2277,13 +2247,15 @@ class Vulnreport < Sinatra::Base
 				else
 					alloc = MonthlyAllocation.allocationForUser(rid, date.month, date.year)
 					if alloc.nil?
+						coeff = 0
 						alloc = 0
 					else
+						coeff = alloc.coeff
 						alloc = alloc.allocation
 					end
 
 					allocPct = alloc
-					allocApps = (((@reviewer.allocCoeff.to_f)/12.0)*(alloc.to_f/100.0)).round
+					allocApps = (((coeff.to_f)/12.0)*(alloc.to_f/100.0)).round
 
 					thisTests = 0
 					thisApps = Array.new

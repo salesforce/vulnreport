@@ -1011,7 +1011,7 @@ class Vulnreport < Sinatra::Base
 			@user.defaultGeo = newGeo unless newGeo == 0
 
 			newAlloc = params[:userAlloc].to_i
-			userAlloc = MonthlyAllocation.setAllocationForUser(@user.id, newAlloc)
+			userAlloc = MonthlyAllocation.setAllocationForUser(@user, newAlloc)
 			
 			@alloc = userAlloc.allocation
 			@dashConfigs = DashConfig.all(:active => true)
@@ -1096,15 +1096,17 @@ class Vulnreport < Sinatra::Base
 		userAlloc = MonthlyAllocation.allocationForUser(@user.id, month=@date.month, year=@date.year)
 		if(userAlloc.nil?)
 			@alloc = 0
+			@coeff = @user.allocCoeff
 			@allocNil = true
 			@autoSet = false
 		else
 			@alloc = userAlloc.allocation
+			@coeff = userAlloc.coeff
 			@autoSet = userAlloc.wasAutoSet
 			@allocNil = false
 		end
 
-		@allocApps = (((@user.allocCoeff.to_f)/12.0)*(@alloc.to_f/100.0)).round
+		@allocApps = (((@coeff.to_f)/12.0)*(@alloc.to_f/100.0)).round
 
 		@numTests = 0
 		@appsTouched = Array.new
@@ -1200,7 +1202,7 @@ class Vulnreport < Sinatra::Base
 		erb :userdash
 	end
 
-	get "/userDirectsDash/?" do
+	post "/userDirectsDash/?" do
 		@directs = User.all(:manager_id => @session[:uid])
 
 		if(!isManager? || @directs.nil?)
@@ -1208,40 +1210,41 @@ class Vulnreport < Sinatra::Base
 			return erb :error
 		end
 
-		@data = Hash.new
 		@directs.each do |u|
-			@data[u.id] = Hash.new
-			monthStartDate = Date.today.at_beginning_of_month
-			monthEndDate = monthStartDate >> 1
-			fyStartDate = Date.new((fy(Date.today).to_i)-1, 2, 1)
-			fyEndDate = Date.new((fy(Date.today).to_i), 1, 31)
+			newUseAlloc = (!params[:"useAlloc_#{u.id}"].nil?)
+			newAllocCoeff = params[:"allocCoeff_#{u.id}"].to_i
+			if(newAllocCoeff <= 0)
+				newAllocCoeff = getSetting('ALLOC_DEFAULT')
+				newAllocCoeff = newAllocCoeff.nil? ? User.allocCoeff.default : newAllocCoeff.to_i
+			end
+			newAllocPct = params[:"curAlloc_#{u.id}"].to_i
 
-			testsThisReviewer = 0
-			appsThisReviewer = Array.new
-			Test.all(:reviewer => u.id, :complete => true, :closed_at => (monthStartDate..monthEndDate)).each do |t|
-				testsThisReviewer += 1
-				if(!appsThisReviewer.include?(t.application_id))
-					appsThisReviewer << t.application_id
-				end
+			u.useAllocation = newUseAlloc
+			if(!newUseAlloc && !u.allocation.nil?)
+				ma = MonthlyAllocation.allocationForUser(u.id)
+				ma.destroy
 			end
 
-			@data[u.id][:uniqueAppsMonth] = appsThisReviewer.size
-			@data[u.id][:numTestsMonth] = testsThisReviewer
+			u.allocCoeff = newAllocCoeff
+			u.save
 
-			testsThisReviewer = 0
-			appsThisReviewer = Array.new
-			Test.all(:reviewer => u.id, :complete => true, :closed_at => (fyStartDate..fyEndDate)).each do |t|
-				testsThisReviewer += 1
-				if(!appsThisReviewer.include?(t.application_id))
-					appsThisReviewer << t.application_id
+			if(u.useAllocation && !u.allocation.nil?)
+				ma = MonthlyAllocation.allocationForUser(u.id)
+				if(ma.allocation != newAllocPct)
+					ma.allocation = newAllocPct
+					ma.coeff = newAllocCoeff
+					ma.wasMgrSet = true
+					ma.wasAutoSet = false
+					ma.save
 				end
+			elsif(u.useAllocation && u.allocation.nil? && !params[:"curAlloc_#{u.id}"].nil?)
+				ma = MonthlyAllocation.setAllocationForUser(u, newAllocPct)
+				ma.wasMgrSet = true
+				ma.save
 			end
-
-			@data[u.id][:uniqueAppsFY] = appsThisReviewer.size
-			@data[u.id][:numTestsFY] = testsThisReviewer
 		end
 
-		erb :user_directs_dash
+		redirect "/userDirectsDash"
 	end
 
 	post "/userDirectsDash/?" do
@@ -1277,7 +1280,7 @@ class Vulnreport < Sinatra::Base
 				ma.wasAutoSet = false
 				ma.save
 			elsif(u.useAllocation && u.allocation.nil? && !params[:"curAlloc_#{u.id}"].nil?)
-				ma = MonthlyAllocation.setAllocationForUser(u.id, newAllocPct)
+				ma = MonthlyAllocation.setAllocationForUser(u, newAllocPct)
 				ma.wasMgrSet = true
 				ma.save
 			end

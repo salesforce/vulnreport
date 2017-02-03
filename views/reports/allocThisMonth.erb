@@ -12,51 +12,56 @@
 </div><!-- /.row -->
 
 <div class="row" style="margin-top:-8px; margin-bottom:10px;">
-  <div class="col-lg-12">
+  <div class="col-lg-1"></div>
+  <div class="col-lg-10">
     <% prevDate = @startDate << 1 %>
     <% nextDate = @startDate >> 1 %>
-  	<div style="width:60%; text-align:center;">
+    <div style="width:100%; text-align:center;">
       <a href="/reports/alloc/<%=prevDate.month%>/<%=prevDate.year%>"><i class="fa fa-chevron-left" style="margin-right:10px; cursor:pointer;"></i></a> 
       Allocations for the month of <b><%=@startDate.strftime('%B %Y')%></b> 
       <a href="/reports/alloc/<%=nextDate.month%>/<%=nextDate.year%>"><i class="fa fa-chevron-right" style="margin-left:10px; cursor:pointer;"></i></a>
     </div>
 
-  	<% if @users.size > 0 %>
-	  	<table class="table table-striped tablesorter" style="table-layout:fixed;width:60%;margin-top:16px;margin-bottom:0px;">
-			<thead><tr>
-				<th style="width:40%"><b>Reviewer</b> <i class="fa fa-sort"></i></th>
-				<th style="width:10%"><b>Auto</b> <i class="fa fa-sort"></i></th>
-        <th style="width:25%"><b>Allocation</b> <i class="fa fa-sort"></i></th>
-        <th style="width:25%"><b>Apps to Date</b> <i class="fa fa-sort"></i></th>
-			</tr></thead>
+    <% if @users.size > 0 %>
+      <table class="table table-striped tablesorter" style="table-layout:fixed;width:100%;margin-top:16px;margin-bottom:0px;">
+      <thead><tr>
+        <th style="width:30%"><b>Reviewer</b> <i class="fa fa-sort"></i></th>
+        <th style="width:10%"><b>Auto</b> <i class="fa fa-sort"></i></th>
+        <th style="width:20%"><b>Allocation</b> <i class="fa fa-sort"></i></th>
+        <th style="width:20%"><b>Coefficient</b> <i class="fa fa-sort"></i></th>
+        <th style="width:20%"><b>Apps to Date</b> <i class="fa fa-sort"></i></th>
+      </tr></thead>
 
-			<% @users.each do |u| %>
-				<tr>
-					<td style="width:40%"><%=u.name%></td>
+      <% @users.each do |u| %>
+        <tr>
+          <td style="width:30%"><%=u.name%></td>
           <td style="width:10%"><% if !@data[u.id][:allocNil] && @data[u.id][:auto] %><i class="fa fa-check"></i><%end%></td>
-					<td style="width:25%">
+          <td style="width:20%">
             <% if @data[u.id][:allocNil] %>
               0% <small><i>&nbsp;&nbsp;(none set)</i></small>
             <%else%>
               <%=@data[u.id][:allocPct]%>% (<%=@data[u.id][:allocApps].round%> apps)
             <%end%>
           </td>
-          <td style="width:25%"><%=@data[u.id][:apps].length%> apps / <%=@data[u.id][:numTests]%> tests</td>
-				</tr>
-			<% end %>
-    </table>
-    <table class="table table-striped" style="table-layout:fixed;width:60%;margin-top:0px;">
-      <tr>
-        <td style="width:40%;border-top:1px solid #888;"><b><i>TOTAL</i></b></td>
-          <td style="width:10%;border-top:1px solid #888;"></td>
-          <td style="width:25%;border-top:1px solid #888;"><b><i><%=@totalReviewsAllocated%> apps</i></b></td>
-          <td style="width:25%;border-top:1px solid #888;"><b><i><%=@totalReviewsActual%> apps / <%=@totalTestsActual%> tests</i></b></td>
+          <td style="width:20%"><%=@data[u.id][:allocCoeff]%> reviews/yr</td>
+          <td style="width:20%"><%=@data[u.id][:apps].length%> apps / <%=@data[u.id][:numTests]%> tests</td>
         </tr>
-	    </table>
-	<% else %>
-		<br /><br />Report returned no results
-	<% end %>
+      <% end %>
+    </table>
+    <table class="table table-striped" style="table-layout:fixed;width:100%;margin-top:0px;">
+      <tr>
+        <td style="width:30%;border-top:1px solid #888;"><b><i>TOTAL</i></b></td>
+        <td style="width:10%;border-top:1px solid #888;"></td>
+        <td style="width:20%;border-top:1px solid #888;"><b><i><%=@totalReviewsAllocated%> apps</i></b></td>
+        <td style="width:20%;border-top:1px solid #888;"><b><i></i></b></td>
+        <td style="width:20%;border-top:1px solid #888;"><b><i><%=@totalReviewsActual%> apps / <%=@totalTestsActual%> tests</i></b></td>
+      </tr>
+    </table>
+  <% else %>
+    <br /><br />Report returned no results
+  <% end %>
   </div>
+  <div class="col-lg-1"></div>
 </div>
 
 <%= erb :footer_partial %>
