@@ -316,7 +316,7 @@
 							<div class="sectBody"><%=vulnPriorityToString(vv.vuln_priority, @test.record_type)%></div>
 						<% end %>
 
-						<% vv.sections.sort{|x,y| x.listOrder <=> y.listOrder }.each do |sec| %>
+						<% vv.visible_sections.sort{|x,y| x.listOrder <=> y.listOrder }.each do |sec| %>
 							<%=sec.html_formatted%>
 						<% end %>
 					</div>

@@ -1509,11 +1509,10 @@ class Vulnreport < Sinatra::Base
 		end
 
 		if(!confirm)
-			redirect "/tests/#{redirTest.id}/#{redirVuln.id}"
 			if(params[:ajax])
 				return 500
 			end
-			return
+			redirect "/tests/#{redirTest.id}/#{redirVuln.id}"
 		else
 			@sect.destroy!
 			if(params[:ajax])
@@ -1539,6 +1538,20 @@ class Vulnreport < Sinatra::Base
 		@sect.save
 
 		redirect "/tests/#{redirTest.id}/#{redirVuln.id}"
+	end
+
+	post '/tests/:tid/:vid/:sid/toggleVis/?' do
+		sect = Section.get(params[:sid])
+		if(sect.nil?)
+			return 404
+		end
+
+		sect.show = !sect.show
+		if(sect.save)
+			return {:visible => sect.show}.to_json
+		else
+			return 500
+		end
 	end
 
 	get '/tests/doClipboard/test/:tid/?' do

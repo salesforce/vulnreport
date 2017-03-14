@@ -123,6 +123,28 @@
       }
     }
 
+    function toggleSectionExportVisibility(sid, vid, tid){
+      $.post("/tests/"+tid+"/"+vid+"/"+sid+"/toggleVis", 
+                { _csrf: "<%=csrf_token%>"},
+                function(data){
+                  var respData = JSON.parse(data);
+                  if(respData.visible){
+                    $("#sec_"+sid+"_vis_icon").css("color", "#333333");
+                    $("#sec_"+sid+"_vis_icon").removeClass("fa-eye-slash");
+                    $("#sec_"+sid+"_vis_icon").addClass("fa-eye");
+                    $("#sec_"+sid+"_vis_icon").attr('title', "Section currently visible on exported reports").tooltip('fixTitle');
+                  }else{
+                    $("#sec_"+sid+"_vis_icon").css("color", "#a94442");
+                    $("#sec_"+sid+"_vis_icon").removeClass("fa-eye");
+                    $("#sec_"+sid+"_vis_icon").addClass("fa-eye-slash");
+                    $("#sec_"+sid+"_vis_icon").attr('title', "Section currently hidden on exported reports").tooltip('fixTitle');
+                  }
+                }
+              ).fail(function(){
+                alert("Error toggling section visibility");
+              });
+    }
+
     function checkSecSubmit(form){
       var dataElem = $(form).find('input[type=text],input[type=file],textarea').first();
       var data = $.trim(dataElem.val());
@@ -381,6 +403,11 @@
                   &nbsp;<i class="fa fa-pencil" style="cursor:pointer;" id="secEditIcon_<%=s.id%>" onclick="makeSectionEdit(<%=s.id%>, <%=@vuln.id%>, <%=@test.id%>, '<%=s.edit_size%>')"></i>
                 <% end %>
                 &nbsp;<i class="fa fa-trash-o" style="cursor:pointer;" onclick="deleteSection(<%=s.id%>, <%=@vuln.id%>, <%=@test.id%>)"></i></a>
+                <% if s.show %>
+                  &nbsp;<i class="fa fa-eye" id="sec_<%=s.id%>_vis_icon" rel="tooltip" title="Section currently visible on exported reports" style="cursor:pointer;" onclick="toggleSectionExportVisibility(<%=s.id%>, <%=@vuln.id%>, <%=@test.id%>)"></i></a>
+                <% else %>
+                  &nbsp;<i class="fa fa-eye-slash" id="sec_<%=s.id%>_vis_icon" rel="tooltip" title="Section currently hidden on exported reports"  style="cursor:pointer; color:#a94442" onclick="toggleSectionExportVisibility(<%=s.id%>, <%=@vuln.id%>, <%=@test.id%>)"></i></a>
+                <% end %>
               </h4>
               <div style="margin-left:20px;" id="section_body_<%=s.id%>" class="section_body_data">
                 <% if s.type == SECT_TYPE::SSHOT %>

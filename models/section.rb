@@ -17,7 +17,7 @@ class Section
 	property :fname,				String 							#@return [String] Original filename for SSHOT or PAYLOAD
 	property :created_at, 			DateTime						#@return [DateTime] Date/Time Section created (DM Handled)
 	property :updated_at, 			DateTime						#@return [DateTime] Date/Time Section last updated (DM Handled)
-	property :show, 				Boolean, :default => true 		#@deprecated @return [Boolean] True if section should be shown
+	property :show, 				Boolean, :default => true 		#@return [Boolean] True if section should be shown on exported reports. If false, only visibile in Vulnreport test view.
 	property :listOrder,			Integer, :default => 0			#@return [Integer] Order in which to display (relative to other Sections on same {Vulnerability})
 
 	belongs_to :vulnerability 										#@return [Vulnerability] Vulnerability that this Section belongs to
