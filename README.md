@@ -15,7 +15,7 @@ Vulnreport can be installed on a local VM or server behind something like nginx,
 
 ### Local Deploy / Your own server
 
-To deploy locally, you'll need to make sure you have installed the dependancies:
+To deploy locally, you'll need to make sure you have installed the dependencies:
 * Ruby >= 2.1
 * PostgreSQL
 * Redis

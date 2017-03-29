@@ -133,7 +133,7 @@ class Salesforce
 	##
 	# Perform a specified SOQL query against a specified Salesforce org and return the results (if successful) or error/fault
 	# codes if the query was unsuccessful. If the query failed, log the exception and stack to Rollbar for later diagnostics.
-	# Note that this funciton handles only "simple" SOQL queries. Long queries requiring the use of the queryLocator and queryMore
+	# Note that this function handles only "simple" SOQL queries. Long queries requiring the use of the queryLocator and queryMore
 	# will be handled on a one-off basis in their individual methods to more properly handle the use cases.
 	# @param org [String] Org to query against
 	# @param soql [String] Raw SOQL query
