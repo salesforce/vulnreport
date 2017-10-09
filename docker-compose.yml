@@ -1,0 +1,27 @@
+postgres:
+  image: postgres:9.3
+  environment:
+    POSTGRES_USER: vulnreport_user
+    POSTGRES_PASSWORD: default_password
+    POSTGRES_DB: vulnreport
+  ports:
+    - '5432:5432'
+  volumes:
+    - vulnreport-postgres:/var/lib/postgresql/data
+
+redis:
+  image: redis:3.0.5
+  ports:
+    - '6379:6379'
+  volumes:
+    - vulnreport-redis:/var/lib/redis/data
+
+vulnreport:
+  build: .
+  links:
+    - postgres
+    - redis
+  volumes:
+    - .:/vulnreport
+  ports:
+    - '8080:8080'

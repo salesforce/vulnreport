@@ -1,0 +1,5 @@
+.dockerignore
+docker-compose.yml
+Dockerfile
+Gemfile.lock
+vulnreport.jar

@@ -11,7 +11,7 @@ gem "chronic", '~> 0.10.2'
 gem "savon", '~> 2.11.1'
 gem "rubyzip", '~> 1.2.0'
 gem "nokogiri", '~> 1.6.7.2'
-gem "activesupport"
+gem "activesupport", '~>4.2.6'
 gem "redis", '~> 3.3.0'
 gem "json", '~> 1.8.3'
 gem "rack_csrf", '~> 2.5.0'
