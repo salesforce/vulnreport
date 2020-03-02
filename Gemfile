@@ -6,7 +6,7 @@ gem "sinatra", '~> 1.4.6'
 gem "thin", '~> 1.6.4'
 gem "data_mapper", '~> 1.2.0'
 gem "dm-postgres-adapter", '~> 1.2.0'
-gem "ruby-saml", "~> 1.0.0"
+gem "ruby-saml", "~> 1.7.0"
 gem "chronic", '~> 0.10.2'
 gem "savon", '~> 2.11.1'
 gem "rubyzip", '~> 1.2.0'
