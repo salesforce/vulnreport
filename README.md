@@ -1,3 +1,9 @@
+# Abandoned Project
+## This project is not currently maintained and has been abandoned. 
+
+
+
+
 # Vulnreport
 ### Pentesting management and automation platform
 
@@ -5,7 +11,6 @@ Vulnreport is a platform for managing penetration tests and generating well-form
 
 Vulnreport was built by the Salesforce Product Security team as a way to get rid of the time we spent writing, formatting, and proofing reports for penetration tests. Our goal was and continues to be to build great security tools that let pentesters and security engineers focus on finding and fixing vulns.
 
-For full documentation, see <http://vulnreport.io/documentation>
 
 ## Deployment
 
