@@ -9,7 +9,7 @@ gem "dm-postgres-adapter", '~> 1.2.0'
 gem "ruby-saml", "~> 1.0.0"
 gem "chronic", '~> 0.10.2'
 gem "savon", '~> 2.11.1'
-gem "rubyzip", '~> 1.2.0'
+gem "rubyzip", '~> 1.3.0'
 gem "nokogiri", '~> 1.6.7.2'
 gem "activesupport"
 gem "redis", '~> 3.3.0'
