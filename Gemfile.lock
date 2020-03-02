@@ -146,7 +146,7 @@ GEM
       nokogiri (>= 1.4.2)
     wkhtmltopdf-heroku (2.12.3.0)
     xml-simple (1.1.5)
-    yard (0.8.7.6)
+    yard (0.9.20)
     yard-dm (0.1.1)
     yard-sinatra (1.0.0)
       yard (~> 0.7)
@@ -181,6 +181,6 @@ DEPENDENCIES
   thin (~> 1.6.4)
   wkhtmltopdf-heroku
   xml-simple (~> 1.1.5)
-  yard (= 0.8.7.6)
+  yard (= 0.9.20)
   yard-dm (= 0.1.1)
   yard-sinatra (= 1.0.0)
